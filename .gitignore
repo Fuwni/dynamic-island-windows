@@ -1,0 +1,19 @@
+# build output
+bin/
+obj/
+publish/
+dist/
+artifacts/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store

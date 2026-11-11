@@ -1,0 +1,156 @@
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using DynamicIsland.Services;
+
+namespace DynamicIsland;
+
+/// <summary>
+/// "--snapshot &lt;folder&gt;": renders every tab on made-up demo data to transparent PNGs (for the README).
+/// Nothing of the user's (music, clipboard, notes, settings) is shown or saved.
+/// </summary>
+public partial class MainWindow
+{
+    private MediaSnapshot? _demoMedia;
+
+    private static readonly Lyrics DemoLyrics = new(
+    [
+        new LyricLine(TimeSpan.FromSeconds(60), "Город спит, а мы опять не спим"),
+        new LyricLine(TimeSpan.FromSeconds(66), "Свет фонарей рисует наши тени"),
+        new LyricLine(TimeSpan.FromSeconds(72), "Этой ночью всё неважно, кроме нас"),
+        new LyricLine(TimeSpan.FromSeconds(80), "И музыка, что тихо в окна льётся"),
+        new LyricLine(TimeSpan.FromSeconds(86), "Пусть утро подождёт ещё немного"),
+    ], true);
+
+    private void BeginDemo()
+    {
+        Settings.ReadOnly = true;
+        _settings.Hidden = false;
+        _settings.DarkTheme = true;
+        _settings.LiquidWaves = false;
+        _settings.City = "London";
+        _settings.Reminders =
+        [
+            new Reminder { Title = "Созвон с командой", When = DateTime.Today.AddHours(DateTime.Now.Hour + 1).AddMinutes(30) },
+            new Reminder { Title = "Забрать посылку", When = DateTime.Today.AddDays(1).AddHours(18) },
+            new Reminder { Title = "Тренировка", When = DateTime.Today.AddDays(2).AddHours(9) },
+        ];
+        NotesStore.Notes.Clear();
+        NotesStore.Notes.AddRange(
+        [
+            new Note { Text = "Идея: тёмная тема для сайта + плавные переходы", Created = DateTime.Now.AddMinutes(-20) },
+            new Note { Text = "Купить: молоко, кофе, батарейки AA", Created = DateTime.Now.AddHours(-3) },
+            new Note { Text = "Перезвонить в сервис насчёт ноутбука", Created = DateTime.Now.AddDays(-1) },
+        ]);
+        _clips.Clear();
+        _clips.AddRange(
+        [
+            new ClipItem("https://github.com/", null, null, DateTime.Now.AddMinutes(-1)),
+            new ClipItem("Встречаемся в 19:00 у входа в парк", null, null, DateTime.Now.AddMinutes(-6)),
+            new ClipItem("dotnet publish -c Release -r win-x64", null, null, DateTime.Now.AddMinutes(-15)),
+        ]);
+        Theme.Apply(true, "#000000");
+        _demoMedia = new MediaSnapshot("Ночной город", "Demo Artist", "Spotify", "Spotify", DemoArt(), true,
+            TimeSpan.FromSeconds(73), DateTimeOffset.Now, TimeSpan.FromSeconds(214));
+    }
+
+    private static BitmapImage DemoArt()
+    {
+        var dv = new DrawingVisual();
+        using (var dc = dv.RenderOpen())
+        {
+            var bg = new LinearGradientBrush(Color.FromRgb(0xFF, 0x5E, 0x8A), Color.FromRgb(0x5E, 0x5C, 0xE6), 45);
+            dc.DrawRectangle(bg, null, new Rect(0, 0, 200, 200));
+            dc.DrawEllipse(new SolidColorBrush(Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF)), null, new Point(130, 70), 46, 46);
+            dc.DrawEllipse(new SolidColorBrush(Color.FromArgb(0x33, 0x00, 0x00, 0x00)), null, new Point(60, 150), 70, 70);
+        }
+        var rtb = new RenderTargetBitmap(200, 200, 96, 96, PixelFormats.Pbgra32);
+        rtb.Render(dv);
+        var enc = new PngBitmapEncoder();
+        enc.Frames.Add(BitmapFrame.Create(rtb));
+        var ms = new MemoryStream();
+        enc.Save(ms);
+        ms.Position = 0;
+        var img = new BitmapImage();
+        img.BeginInit();
+        img.CacheOption = BitmapCacheOption.OnLoad;
+        img.StreamSource = ms;
+        img.EndInit();
+        img.Freeze();
+        return img;
+    }
+
+    private async Task RunSnapshotsAsync(string folder)
+    {
+        Directory.CreateDirectory(folder);
+        Island.IsHitTestVisible = false; // the real mouse must not open / move it while shooting
+        _settings.ExpandOnHover = false;
+        await Task.Delay(6000); // weather + layout
+        UpdateMediaUi();
+
+        // compact: music playing
+        SetMode(Mode.Compact);
+        await Task.Delay(1200);
+        Snap(folder, "compact-music");
+
+        // compact: a timer live activity
+        _timer.SetKind(TimerKind.Timer);
+        _timer.SetDuration(TimeSpan.FromMinutes(25));
+        _timer.Start();
+        await Task.Delay(2500);
+        Snap(folder, "compact-timer");
+        _timer.Reset();
+
+        // toast
+        ShowToast("", "Загрузка завершена", "presentation.pdf", null, (Brush)FindResource("AccentBlue"), ms: 60000);
+        await Task.Delay(1200);
+        Snap(folder, "toast");
+
+        _pinnedOpen = true;
+        var tabs = new (RadioButton Tab, string Name)[]
+        {
+            (TabHome, "home"), (TabMusic, "music"), (TabWeather, "weather"), (TabTimer, "timer"),
+            (TabClip, "clipboard"), (TabNotes, "notes"), (TabCalendar, "calendar"), (TabSystem, "system"), (TabSettings, "settings"),
+        };
+        foreach (var (tab, name) in tabs)
+        {
+            tab.IsChecked = true;
+            if (_mode != Mode.Expanded) Expand();
+            if (tab == TabTimer) { _timer.SetKind(TimerKind.Pomodoro); _timer.Start(); RenderTimer(); }
+            await Task.Delay(name == "system" ? 10000 : 1600); // perf counters need a few seconds
+            Snap(folder, name);
+            if (tab == TabTimer) { _timer.Reset(); _timer.SetKind(TimerKind.Timer); }
+        }
+        Application.Current.Shutdown();
+    }
+
+    /// <summary>Renders the island (with its shadow) at 2× to a transparent PNG.</summary>
+    private void Snap(string folder, string name)
+    {
+        // freeze the morph at its final size so nothing is cut off
+        _w.Snap(_w.Target);
+        _h.Snap(_h.Target);
+        _y.Snap(0);
+        Island.Width = _w.Value;
+        Island.Height = _h.Value;
+        UpdateLayout();
+        UpdateShape(false);
+        UpdateLayout();
+        const double scale = 2;
+        var rtb = new RenderTargetBitmap((int)(Root.ActualWidth * scale), (int)(Root.ActualHeight * scale),
+            96 * scale, 96 * scale, PixelFormats.Pbgra32);
+        rtb.Render(Root);
+
+        var bounds = Island.TransformToAncestor(Root).TransformBounds(new Rect(Island.RenderSize));
+        bounds = new Rect(bounds.X - 28, Math.Max(0, bounds.Y - 6), bounds.Width + 56, bounds.Height + 6 + 40);
+        bounds.Intersect(new Rect(0, 0, Root.ActualWidth, Root.ActualHeight));
+        var px = new Int32Rect((int)(bounds.X * scale), (int)(bounds.Y * scale), (int)(bounds.Width * scale), (int)(bounds.Height * scale));
+
+        var enc = new PngBitmapEncoder();
+        enc.Frames.Add(BitmapFrame.Create(new CroppedBitmap(rtb, px)));
+        using var fs = File.Create(Path.Combine(folder, name + ".png"));
+        enc.Save(fs);
+    }
+}

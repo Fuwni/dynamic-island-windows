@@ -1,0 +1,94 @@
+<Window x:Class="DynamicIsland.Views.ScreenshotEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Скриншот — Dynamic Island"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Topmost="True"
+        FontFamily="Segoe UI Variable Text, Segoe UI" Foreground="{DynamicResource Fg}"
+        SizeToContent="WidthAndHeight">
+
+  <Border Margin="20" CornerRadius="26" Background="{DynamicResource IslandBg}"
+          BorderBrush="{DynamicResource TileStroke}" BorderThickness="1" Padding="12">
+    <Border.Effect>
+      <DropShadowEffect BlurRadius="30" ShadowDepth="4" Opacity="0.45"/>
+    </Border.Effect>
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- toolbar (also the drag handle) -->
+      <Grid Background="Transparent" MouseLeftButtonDown="Toolbar_MouseLeftButtonDown" Margin="2,0,2,10">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Button Style="{StaticResource Swatch}" Background="#FF453A" Tag="#FF453A" Click="Color_Click" ToolTip="Красный"/>
+          <Button Style="{StaticResource Swatch}" Background="#FFD60A" Tag="#FFD60A" Click="Color_Click" ToolTip="Жёлтый"/>
+          <Button Style="{StaticResource Swatch}" Background="#30D158" Tag="#30D158" Click="Color_Click" ToolTip="Зелёный"/>
+          <Button Style="{StaticResource Swatch}" Background="#0A84FF" Tag="#0A84FF" Click="Color_Click" ToolTip="Синий"/>
+          <Button Style="{StaticResource Swatch}" Background="#FFFFFF" Tag="#FFFFFF" Click="Color_Click" ToolTip="Белый"/>
+          <Border Width="1" Height="20" Background="{DynamicResource TileStroke}" Margin="4,0,8,0"/>
+          <Button x:Name="PenButton" Style="{StaticResource IconButton}" Content="&#xE76D;" Click="Pen_Click" ToolTip="Ручка"/>
+          <Button x:Name="MarkerButton" Style="{StaticResource IconButton}" Content="&#xE7E6;" Click="Marker_Click" ToolTip="Маркер"/>
+          <Button x:Name="EraserButton" Style="{StaticResource IconButton}" Content="&#xE75C;" Click="Eraser_Click" ToolTip="Ластик"/>
+          <Button Style="{StaticResource IconButton}" Content="&#xE7A7;" Click="Undo_Click" ToolTip="Отменить (Ctrl+Z)"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <Button Style="{StaticResource Pill}" Click="Ocr_Click" Margin="0,0,6,0">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="&#xE8D2;" FontFamily="{StaticResource IconFont}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+              <TextBlock Text="Текст"/>
+            </StackPanel>
+          </Button>
+          <Button Style="{StaticResource Pill}" Click="Translate_Click" Margin="0,0,6,0">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="&#xE774;" FontFamily="{StaticResource IconFont}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+              <TextBlock Text="Перевести"/>
+            </StackPanel>
+          </Button>
+          <Button Style="{StaticResource Pill}" Click="Qr_Click" Margin="0,0,10,0">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="&#xED14;" FontFamily="{StaticResource IconFont}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+              <TextBlock Text="QR"/>
+            </StackPanel>
+          </Button>
+          <Button Style="{StaticResource IconButton}" Content="&#xE8C8;" Click="Copy_Click" ToolTip="Копировать (Ctrl+C)"/>
+          <Button Style="{StaticResource IconButton}" Content="&#xE74E;" Click="Save_Click" ToolTip="Сохранить (Ctrl+S)"/>
+          <Button Style="{StaticResource IconButton}" Content="&#xE711;" Click="Close_Click" ToolTip="Закрыть (Esc)"/>
+        </StackPanel>
+      </Grid>
+
+      <!-- picture + ink -->
+      <Border Grid.Row="1" CornerRadius="16" ClipToBounds="True" x:Name="CanvasHost">
+        <Viewbox x:Name="Zoom" Stretch="Uniform">
+          <Grid x:Name="Surface">
+            <Image x:Name="Picture" Stretch="Fill"/>
+            <InkCanvas x:Name="Ink" Background="Transparent" Cursor="Pen"/>
+          </Grid>
+        </Viewbox>
+      </Border>
+
+      <!-- OCR / translation / QR result -->
+      <Border x:Name="ResultPanel" Grid.Row="2" Style="{StaticResource Tile}" Margin="0,10,0,0" Visibility="Collapsed">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <DockPanel>
+            <TextBlock x:Name="ResultTitle" Style="{StaticResource Caption}" Text="ТЕКСТ" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+              <Button x:Name="OpenLinkButton" Style="{StaticResource Pill}" Content="Открыть ссылку" Margin="0,0,6,0"
+                      Visibility="Collapsed" Click="OpenLink_Click"/>
+              <Button Style="{StaticResource Pill}" Content="Копировать" Click="CopyText_Click"/>
+            </StackPanel>
+          </DockPanel>
+          <TextBox x:Name="ResultText" Grid.Row="1" Margin="0,8,0,0" IsReadOnly="True" TextWrapping="Wrap"
+                   MaxHeight="150" VerticalScrollBarVisibility="Auto" Background="Transparent" BorderThickness="0"
+                   Foreground="{DynamicResource Fg}" FontSize="13"/>
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>
