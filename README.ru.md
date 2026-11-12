@@ -12,9 +12,9 @@
 
 [English](README.md) · **Русский**
 
-🎬 **[Видео-обзор за полторы минуты](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/download/v1.2.0/dynamic-island-review-ru.mp4)** · 🌍 7 языков интерфейса
+🎬 **[Видео-обзор за полторы минуты](https://github.com/Fuwni/dynamic-island-windows/releases/download/v1.2.0/dynamic-island-review-ru.mp4)** · 🌍 7 языков интерфейса
 
-[![Скачать](https://img.shields.io/github/v/release/mykolaichechelnytskyi/dynamic-island-windows?label=%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C&style=for-the-badge&color=30D158)](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/latest)
+[![Скачать](https://img.shields.io/github/v/release/Fuwni/dynamic-island-windows?label=%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C&style=for-the-badge&color=30D158)](https://github.com/Fuwni/dynamic-island-windows/releases/latest)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0A84FF?style=for-the-badge&logo=windows)
 ![.NET 10](https://img.shields.io/badge/.NET-10-5E5CE6?style=for-the-badge&logo=dotnet)
 [![Лицензия MIT](https://img.shields.io/badge/license-MIT-8E8E93?style=for-the-badge)](LICENSE)
@@ -115,7 +115,7 @@
 
 Права администратора не нужны.
 
-1. Откройте **[Releases](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/latest)** и скачайте `DynamicIsland-…-win-x64.zip`.
+1. Откройте **[Releases](https://github.com/Fuwni/dynamic-island-windows/releases/latest)** и скачайте `DynamicIsland-…-win-x64.zip`.
 2. Распакуйте в удобную папку, например вставьте в адресную строку проводника:
    ```
    %LOCALAPPDATA%\Programs\DynamicIsland
@@ -247,7 +247,7 @@
 Нужен [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
 ```bash
-git clone https://github.com/mykolaichechelnytskyi/dynamic-island-windows.git
+git clone https://github.com/Fuwni/dynamic-island-windows.git
 cd dynamic-island-windows
 dotnet run -c Release
 ```

@@ -119,7 +119,7 @@ public partial class MainWindow
         bg.Children.Add(frame);
         var link = new TextBlock
         {
-            Text = "github.com/mykolaichechelnytskyi/dynamic-island-windows", FontSize = 28, FontFamily = new FontFamily("Segoe UI"),
+            Text = "github.com/Fuwni/dynamic-island-windows", FontSize = 28, FontFamily = new FontFamily("Segoe UI"),
             Foreground = new SolidColorBrush(Color.FromRgb(0x8A, 0x8A, 0x9A)), Width = PW, TextAlignment = TextAlignment.Center,
         };
         Canvas.SetTop(link, PromoStage.Bottom + 34);

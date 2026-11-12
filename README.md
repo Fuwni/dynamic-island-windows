@@ -12,7 +12,7 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 **English** · [Русский](README.ru.md)
 
-[![Download](https://img.shields.io/github/v/release/mykolaichechelnytskyi/dynamic-island-windows?label=Download&style=for-the-badge&color=30D158)](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/latest)
+[![Download](https://img.shields.io/github/v/release/Fuwni/dynamic-island-windows?label=Download&style=for-the-badge&color=30D158)](https://github.com/Fuwni/dynamic-island-windows/releases/latest)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0A84FF?style=for-the-badge&logo=windows)
 ![.NET 10](https://img.shields.io/badge/.NET-10-5E5CE6?style=for-the-badge&logo=dotnet)
 [![MIT License](https://img.shields.io/badge/license-MIT-8E8E93?style=for-the-badge)](LICENSE)
@@ -22,7 +22,7 @@ notes, a calendar, notifications and a little character that lives in the pill �
 > 🌍 **7 languages:** English, Русский, Українська, Español, Deutsch, Português, 中文 — picked automatically from Windows,
 > or in Settings → Behavior → Language.
 >
-> 🎬 **[Watch the 1.5-minute video tour](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/download/v1.2.0/dynamic-island-review-ru.mp4)** (Russian voice-over).
+> 🎬 **[Watch the 1.5-minute video tour](https://github.com/Fuwni/dynamic-island-windows/releases/download/v1.2.0/dynamic-island-review-ru.mp4)** (Russian voice-over).
 
 ---
 
@@ -117,7 +117,7 @@ drag the island anywhere or **flick it up** to hide it; it hides itself in games
 <a id="install"></a>
 ## Install (2 minutes, no admin rights)
 
-1. Open **[Releases](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/latest)** and download `DynamicIsland-…-win-x64.zip`.
+1. Open **[Releases](https://github.com/Fuwni/dynamic-island-windows/releases/latest)** and download `DynamicIsland-…-win-x64.zip`.
 2. Unzip it into a folder of your choice, for example paste this into the Explorer address bar:
    ```
    %LOCALAPPDATA%\Programs\DynamicIsland
@@ -250,7 +250,7 @@ Nothing can be drawn over *exclusive* fullscreen games; switch the game to borde
 You need the [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
 ```bash
-git clone https://github.com/mykolaichechelnytskyi/dynamic-island-windows.git
+git clone https://github.com/Fuwni/dynamic-island-windows.git
 cd dynamic-island-windows
 dotnet run -c Release
 ```

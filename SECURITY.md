@@ -3,7 +3,7 @@
 ## Reporting a problem
 
 Please **don't open a public issue** for a security problem. Use GitHub's
-**[private vulnerability report](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/security/advisories/new)**
+**[private vulnerability report](https://github.com/Fuwni/dynamic-island-windows/security/advisories/new)**
 (Security tab → *Report a vulnerability*). Describe what you found and how to reproduce it; you'll get an answer as soon as possible.
 
 Пожалуйста, не публикуйте уязвимости в открытых issue — используйте приватный отчёт по ссылке выше.

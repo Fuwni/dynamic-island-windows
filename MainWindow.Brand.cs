@@ -155,7 +155,7 @@ public partial class MainWindow
                     BrandArt.DrawIcon(dc, new Rect(540 - size / 2, 470 - size / 2, size, size), 0, t is > 2.0 and < 2.16 ? Math.Sin(Math.PI * (t - 2.0) / 0.16) : 0, Math.Sin(t * 2) * 0.8);
                 BrandText(dc, "Скачай бесплатно", 92, Brushes.White, 1180, EaseOut((t - 0.5) / 0.45), (1 - EaseOut((t - 0.5) / 0.45)) * 50, FontWeights.Bold);
                 BrandText(dc, "ссылка в профиле", 54, orange, 1295, EaseOut((t - 0.8) / 0.45), (1 - EaseOut((t - 0.8) / 0.45)) * 40, FontWeights.SemiBold);
-                BrandText(dc, "github.com/mykolaichechelnytskyi/dynamic-island-windows", 30, gray, 1385, EaseOut((t - 1.1) / 0.45), 0, null, "Segoe UI");
+                BrandText(dc, "github.com/Fuwni/dynamic-island-windows", 30, gray, 1385, EaseOut((t - 1.1) / 0.45), 0, null, "Segoe UI");
                 double up = EaseOut((t - 1.7) / 0.5);
                 BrandText(dc, "Проект будет обновляться", 46, soft, 1530, up, (1 - up) * 30, FontWeights.SemiBold);
                 // three dots that keep "loading" the next update
