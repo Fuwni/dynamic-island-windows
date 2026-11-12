@@ -11,6 +11,23 @@ namespace DynamicIsland;
 /// <summary>Home tab: quick actions (screenshots, OCR, QR, colour picker, clean text, recording, command).</summary>
 public partial class MainWindow
 {
+    // colour of each action's icon chip (iOS Control Centre style)
+    private static readonly Dictionary<string, (string Top, string Bottom)> ActionColors = new()
+    {
+        ["region"] = ("#3A9BFF", "#0A6CE0"), ["full"] = ("#7B79F7", "#4B49C9"), ["ocr"] = ("#FFB340", "#F08A00"),
+        ["qr"] = ("#4AE06F", "#22B348"), ["picker"] = ("#FF5C7F", "#E0264F"), ["cleantext"] = ("#6FDBFF", "#2BA6D6"),
+        ["record"] = ("#FF6B61", "#E0352B"), ["command"] = ("#A0A0A8", "#6C6C74"),
+    };
+
+    private static Brush ChipBrush(string id)
+    {
+        var (top, bottom) = ActionColors.GetValueOrDefault(id, ("#3A9BFF", "#0A6CE0"));
+        var b = new LinearGradientBrush(
+            (Color)ColorConverter.ConvertFromString(top), (Color)ColorConverter.ConvertFromString(bottom), 90);
+        b.Freeze();
+        return b;
+    }
+
     public static readonly (string Id, string Glyph, string Label)[] AllActions =
     [
         ("region", "", "Область"),
@@ -28,19 +45,52 @@ public partial class MainWindow
 
     private void InitHome() => BuildHome();
 
+    // three big ones get a wide tile, the rest are round buttons - like Control Centre
+    private static readonly HashSet<string> WideActions = ["region", "full", "ocr"];
+
+    private static Brush TintBrush(string hex, byte alpha = 0x2E)
+    {
+        var c = (Color)ColorConverter.ConvertFromString(hex);
+        var b = new SolidColorBrush(Color.FromArgb(alpha, c.R, c.G, c.B));
+        b.Freeze();
+        return b;
+    }
+
+    private static Brush TintText(string hex)
+    {
+        var b = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+        b.Freeze();
+        return b;
+    }
+
     private void BuildHome()
     {
         ActionsGrid.Children.Clear();
-        foreach (var (id, glyph, label) in AllActions.Where(a => _settings.Actions.Contains(a.Id)))
+        var chosen = AllActions.Where(a => _settings.Actions.Contains(a.Id)).ToList();
+        var wide = chosen.Where(a => WideActions.Contains(a.Id)).ToList();
+        var round = chosen.Where(a => !WideActions.Contains(a.Id)).ToList();
+        double wideWidth = wide.Count == 0 ? 0 : Math.Floor((568 - 8.0 * wide.Count) / wide.Count);
+        double roundWidth = round.Count == 0 ? 0 : Math.Floor(Math.Min(113, 566.0 / Math.Max(5, round.Count)));
+
+        foreach (var (id, glyph, label) in wide.Concat(round))
         {
             bool rec = id == "record" && _recording.IsRecording;
+            var (top, _) = ActionColors.GetValueOrDefault(id, ("#3A9BFF", "#0A6CE0"));
             var b = new Button
             {
-                Style = (Style)FindResource("ActionTile"),
-                Tag = rec ? "" : glyph,
-                Content = rec ? "Остановить" : label,
+                Style = (Style)FindResource(WideActions.Contains(id) ? "WideAction" : "RoundAction"),
+                Tag = rec ? "\uE71A" : glyph,
+                Content = rec ? "Стоп" : label,
+                Width = WideActions.Contains(id) ? wideWidth : roundWidth,
             };
-            if (rec) b.Foreground = (Brush)FindResource("Danger");
+            if (WideActions.Contains(id)) b.Background = ChipBrush(id);
+            else
+            {
+                // round: coloured line icon on a quiet circle; recording fills it red
+                b.Foreground = TintText(top);
+                b.Background = rec ? TintBrush("#FF453A", 0xFF) : TintBrush(top, 0x22);
+                if (rec) b.Foreground = Brushes.White;
+            }
             b.Click += (_, _) => RunAction(id);
             ActionsGrid.Children.Add(b);
         }
@@ -168,9 +218,9 @@ public partial class MainWindow
             return;
         }
         Clipboard.SetText(text);
-        bool link = Uri.TryCreate(text, UriKind.Absolute, out var u) && u.Scheme.StartsWith("http");
+        bool link = Services.SafeShell.IsWebUrl(text);
         ShowToast("", link ? "Ссылка из QR — нажмите, чтобы открыть" : "QR-код скопирован", text,
-            link ? () => Process.Start(new ProcessStartInfo(text) { UseShellExecute = true }) : null, ms: 4500);
+            link ? () => Services.SafeShell.OpenUrl(text) : null, ms: 4500);
     }
 
     private async Task PickColorAsync()

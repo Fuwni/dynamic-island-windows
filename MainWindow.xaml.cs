@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -14,17 +14,18 @@ namespace DynamicIsland;
 /// <summary>Core: island states, spring morph, floating drag / swipe-to-hide, fullscreen hiding, hotkeys, tray, toasts.</summary>
 public partial class MainWindow : Window
 {
-    private enum Mode { Compact, Expanded, Toast, Claude, Drop }
+    private enum Mode { Compact, Expanded, Toast, Claude, Drop, Command }
 
-    private const double IslandTopMargin = 8;
+    /// <summary>Floating pill keeps a small gap; docked it grows straight out of the screen edge.</summary>
+    private double IslandTopMargin => _settings.Docked ? 0 : 8;
     private const double CompactHeight = 36;
 
     private readonly Settings _settings = Settings.Current;
     private readonly Random _rng = new();
 
     // size morph: slightly underdamped = soft liquid overshoot
-    private readonly Spring _w = new(200) { Stiffness = 260, Damping = 21 };
-    private readonly Spring _h = new(CompactHeight) { Stiffness = 260, Damping = 21 };
+    private readonly Spring _w = new(200) { Stiffness = 340, Damping = 31 };
+    private readonly Spring _h = new(CompactHeight) { Stiffness = 340, Damping = 31 };
     private readonly Spring _y = new(0) { Stiffness = 300, Damping = 24 };
     private bool _rendering;
     private TimeSpan _lastFrame;
@@ -35,10 +36,10 @@ public partial class MainWindow : Window
     private bool _pinnedOpen;      // --expand (screenshots / debugging)
 
     private readonly DispatcherTimer _tick = new() { Interval = TimeSpan.FromMilliseconds(250) };
-    private readonly DispatcherTimer _gaze = new() { Interval = TimeSpan.FromMilliseconds(40) };
+    private readonly DispatcherTimer _gaze = new() { Interval = TimeSpan.FromMilliseconds(33) };
     private readonly DispatcherTimer _blink = new();
-    private readonly DispatcherTimer _expandDelay = new() { Interval = TimeSpan.FromMilliseconds(160) };
-    private readonly DispatcherTimer _collapseDelay = new() { Interval = TimeSpan.FromMilliseconds(420) };
+    private readonly DispatcherTimer _expandDelay = new() { Interval = TimeSpan.FromMilliseconds(100) };
+    private readonly DispatcherTimer _collapseDelay = new() { Interval = TimeSpan.FromMilliseconds(300) };
     private readonly DispatcherTimer _toastTimer = new();
     private readonly DispatcherTimer _watch = new() { Interval = TimeSpan.FromMilliseconds(600) };
     private int _tickCount;
@@ -63,9 +64,12 @@ public partial class MainWindow : Window
         Deactivated += (_, _) =>
         {
             if (_mode == Mode.Expanded && !Island.IsMouseOver) _collapseDelay.Start();
+            if (_mode == Mode.Command) CloseCommandBar();
         };
         Loaded += async (_, _) => await OnLoadedAsync(args);
         Closing += (_, _) => Shutdown();
+        // Windows is shutting down / the user signs out: close properly instead of being killed
+        Application.Current.SessionEnding += (_, _) => { if (!_shutDown) Close(); };
     }
 
     private async Task OnLoadedAsync(string[] args)
@@ -73,9 +77,12 @@ public partial class MainWindow : Window
         int snap = Array.IndexOf(args, "--snapshot");
         if (snap >= 0) BeginDemo();
         ApplyThemeLocal();
+        Character.Kind = _settings.Character;
+        InitGlass();
         UpdateShape(false);
         InitHome();
         InitSettingsPage();
+        InitBuddyReactions();
         InitClaude();
         InitRecording();
         InitExtras();
@@ -140,11 +147,18 @@ public partial class MainWindow : Window
         Native.SetWindowLong(_hwnd, Native.GWL_EXSTYLE, Native.GetWindowLong(_hwnd, Native.GWL_EXSTYLE) | Native.WS_EX_TOOLWINDOW);
 
         HwndSource.FromHwnd(_hwnd)!.AddHook(WndProc);
+        // the frosted glass photographs the screen behind the island: without this the island would
+        // photograph itself (the glass turned opaque a second after opening). Also keeps it out of screenshots.
+        ApplyCaptureExclusion();
         Native.AddClipboardFormatListener(_hwnd);
         uint mods = Native.MOD_CONTROL | Native.MOD_ALT | Native.MOD_NOREPEAT;
         foreach (var (id, vk, name) in new[] { (1, 0x49u, "I"), (2, 0x54u, "T"), (3, 0x53u, "S"), (4, 0x52u, "R") })
             if (!Native.RegisterHotKey(_hwnd, id, mods, vk))
                 Log.Write($"Ctrl+Alt+{name} is taken by another program");
+        // command bar: Alt+Space, and Ctrl+Alt+Space in case another launcher already owns Alt+Space
+        if (!Native.RegisterHotKey(_hwnd, 5, Native.MOD_ALT | Native.MOD_NOREPEAT, 0x20))
+            Log.Write("Alt+Space is taken by another program (use Ctrl+Alt+Space)");
+        Native.RegisterHotKey(_hwnd, 6, mods, 0x20);
     }
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -162,16 +176,23 @@ public partial class MainWindow : Window
                 case 2: ToggleTheme(); break;
                 case 3: RunAction("region"); break;
                 case 4: RunAction("record"); break;
+                case 5 or 6: ToggleCommandBar(); break;
             }
             handled = true;
         }
         return IntPtr.Zero;
     }
 
+    private bool _shutDown;
+
     private void Shutdown()
     {
-        for (int id = 1; id <= 4; id++) Native.UnregisterHotKey(_hwnd, id);
+        if (_shutDown) return;
+        _shutDown = true;
+        for (int id = 1; id <= 6; id++) Native.UnregisterHotKey(_hwnd, id);
         Native.RemoveClipboardFormatListener(_hwnd);
+        ShutdownChat();
+        _settings.Save();
         FocusMode.End(); // never leave Windows notifications switched off
         if (_tray != null) { _tray.Visible = false; _tray.Dispose(); }
         if (_recording.IsRecording) _recording.Stop();
@@ -187,6 +208,17 @@ public partial class MainWindow : Window
         double top = _settings.Top ?? 0;
         MoveWindow(cx - Width / 2, top);
         ClampPosition();
+        ApplyDock(animate: false);
+    }
+
+    /// <summary>Switch between the floating pill and the notch attached to the top edge.</summary>
+    private void ApplyDock(bool animate)
+    {
+        Island.Margin = new Thickness(0, IslandTopMargin, 0, 0);
+        if (_settings.Docked && !_hidden) MoveWindow(Left, MonitorTop());
+        if (Island.ActualWidth > 0) Island_SizeChanged(this, null!);
+        UpdateShape(false);
+        if (animate && _mode != Mode.Compact) MorphTo(TargetSize(_mode));
     }
 
     /// <summary>Jump the window (no floating) and keep the position springs in sync.</summary>
@@ -260,7 +292,8 @@ public partial class MainWindow : Window
     private void MorphTo(Size size)
     {
         // calm mode: near-critical damping, the size glides without bouncing
-        _w.Damping = _h.Damping = Liquid ? 21 : 31;
+        _w.Damping = _h.Damping = Liquid ? 23 : _settings.Bouncy ? 25 : 31;   // "springy": a small overshoot
+        _w.Stiffness = _h.Stiffness = _settings.FastAnimations ? 560 : 340;
         _w.Target = size.Width;
         _h.Target = size.Height;
         StartRendering();
@@ -269,7 +302,10 @@ public partial class MainWindow : Window
     private void Island_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         double r = Radius(Island.ActualHeight);
-        IslandContent.Clip = new RectangleGeometry(new Rect(0, 0, Island.ActualWidth, Island.ActualHeight), r, r);
+        // docked: square at the top (flush with the screen edge), round only at the bottom
+        IslandContent.Clip = _settings.Docked
+            ? new RectangleGeometry(new Rect(0, -r, Island.ActualWidth, Island.ActualHeight + r), r, r)
+            : new RectangleGeometry(new Rect(0, 0, Island.ActualWidth, Island.ActualHeight), r, r);
         if (!_rendering) UpdateShape(false);
     }
 
@@ -318,6 +354,11 @@ public partial class MainWindow : Window
                 ClaudeView.Measure(new Size(ClaudeView.Width, double.PositiveInfinity));
                 return new Size(ClaudeView.Width + 32, ClaudeView.DesiredSize.Height + 30);
             }
+            case Mode.Command:
+            {
+                CommandView.Measure(new Size(CommandView.Width, double.PositiveInfinity));
+                return new Size(CommandView.Width + 32, CommandView.DesiredSize.Height + 26);
+            }
             case Mode.Drop:
             {
                 DropView.Measure(new Size(DropView.Width, double.PositiveInfinity));
@@ -346,6 +387,7 @@ public partial class MainWindow : Window
             [Mode.Toast] = ToastView,
             [Mode.Claude] = ClaudeView,
             [Mode.Drop] = DropView,
+            [Mode.Command] = CommandView,
         };
 
         foreach (var (m, view) in views)
@@ -357,7 +399,8 @@ public partial class MainWindow : Window
 
         if (old != mode)
         {
-            Reveal(views[mode], mode == Mode.Compact ? 0.9 : 0.94, 0, 90);
+            if (mode != Mode.Compact) PlayChromatic(mode == Mode.Toast ? 5 : 8); // the "print" shimmer when it opens
+            Reveal(views[mode], mode == Mode.Compact ? 0.92 : 0.95, 0, 30);
             Kick(mode == Mode.Compact ? 2.5 : 3.5);
         }
         else
@@ -368,11 +411,12 @@ public partial class MainWindow : Window
 
         MorphTo(TargetSize(mode));
         UpdateEyesVisibility();
+        ApplyGlass();
     }
 
     private void Expand()
     {
-        if (_hidden || _mode is Mode.Claude or Mode.Drop) return;
+        if (_hidden || _mode is Mode.Claude or Mode.Drop or Mode.Command) return;
         _collapseDelay.Stop();
         ClearUnread();
         SetMode(Mode.Expanded);
@@ -426,7 +470,8 @@ public partial class MainWindow : Window
         foreach (var page in AllPages)
             page.Visibility = Visibility.Collapsed;
 
-        Reveal(CurrentPage, 0.97, slide, 40);
+        Reveal(CurrentPage, 0.98, slide, 0);
+        UpdatePageDots();
         if (_mode == Mode.Expanded)
         {
             Kick(1.5);
@@ -441,7 +486,7 @@ public partial class MainWindow : Window
         if (TabChat.IsChecked == true) _ = EnsureChatAsync();
         else if (TabMusic.IsChecked == true) RefreshVolume();
         else if (TabSettings.IsChecked == true) RefreshSettingsPage();
-        else if (TabClip.IsChecked == true) RenderClipboard();
+        else if (TabClip.IsChecked == true) RenderClipSection();
         else if (TabNotes.IsChecked == true) RenderNotes();
         else if (TabCalendar.IsChecked == true) RenderCalendar();
         else if (TabTimer.IsChecked == true) RenderTimer();
@@ -484,7 +529,7 @@ public partial class MainWindow : Window
         while (d != null)
         {
             if (d is ButtonBase or TextBoxBase or Slider or ScrollBar or InkCanvas) return true;
-            if (d is FrameworkElement fe && fe.Name == "ChatHost") return true;
+            if (d is FrameworkElement fe && fe.Name is "ChatHost" or "ShelfList" or "CommandResults") return true;
             d = d is Visual or System.Windows.Media.Media3D.Visual3D ? VisualTreeHelper.GetParent(d) : LogicalTreeHelper.GetParent(d);
         }
         return false;
@@ -536,7 +581,8 @@ public partial class MainWindow : Window
 
         // the window floats after the cursor on a spring
         _px.Target = _pressWindow.X + d.X;
-        _py.Target = _pressWindow.Y + d.Y;
+        // docked: slides along the top edge only (pulling up still hides it)
+        _py.Target = _pressWindow.Y + (_settings.Docked ? Math.Min(0, d.Y) : d.Y);
 
         if (Liquid)
         {
@@ -585,13 +631,17 @@ public partial class MainWindow : Window
             double minX = SystemParameters.VirtualScreenLeft, maxX = minX + SystemParameters.VirtualScreenWidth;
             double cx = Math.Clamp(_px.Target + Width / 2 + v.X * 0.07, minX + 110, maxX - 110);
             _px.Target = cx - Width / 2;
-            _py.Target = Math.Clamp(_py.Target + v.Y * 0.05, screenTop, screenTop + SystemParameters.VirtualScreenHeight - 80);
+            _py.Target = _settings.Docked
+                ? MonitorTop()
+                : Math.Clamp(_py.Target + v.Y * 0.05, screenTop, screenTop + SystemParameters.VirtualScreenHeight - 80);
             StartRendering();
             if (!Island.IsMouseOver && _mode == Mode.Expanded) _collapseDelay.Start();
             return;
         }
 
         Unsquish(1.6);
+        // easter egg: poking a character shows one of seven emotions
+        if (TryEmote(e)) return;
         // plain click on the compact pill opens it
         if (_mode == Mode.Compact) Expand();
     }
@@ -788,28 +838,75 @@ public partial class MainWindow : Window
         bool showArt = playing && _lastMedia?.Art != null && !_recording.IsRecording;
         RecDot.Visibility = _recording.IsRecording ? Visibility.Visible : Visibility.Collapsed;
         MiniArt.Visibility = showArt ? Visibility.Visible : Visibility.Collapsed;
-        Eyes.Visibility = !showArt && !_recording.IsRecording ? Visibility.Visible : Visibility.Collapsed;
+        Eyes.Visibility = !_recording.IsRecording ? Visibility.Visible : Visibility.Collapsed; // the character stays next to the cover
         EqBars.Visibility = playing ? Visibility.Visible : Visibility.Collapsed;
         CompactWeather.Visibility = playing ? Visibility.Collapsed : Visibility.Visible;
     }
 
+    private readonly List<Views.CharacterView> _previewCharacters = [];
+    private Native.POINT? _fakeCursor;
+
+    /// <summary>~30 times a second: drive the character and the pill's reaction to the cursor.</summary>
     private void UpdateGaze()
     {
-        if (_mode != Mode.Compact || Eyes.Visibility != Visibility.Visible || !IsLoaded || _hidden) return;
+        if (!IsLoaded || _hidden || _fullscreenHidden) return;
         Native.GetCursorPos(out var cursor);
-        Point center;
-        try { center = Eyes.PointToScreen(new Point(Eyes.ActualWidth / 2, Eyes.ActualHeight / 2)); }
-        catch { return; }
-        double dx = Math.Clamp((cursor.X - center.X) / 60.0, -2.5, 2.5);
-        double dy = Math.Clamp((cursor.Y - center.Y) / 60.0, -1.5, 1.5);
-        EyesShift.X += (dx - EyesShift.X) * 0.3;
-        EyesShift.Y += (dy - EyesShift.Y) * 0.3;
+        if (_fakeCursor is Native.POINT fake) cursor = fake;   // screenshots / tests
+        bool playing = _lastMedia?.IsPlaying == true;
+        double beat = playing ? Math.Min(1, _audio.Peak * 1.6) : 0;
+        var mood = _demoMedia == null && Native.IdleSeconds() > 120 ? Views.CharacterMood.Sleep
+                 : _claudeCurrent != null ? Views.CharacterMood.Think
+                 : playing ? Views.CharacterMood.Music : Views.CharacterMood.Idle;
+
+        void Drive(Views.CharacterView ch, Views.CharacterMood? moodOverride = null)
+        {
+            if (!ch.IsVisible) return;
+            Point c;
+            try { c = ch.PointToScreen(new Point(ch.ActualWidth / 2, ch.ActualHeight / 2)); }
+            catch { return; }
+            ch.LookX = Math.Clamp((cursor.X - c.X) / 170.0, -1, 1);
+            ch.LookY = Math.Clamp((cursor.Y - c.Y) / 170.0, -1, 1);
+            ch.Beat = beat;
+            ch.Mood = moodOverride ?? mood;
+            ch.Tint = _albumColor;
+            ch.Sketch = _settings.HandDrawn;
+            ch.Tick(0.033);
+        }
+
+        if (_mode == Mode.Compact) Drive(Character);
+        // the Claude Code buddy on the chat window
+        bool buddy = _settings.Character == "clawd" && _mode == Mode.Expanded && TabChat.IsChecked == true;
+        var buddyVis = buddy ? Visibility.Visible : Visibility.Collapsed;
+        if (ChatBuddy.Visibility != buddyVis)
+        {
+            ChatBuddy.Visibility = buddyVis;
+            if (buddy) ChatBuddy.Greet();   // pops up over the chat and says hi
+        }
+        if (buddy) Drive(ChatBuddy, ChatBuddyMood());
+
+        // the same character keeps you company in the open menu (unless it already sits on the chat)
+        bool menu = _mode == Mode.Expanded && !buddy;
+        var menuVis = menu ? Visibility.Visible : Visibility.Collapsed;
+        if (MenuBuddy.Visibility != menuVis)
+        {
+            MenuBuddy.Visibility = menuVis;
+            if (menu) MenuBuddy.Greet();
+        }
+        if (menu)
+        {
+            MenuBuddy.Kind = _settings.Character;
+            Drive(MenuBuddy, MenuBuddyMood());
+        }
+        UpdateAuraMood(mood == Views.CharacterMood.Think);
+        if (_mode == Mode.Expanded && TabSettings.IsChecked == true)
+            foreach (var preview in _previewCharacters) Drive(preview);
+
+        UpdateReach(cursor);
     }
 
     private void ScheduleBlink()
     {
-        _blink.Interval = TimeSpan.FromMilliseconds(_rng.Next(2500, 6500));
-        _blink.Start();
+        // the character blinks by itself now (CharacterView)
     }
 
     private void Blink()
@@ -833,6 +930,9 @@ public partial class MainWindow : Window
         ToastText.Visibility = string.IsNullOrEmpty(text) ? Visibility.Collapsed : Visibility.Visible;
         if (badge != null) ToastBadge.Background = badge; else ToastBadge.SetResourceReference(Border.BackgroundProperty, "ChipBg");
         _toastAction = onClick;
+        Character.Cheer();
+        MenuBuddy.Cheer();
+        PulseGlow(badge is SolidColorBrush sb ? sb.Color : Color.FromRgb(0x0A, 0x84, 0xFF));
         bool already = _mode == Mode.Toast;
         SetMode(Mode.Toast);
         if (already) { Kick(3); Squish(1.04); Dispatcher.InvokeAsync(async () => { await Task.Delay(140); Unsquish(1); }); }
@@ -860,6 +960,7 @@ public partial class MainWindow : Window
         _settings.Save();
         ApplyTheme();
         ApplyThemeLocal();
+        ApplyGlass();
         DarkSwitch.IsChecked = _settings.DarkTheme;
         Kick(4);
     }

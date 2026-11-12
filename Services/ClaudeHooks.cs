@@ -31,6 +31,16 @@ public static class ClaudeHooks
         }
     }
 
+    /// <summary>Keep the installed hook script up to date with this version of the app.</summary>
+    public static void RefreshScript()
+    {
+        try
+        {
+            if (IsInstalled) File.Copy(Path.Combine(AppContext.BaseDirectory, "Assets", Marker), ScriptPath, overwrite: true);
+        }
+        catch { }
+    }
+
     public static void Install()
     {
         // stable copy of the script, independent of where the app is built

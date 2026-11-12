@@ -14,6 +14,7 @@ namespace DynamicIsland;
 public partial class MainWindow
 {
     private MediaSnapshot? _demoMedia;
+    private bool _demoIdle; // pretend nothing plays (shows the eyes)
 
     private static readonly Lyrics DemoLyrics = new(
     [
@@ -30,6 +31,9 @@ public partial class MainWindow
         _settings.Hidden = false;
         _settings.DarkTheme = true;
         _settings.LiquidWaves = false;
+        _fakeCursor = new Native.POINT { X = -20000, Y = -20000 }; // ignore the real mouse while shooting
+        _settings.Glass = false; // the frost would show the real desktop: keep screenshots clean
+        _settings.Docked = Environment.GetCommandLineArgs().Contains("--docked");
         _settings.City = "London";
         _settings.Reminders =
         [
@@ -90,6 +94,54 @@ public partial class MainWindow
         await Task.Delay(6000); // weather + layout
         UpdateMediaUi();
 
+        // compact: idle, with the eyes
+        _demoIdle = true;
+        UpdateMediaUi();
+        SetMode(Mode.Compact);
+        await Task.Delay(1500);
+        Snap(folder, "compact-idle");
+
+        // every character, idle in the pill
+        foreach (var (id, _) in Views.CharacterView.All)
+        {
+            Character.Kind = id;
+            _settings.Character = id;
+            SetupAura();
+            await Task.Delay(900);
+            Snap(folder, "character-" + id);
+            if (id is "claude" or "clawd")
+            {
+                _settings.HandDrawn = true;
+                await Task.Delay(500);
+                Snap(folder, "character-" + id + "-sketch");
+                _settings.HandDrawn = false;
+            }
+        }
+        // the easter egg: all seven emotions, on the eyes and on Claude Code
+        foreach (var kind in new[] { "eyes", "clawd" })
+        {
+            Character.Kind = kind;
+            foreach (var emo in Enum.GetValues<Views.Emotion>().Skip(1))
+            {
+                Character.Emote(emo);
+                await Task.Delay(650);
+                Snap(folder, $"emote-{kind}-{emo.ToString().ToLowerInvariant()}");
+            }
+            await Task.Delay(2500);
+        }
+        Character.Kind = _settings.Character;
+        _demoIdle = false;
+        UpdateMediaUi();
+
+        // the pill reaching for a cursor just below it
+        Island.UpdateLayout();
+        var tl = Island.PointToScreen(new Point(Island.ActualWidth * 0.7, Island.ActualHeight + 30 / 1.0));
+        _fakeCursor = new Native.POINT { X = (int)tl.X, Y = (int)tl.Y };
+        await Task.Delay(1200);
+        SnapLive(folder, "reach");
+        _fakeCursor = new Native.POINT { X = -20000, Y = -20000 };
+        await Task.Delay(600);
+
         // compact: music playing
         SetMode(Mode.Compact);
         await Task.Delay(1200);
@@ -108,6 +160,24 @@ public partial class MainWindow
         await Task.Delay(1200);
         Snap(folder, "toast");
 
+        // command bar
+        CmdBarBox.Text = "таймер 25";
+        SetMode(Mode.Command);
+        await Task.Delay(1400);
+        Snap(folder, "command");
+        CmdBarBox.Text = "";
+        SetMode(Mode.Compact);
+        await Task.Delay(600);
+
+        // the colour split, caught mid-way through opening
+        TabHome.IsChecked = true;
+        Expand();
+        await Task.Delay(55);
+        SnapLive(folder, "open-split");
+        await Task.Delay(1200);
+        SetMode(Mode.Compact);
+        await Task.Delay(700);
+
         _pinnedOpen = true;
         var tabs = new (RadioButton Tab, string Name)[]
         {
@@ -123,7 +193,45 @@ public partial class MainWindow
             Snap(folder, name);
             if (tab == TabTimer) { _timer.Reset(); _timer.SetKind(TimerKind.Timer); }
         }
+        // Claude Code typing over the chat window
+        _settings.Character = "clawd";
+        SetupAura();
+        TabChat.IsChecked = true;
+        await Task.Delay(2500);
+        _chatTypedAt = DateTime.Now.AddSeconds(30); // pretend you keep typing
+        await Task.Delay(900);
+        SnapLive(folder, "chat-buddy");
+        _settings.HandDrawn = true;            // the same, drawn by hand
+        await Task.Delay(700);
+        SnapLive(folder, "chat-buddy-sketch");
+        _settings.HandDrawn = false;
+        _chatTypedAt = default;
+
+        // text tools section of the clipboard tab
+        TabClip.IsChecked = true;
+        TextToolsBox.Text = "Ghbdtn! 'nj ntrcn? yf,hfyysq yt d njq hfcrkflrt";
+        ClipSegText.IsChecked = true;
+        await Task.Delay(1600);
+        Snap(folder, "text-tools");
+
         Application.Current.Shutdown();
+    }
+
+    /// <summary>Like Snap, but keeps the current (moving) shape instead of settling it.</summary>
+    private void SnapLive(string folder, string name)
+    {
+        const double scale = 2;
+        UpdateLayout();
+        var rtb = new RenderTargetBitmap((int)(Root.ActualWidth * scale), (int)(Root.ActualHeight * scale), 96 * scale, 96 * scale, PixelFormats.Pbgra32);
+        rtb.Render(Root);
+        var bounds = Island.TransformToAncestor(Root).TransformBounds(new Rect(Island.RenderSize));
+        bounds = new Rect(bounds.X - 28, Math.Max(0, bounds.Y - 6), bounds.Width + 56, bounds.Height + 6 + 46);
+        bounds.Intersect(new Rect(0, 0, Root.ActualWidth, Root.ActualHeight));
+        var px = new Int32Rect((int)(bounds.X * scale), (int)(bounds.Y * scale), (int)(bounds.Width * scale), (int)(bounds.Height * scale));
+        var enc = new PngBitmapEncoder();
+        enc.Frames.Add(BitmapFrame.Create(new CroppedBitmap(rtb, px)));
+        using var fs = File.Create(Path.Combine(folder, name + ".png"));
+        enc.Save(fs);
     }
 
     /// <summary>Renders the island (with its shadow) at 2× to a transparent PNG.</summary>

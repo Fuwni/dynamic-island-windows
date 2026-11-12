@@ -22,6 +22,9 @@ public partial class MainWindow
         await RefreshWeatherAsync();
     }
 
+    private bool _weatherLoaded;
+    private int _weatherFailures;
+
     private async Task RefreshWeatherAsync()
     {
         WeatherStatus.Text = "Обновляю…";
@@ -32,15 +35,25 @@ public partial class MainWindow
             {
                 WeatherStatus.Text = string.IsNullOrWhiteSpace(_settings.City) ? "Впишите город и нажмите Enter" : "Город не найден";
                 HomeWDesc.Text = "Укажите город";
+                _weatherRefresh.Interval = TimeSpan.FromMinutes(15);
                 return;
             }
             ApplyWeather(await _weather.GetAsync(place));
             WeatherStatus.Text = "Обновлено в " + DateTime.Now.ToString("HH:mm");
+            _weatherLoaded = true;
+            _weatherFailures = 0;
+            _weatherRefresh.Interval = TimeSpan.FromMinutes(15);
         }
         catch (Exception ex)
         {
-            Log.Write("weather: " + ex);
-            WeatherStatus.Text = "Нет связи с сервером погоды";
+            // Typical right after Windows starts: the island is up before the network is.
+            // The city is still saved - just try again soon (5 s, 10 s, 20 s … up to a minute).
+            _weatherFailures++;
+            if (_weatherFailures == 1 || _weatherFailures % 20 == 0) Log.Write("weather: " + ex.Message);
+            var retry = TimeSpan.FromSeconds(Math.Min(60, 5 * Math.Pow(2, Math.Min(4, _weatherFailures - 1))));
+            _weatherRefresh.Interval = retry;
+            WeatherStatus.Text = $"Нет связи, повторю через {(int)retry.TotalSeconds} с";
+            if (!_weatherLoaded) HomeWDesc.Text = $"{_settings.City} · жду сеть…";
         }
     }
 

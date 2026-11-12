@@ -1,286 +1,243 @@
 <div align="center">
 
-<img src="docs/screenshots/compact-music.png" width="420" alt="Dynamic Island в свёрнутом виде">
+<img src="docs/screenshots/compact-music.png" width="420" alt="Dynamic Island in its compact state">
 
-# Dynamic Island для Windows
+# Dynamic Island for Windows
 
-**«Островок» как на iPhone — только на компьютере.**
-Музыка со словами песен, погода, таймеры, скриншоты с переводом текста, чат с ИИ,
-буфер обмена, заметки, календарь и уведомления — в одной аккуратной пилюле наверху экрана.
+**The iPhone "island" — on your PC.**
+Music with live lyrics, weather, timers, screenshots with OCR and translation, an AI chat, clipboard history,
+notes, a calendar, notifications and a little character that lives in the pill — all in one soft, springy island at the top of the screen.
 
-[![Скачать](https://img.shields.io/github/v/release/mykolaichechelnytskyi/dynamic-island-windows?label=%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C&style=for-the-badge&color=30D158)](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/latest)
+**English** · [Русский](README.ru.md)
+
+[![Download](https://img.shields.io/github/v/release/mykolaichechelnytskyi/dynamic-island-windows?label=Download&style=for-the-badge&color=30D158)](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/latest)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0A84FF?style=for-the-badge&logo=windows)
 ![.NET 10](https://img.shields.io/badge/.NET-10-5E5CE6?style=for-the-badge&logo=dotnet)
-[![Лицензия MIT](https://img.shields.io/badge/license-MIT-8E8E93?style=for-the-badge)](LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-8E8E93?style=for-the-badge)](LICENSE)
 
 </div>
 
----
-
-## Содержание
-
-- [Что умеет](#что-умеет)
-- [Установка](#установка)
-- [Как пользоваться](#как-пользоваться)
-- [Горячие клавиши](#горячие-клавиши)
-- [Вкладки по порядку](#вкладки-по-порядку)
-- [Claude Code на острове](#claude-code-на-острове)
-- [Приватность: что и куда отправляется](#приватность-что-и-куда-отправляется)
-- [Частые вопросы](#частые-вопросы)
-- [Сборка из исходников](#сборка-из-исходников)
+> **Interface language:** the app's interface is currently in **Russian**. Everything below explains what each part does,
+> so you can use it without knowing Russian. An English interface is planned.
 
 ---
 
-## Что умеет
+## Contents
+
+- [What's new in 1.1](#whats-new-in-11)
+- [Features](#features)
+- [Install (2 minutes, no admin rights)](#install)
+- [How to use it](#how-to-use-it)
+- [Keyboard shortcuts](#keyboard-shortcuts)
+- [Characters](#characters)
+- [Claude Code on the island](#claude-code-on-the-island)
+- [Privacy and security](#privacy-and-security)
+- [FAQ](#faq)
+- [Build from source](#build-from-source)
+
+---
+
+## What's new in 1.1
+
+The full list is in **[CHANGELOG.md](CHANGELOG.md)**. Highlights:
+
+- 🧸 **15 characters** live in the pill *and* in the open menu, and react to what you do. **Click one** and it shows one of **7 emotions**.
+- ✏️ **Hand-drawn mode**: characters animate frame by frame (12 fps) with a trembling ink outline.
+- 🟠 **Claude** and **Claude Code** characters. Claude Code turns sideways, opens a laptop and types along when you write to the AI.
+- 💧 **The island reaches for the cursor** with its whole body, opens with a soft blur and a tiny colour split, and lands with a little spring.
+- 🧊 **Frosted glass** with adjustable tint, a see-through lower half and an idle **shimmering glow** (5 palettes).
+- 📌 **Docked mode**: the island grows out of the top edge of the screen instead of floating.
+- ⌨️ **Command bar** (`Alt+Space` / `Ctrl+Alt+Space`): launch apps, open sites, search, run actions.
+- 🗂 **Shelf** for dropped files and **text tools** (fix wrong keyboard layout, change case, transliterate, clean up).
+- 🔒 **Security hardening** and fixes: the city and AI chat logins survive a reboot, no more fake "in a Discord call".
+
+---
+
+## Features
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="49%" alt="Главная">
-  <img src="docs/screenshots/music.png" width="49%" alt="Музыка">
+  <img src="docs/screenshots/home.png" width="49%" alt="Home">
+  <img src="docs/screenshots/music.png" width="49%" alt="Music">
 </p>
 <p align="center">
-  <img src="docs/screenshots/weather.png" width="49%" alt="Погода">
-  <img src="docs/screenshots/timer.png" width="49%" alt="Таймер">
+  <img src="docs/screenshots/weather.png" width="49%" alt="Weather">
+  <img src="docs/screenshots/timer.png" width="49%" alt="Timer">
 </p>
 
-**В свёрнутом виде** остров показывает время и погоду, а когда что-то происходит — «живую активность»:
+**Collapsed**, the island shows the time and weather, and switches to a "live activity" when something happens:
 
 | | |
 |---|---|
-| 🎵 **Музыка** | обложка и эквалайзер; по желанию — строка песни прямо в пилюле (караоке) |
-| ⏱ **Таймер / помодоро / секундомер** | кольцо прогресса и обратный отсчёт |
-| ⬇️ **Загрузки** | имя файла и скорость, уведомление по окончании |
-| 📅 **Календарь** | «Созвон · через 12 мин» и напоминание за 10 минут |
-| 🎧 **Discord** | «в канале» / «говорят» во время звонка |
-| 🌙 **Не беспокоить** | сколько осталось тишины |
-| 🎮 **Игровой режим** | CPU / GPU / RAM вместо полного скрытия в игре |
-| 🟠🟢 **Микрофон и камера** | точки, как на iPhone, когда их кто-то использует |
-| 💬 **Сообщения** | Telegram, Discord, Viber… всплывают на острове, счётчик непрочитанных |
+| 🎵 **Music** | cover art and an equaliser; optionally the current lyric line right in the pill (karaoke) |
+| ⏱ **Timer / Pomodoro / stopwatch** | progress ring and countdown |
+| ⬇️ **Downloads** | file name and speed, a notice when it's done |
+| 📅 **Calendar** | "Call · in 12 min" and a reminder 10 minutes before |
+| 🎧 **Discord** | "in a channel" / "speaking" during a call |
+| 🌙 **Do not disturb** | how much quiet time is left |
+| 🎮 **Game mode** | CPU / GPU / RAM instead of hiding completely in games |
+| 🟠🟢 **Mic and camera** | dots like on iPhone while something uses them |
+| 💬 **Messages** | Telegram, Discord, Viber… pop up on the island with an unread counter |
+| 🤖 **Claude Code** | permission requests with Allow / Deny buttons, "Claude finished" |
+
+**Expanded**, there are 10 pages. Each one is labelled below with its Russian name in brackets:
+
+| Page | What it does |
+|---|---|
+| 🏠 Home (*Главная*) | quick actions: region / full screenshot, text from screen (OCR), QR code, colour picker, clean text, screen recording, your own command; mini player and weather |
+| 🎵 Music (*Музыка*) | any player that shows up in the Windows volume flyout (Spotify, browsers, Apple Music, AIMP, Winamp…); seek, per-app volume, synced lyrics from [LRCLIB](https://lrclib.net) |
+| ☀️ Weather (*Погода*) | type your city and press Enter: wind compass, humidity, pressure, sun arc, UV, rain, hourly forecast ([Open-Meteo](https://open-meteo.com), no key needed) |
+| 💬 Chat (*Чат*) | Claude, Gemini or DeepSeek inside the island; sign in once, no API keys |
+| ⏱ Timer (*Таймер*) | timer, Pomodoro (can turn on Do Not Disturb), stopwatch |
+| 📋 Clipboard (*Буфер*) | last 30 copied items (text, images, files), the file shelf and text tools; kept in memory only |
+| 📝 Notes (*Заметки*) | quick notes; Enter saves, Shift+Enter is a new line |
+| 📅 Calendar (*Календарь*) | reminders in plain words (`18:30`, `tomorrow 9:00`, `in 20 min` written in Russian) and your Google / Outlook calendar via a private ICS link |
+| 🖥 System (*Система*) | CPU / GPU / RAM, Discord mic & deafen, Do Not Disturb for 30 min / 1 h / 2 h, who uses mic and camera, battery of devices that report it |
+| ⚙️ Settings (*Настройки*) | look, character, home layout, behaviour, actions, Claude Code |
+
+**Also:** a screenshot editor with pen, marker, eraser, OCR, translation and QR; drag a file onto the island to share, zip or convert it;
+drag the island anywhere or **flick it up** to hide it; it hides itself in games and fullscreen video; dark and light themes, 10 colours or your own.
 
 <p align="center">
-  <img src="docs/screenshots/compact-timer.png" width="32%" alt="Таймер в пилюле">
-  <img src="docs/screenshots/toast.png" width="40%" alt="Уведомление">
+  <img src="docs/screenshots/clipboard.png" width="49%" alt="Clipboard">
+  <img src="docs/screenshots/system.png" width="49%" alt="System">
 </p>
-
-**В развёрнутом виде** — 10 вкладок: Главная, Музыка, Погода, Чат, Таймер, Буфер, Заметки, Календарь, Система и Настройки
-(подробно — [ниже](#вкладки-по-порядку)).
-
-**И ещё:**
-
-- 📸 скриншот области или всего экрана → редактор: ручка, маркер, ластик, **распознать текст**, **перевести**, прочитать **QR-код**;
-- 🎨 пипетка — цвет любого пикселя на экране в буфер (`#RRGGBB`);
-- 🎬 запись экрана в MP4 **со звуком компьютера и микрофоном**;
-- 📂 перетащите файл на остров → поделиться, сжать в ZIP, конвертировать или сжать картинку;
-- 🖐 остров можно **двигать мышью** и **смахнуть вверх**, чтобы спрятать;
-- 🕹 сам прячется в играх и при полноэкранном видео;
-- 🌗 тёмная и светлая тема одной клавишей, 10 цветов острова или свой.
 
 ---
 
-## Установка
+<a id="install"></a>
+## Install (2 minutes, no admin rights)
 
-### Вариант 1 — готовая программа (проще всего)
-
-1. Откройте **[Releases](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/latest)** и скачайте `DynamicIsland-…-win-x64.zip`.
-2. Распакуйте архив в удобную папку, например:
+1. Open **[Releases](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/latest)** and download `DynamicIsland-…-win-x64.zip`.
+2. Unzip it into a folder of your choice, for example paste this into the Explorer address bar:
    ```
    %LOCALAPPDATA%\Programs\DynamicIsland
    ```
-   (вставьте эту строку в адресную строку проводника — папка в вашем профиле, права администратора не нужны).
-3. Запустите **`DynamicIsland.exe`**. Остров появится вверху экрана.
-4. Windows может показать синее окно **«Windows защитила ваш компьютер»** — программа не подписана платным сертификатом.
-   Нажмите **«Подробнее» → «Выполнить в любом случае»**. Это нужно один раз.
-5. Чтобы остров запускался сам: правый клик по острову → **Настройки** → **«Запускать вместе с Windows»**.
+3. Run **`DynamicIsland.exe`**. The island appears at the top of the screen.
+4. Windows may show a blue **"Windows protected your PC"** window because the app isn't signed with a paid certificate.
+   Click **More info → Run anyway**. You only need to do this once.
+5. To start it with Windows: right-click the island → **Настройки** (Settings) → **Поведение** (Behaviour) → **Запускать вместе с Windows** (Start with Windows).
 
-> .NET ставить не нужно — всё уже внутри архива.
+> You don't need to install .NET: everything is inside the zip.
 
-### Требования
+**Requirements**
 
-| Что | Зачем | Где взять |
+| What | Why | Where |
 |---|---|---|
-| Windows 10 (2004+) или Windows 11, 64-бит | — | — |
-| Microsoft Edge WebView2 Runtime | вкладка «Чат» | в Windows 11 уже есть; иначе — [скачать](https://developer.microsoft.com/microsoft-edge/webview2/) |
-| Visual C++ Redistributable 2015–2022 (x64) | запись экрана | обычно уже стоит; иначе — [скачать](https://aka.ms/vs/17/release/vc_redist.x64.exe) |
+| Windows 10 (2004+) or 11, 64-bit | — | — |
+| Microsoft Edge WebView2 Runtime | the Chat page | already in Windows 11; otherwise [download](https://developer.microsoft.com/microsoft-edge/webview2/) |
+| Visual C++ Redistributable 2015–2022 (x64) | screen recording | usually installed; otherwise [download](https://aka.ms/vs/17/release/vc_redist.x64.exe) |
 
-### Обновление и удаление
-
-- **Обновить:** закройте остров (правый клик → «Выход»), замените файлы в папке новыми из свежего релиза.
-- **Удалить:** выключите автозапуск в настройках, закройте остров и удалите папку программы.
-  Настройки и заметки лежат в `%APPDATA%\DynamicIsland` — удалите и её, если не нужны.
+**Update:** quit the island (right-click → Выход / Exit) and replace the files with the new release. Your settings are kept.
+**Uninstall:** turn off autostart, quit, delete the folder. Settings and notes live in `%APPDATA%\DynamicIsland`; delete it too if you like.
 
 ---
 
-## Как пользоваться
+## How to use it
 
-| Действие | Что произойдёт |
+| Do this | What happens |
 |---|---|
-| Навести мышь на остров | раскроется панель (можно выключить в настройках — тогда по клику) |
-| Клик по острову | раскрыть |
-| Увести мышь | свернётся обратно |
-| **Перетащить** | остров переедет куда угодно, позиция запомнится |
-| **Смахнуть вверх** | спрячется; наверху останется тонкая полоска |
-| Клик / потянуть вниз полоску | остров вернётся |
-| Правый клик | меню: спрятать, тема, настройки, выход |
-| Перетащить файл на остров | меню действий с файлом |
-| Значок в трее | показать / спрятать, скриншот, тема, настройки |
+| Hover the island | it opens (or on click — see Settings) |
+| Move the mouse away | it folds back |
+| **Drag** it | it moves anywhere and remembers the spot |
+| **Flick up** | it hides; a thin strip stays at the top |
+| Click / pull the strip | it comes back |
+| **Click the character** | it shows a random emotion 🙂 |
+| Right-click | menu: hide, theme, settings, exit |
+| Drop a file on it | file actions |
 
-## Горячие клавиши
+## Keyboard shortcuts
 
-| Клавиши | Действие |
+| Keys | Action |
 |---|---|
-| `Ctrl` + `Alt` + `I` | показать / спрятать остров |
-| `Ctrl` + `Alt` + `S` | скриншот области |
-| `Ctrl` + `Alt` + `R` | начать / остановить запись экрана |
-| `Ctrl` + `Alt` + `T` | тёмная ↔ светлая тема |
+| `Ctrl` + `Alt` + `I` | show / hide the island |
+| `Ctrl` + `Alt` + `S` | screenshot of a region |
+| `Ctrl` + `Alt` + `R` | start / stop screen recording |
+| `Ctrl` + `Alt` + `T` | dark ↔ light theme |
+| `Alt` + `Space` or `Ctrl` + `Alt` + `Space` | command bar |
 
-В редакторе скриншота: `Ctrl+Z` — отменить, `Ctrl+C` — копировать, `Ctrl+S` — сохранить, `Esc` — закрыть.
-
----
-
-## Вкладки по порядку
-
-<details>
-<summary><b>🏠 Главная</b> — быстрые действия, мини-плеер и погода</summary>
-
-8 плиток: **Область**, **Весь экран**, **Текст с экрана** (распознать и скопировать), **QR-код**, **Пипетка**,
-**Чистый текст** (убирает форматирование, лишние пробелы и невидимые символы из буфера), **Запись экрана**, **Команда** (запускает вашу команду из настроек).
-
-Главную можно собрать под себя: Настройки → «Главная — соберите под себя».
-Скриншоты сохраняются в `Изображения\Dynamic Island`, записи — в `Видео\Dynamic Island`.
-</details>
-
-<details>
-<summary><b>🎵 Музыка</b> — любой плеер, слова песен, громкость</summary>
-
-Работает со всем, что показывает музыку в системном окне громкости Windows: Spotify, Яндекс Музыка, YouTube и ВК в браузере, Apple Music, а также **AIMP** и **Winamp**.
-Обложка, перемотка кликом по полосе, громкость **именно этого плеера**.
-Синхронные слова песни подгружаются из открытой базы [LRCLIB](https://lrclib.net).
-Если музыка стоит на паузе дольше 2 минут — остров её убирает.
-</details>
-
-<details>
-<summary><b>☀️ Погода</b> — как в iPhone</summary>
-
-Впишите свой город и нажмите Enter. Сейчас, ветер с компасом, влажность, давление (мм рт. ст.), солнце на своей дуге, УФ-индекс, осадки и прогноз по часам.
-Данные — [Open-Meteo](https://open-meteo.com), без ключей и регистрации.
-</details>
-
-<details>
-<summary><b>💬 Чат</b> — Claude, Gemini, DeepSeek</summary>
-
-Сайты чатов открываются прямо в острове. Ключи не нужны — один раз войдите в свой аккаунт.
-Кнопка ↗ откроет текущий чат в обычном браузере.
-</details>
-
-<details>
-<summary><b>⏱ Таймер</b> — таймер, помодоро, секундомер</summary>
-
-Пресеты от 1 минуты до часа или своё время. Помодоро: 25 минут работы / 5 перерыв, после 4 кругов — 15 минут;
-может сам включать «Не беспокоить» на время работы. Отсчёт виден в свёрнутом острове.
-</details>
-
-<details>
-<summary><b>📋 Буфер</b> — история копирования</summary>
-
-Последние 30 скопированных текстов, картинок и файлов. Клик — и элемент вставится туда, где вы печатали.
-Хранится только в памяти и исчезает после закрытия программы.
-</details>
-
-<details>
-<summary><b>📝 Заметки</b></summary>
-
-Напишите и нажмите Enter (`Shift+Enter` — новая строка). Клик по заметке копирует её. Сохраняются на диск.
-</details>
-
-<details>
-<summary><b>📅 Календарь</b> — напоминания и ваш календарь</summary>
-
-Быстрые напоминания понимают: `18:30`, `завтра 9:00`, `через 20 мин`, `через 2 ч`, `15.11 14:00`.
-Можно подключить **Google / Outlook / Яндекс** календарь по секретной ICS-ссылке
-(Google Календарь → Настройки календаря → «Секретный адрес в формате iCal»).
-</details>
-
-<details>
-<summary><b>🎮 Система</b> — нагрузка, Discord, «Не беспокоить»</summary>
-
-Загрузка процессора, видеокарты и памяти; статус Discord и кнопки «выключить микрофон» / «заглушить Discord»;
-**«Не беспокоить»** на 30 минут, 1 или 2 часа (скрывает баннеры Windows и сам возвращает их обратно);
-кто сейчас пользуется микрофоном и камерой; заряд беспроводных устройств, которые его сообщают.
-</details>
-
-<details>
-<summary><b>⚙️ Настройки</b></summary>
-
-Тема и цвет острова, «живые волны» (желеобразная анимация — по умолчанию выключена), какие блоки показывать на Главной,
-раскрытие при наведении, скрытие в играх или игровой режим, караоке, уведомления мессенджеров, автозапуск,
-команда для кнопки «Команда», язык перевода, звук при записи экрана, подключение Claude Code.
-</details>
-
-<p align="center">
-  <img src="docs/screenshots/clipboard.png" width="49%" alt="Буфер">
-  <img src="docs/screenshots/calendar.png" width="49%" alt="Календарь">
-</p>
-<p align="center">
-  <img src="docs/screenshots/system.png" width="49%" alt="Система">
-  <img src="docs/screenshots/settings.png" width="49%" alt="Настройки">
-</p>
+In the screenshot editor: `Ctrl+Z` undo, `Ctrl+C` copy, `Ctrl+S` save, `Esc` close.
 
 ---
 
-## Claude Code на острове
+## Characters
 
-Если вы пользуетесь [Claude Code](https://claude.com/claude-code), остров может показывать его запросы разрешений
-(«хочет выполнить `dotnet build`») с кнопками **Разрешить / Запретить / В терминале** и сообщать, когда Claude закончил работу.
+<p align="center"><img src="docs/screenshots/characters.png" width="80%" alt="All 15 characters"></p>
 
-Включение: **Настройки → Claude Code → «Подключить»**. Остров добавит свои хуки в `~/.claude/settings.json`
-(рядом сохранится резервная копия), «Отключить» уберёт только их.
-Если остров закрыт, Claude Code просто спросит в терминале, как обычно.
+Pick one in **Settings → Персонаж** (Character). It lives in the collapsed pill and in the header of the open menu, and it:
+
+- follows the cursor with its eyes and blinks;
+- dances to music, thinks while Claude Code works and falls asleep when you're away;
+- hops when you press buttons or switch pages, cheers when you switch something on, types along when you type;
+- greets you when the menu opens.
+
+**Click it** for one of seven emotions: love, anger, surprise, sadness, dizziness, laughter or cool sunglasses.
+
+<p align="center"><img src="docs/screenshots/emotions.png" width="95%" alt="Seven emotions"></p>
+
+**Claude** is the orange starburst: its rays stretch and pull back in a wave and it never spins.
+**Claude Code** is the pixel mascot: when you write in the Chat page it hops onto the chat window, turns sideways, opens a laptop and types; when you stop it closes the lid and turns back.
+Their orange under-glow can be turned off in the same settings section.
+
+**Hand-drawn mode** (*Нарисовано от руки*): every character animates on twos with an ink outline that "boils" from frame to frame.
+
+<p align="center"><img src="docs/screenshots/chat-buddy-sketch.png" width="90%" alt="Claude Code typing on a laptop, hand-drawn"></p>
 
 ---
 
-## Приватность: что и куда отправляется
+## Claude Code on the island
 
-Остров ничего не собирает и не отправляет «домой». Внешние запросы — только для функций, которые вы видите:
+If you use [Claude Code](https://claude.com/claude-code), the island can show its permission requests
+("wants to run `dotnet build`") with **Allow / Deny / In terminal** buttons and tell you when Claude has finished.
 
-| Функция | Куда | Что уходит |
+Turn it on: **Settings → Claude Code → Подключить** (Connect). The island adds its hooks to `~/.claude/settings.json`
+(a backup is kept next to it); **Отключить** (Disconnect) removes only its own entries.
+If the island isn't running, Claude Code simply asks in the terminal as usual.
+
+---
+
+## Privacy and security
+
+The island collects nothing and has no telemetry. Network requests happen only for features you can see:
+
+| Feature | Where | What is sent |
 |---|---|---|
-| Погода | open-meteo.com | название города / координаты |
-| Слова песен | lrclib.net | название трека и исполнитель |
-| «Перевести» в редакторе скриншота | translate.googleapis.com | распознанный текст — **только по нажатию** |
-| Чат | сайт выбранного чата | то, что вы сами пишете в чат |
-| Календарь | ваша ICS-ссылка | — |
+| Weather | open-meteo.com | your city name / coordinates |
+| Lyrics | lrclib.net | track title and artist |
+| "Translate" in the screenshot editor | translate.googleapis.com | the recognised text, **only when you click** |
+| Chat | the chat site you picked | what you type into the chat |
+| Calendar | your ICS link | — |
 
-Распознавание текста, QR-коды, запись экрана и буфер обмена работают **локально**.
-Настройки и заметки — в `%APPDATA%\DynamicIsland`, журнал ошибок — в `%LOCALAPPDATA%\DynamicIsland\log.txt`.
+OCR, QR codes, screen recording and the clipboard work **locally**. Settings and notes are in `%APPDATA%\DynamicIsland`,
+chat logins in `%LOCALAPPDATA%\DynamicIsland\WebView2`, the error log in `%LOCALAPPDATA%\DynamicIsland\log.txt`.
+Nothing personal is shipped in the release: a fresh install starts with no city, no accounts and default settings.
 
----
-
-## Частые вопросы
-
-**Синее окно «Windows защитила ваш компьютер».**
-Программа не подписана платным сертификатом. «Подробнее» → «Выполнить в любом случае».
-
-**Остров не виден в игре.**
-Так задумано — в играх и полноэкранном видео он прячется. Включите «игровой режим» в настройках, чтобы видеть CPU/GPU/RAM.
-В играх с «эксклюзивным полноэкранным» режимом поверх ничего показать нельзя — переключите игру в «оконный без рамки».
-
-**Не показывается заряд наушников.**
-Некоторые гарнитуры (например, Logitech G435) вообще не передают заряд компьютеру — его не видит даже фирменная программа.
-Остров показывает заряд только тех устройств, которые его сообщают.
-
-**Не входит в Gemini / Claude через Google.**
-Google иногда запрещает вход во встроенных окнах. Войдите по почте или нажмите ↗, чтобы открыть чат в обычном браузере.
-
-**Сообщения мессенджеров не появляются.**
-Мессенджер должен показывать уведомления Windows (в его настройках), а Windows — разрешать доступ к уведомлениям.
-
-**Ctrl+Alt+S (или другое сочетание) не работает.**
-Его уже заняла другая программа. Причина записывается в `%LOCALAPPDATA%\DynamicIsland\log.txt`.
+Security measures are described in **[SECURITY.md](SECURITY.md)**: a secret-protected local bridge for Claude Code, links limited to http/https,
+and a chat that can't launch programs. Found a problem? Please report it as described there.
 
 ---
 
-## Сборка из исходников
+## FAQ
 
-Нужен [.NET 10 SDK](https://dotnet.microsoft.com/download).
+**The blue "Windows protected your PC" window.** The app isn't signed with a paid certificate. Click *More info → Run anyway*.
+
+**The island disappears in games.** That's on purpose. Turn on game mode in Settings to see CPU/GPU/RAM instead.
+Nothing can be drawn over *exclusive* fullscreen games; switch the game to borderless windowed.
+
+**The island is missing from my screenshots.** With frosted glass on, the island hides itself from screen capture (otherwise the glass would photograph itself). Turn glass off if you want it in screenshots.
+
+**My headset battery isn't shown.** Some headsets (for example Logitech G435) don't report battery to the PC at all — not even to the vendor's own app.
+
+**I can't sign in to Gemini / Claude with Google.** Google sometimes blocks sign-in inside embedded windows. Sign in with email, or press ↗ to open the chat in your normal browser.
+
+**Messenger notifications don't appear.** The messenger must show Windows notifications, and Windows must allow notification access.
+
+**A shortcut doesn't work.** Another program already uses it; the reason is written to `%LOCALAPPDATA%\DynamicIsland\log.txt`.
+
+---
+
+## Build from source
+
+You need the [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
 ```bash
 git clone https://github.com/mykolaichechelnytskyi/dynamic-island-windows.git
@@ -288,36 +245,37 @@ cd dynamic-island-windows
 dotnet run -c Release
 ```
 
-Готовая версия для раздачи (всё включено, .NET у пользователя не нужен):
+A self-contained build to share (users don't need .NET):
 
 ```bash
 dotnet publish -c Release -r win-x64 --self-contained true -o publish/DynamicIsland
 ```
 
-Скриншоты для этого README генерирует сама программа на демо-данных:
+The screenshots in this README are made by the app itself from demo data (no real accounts or locations):
 
 ```bash
 DynamicIsland.exe --snapshot docs/screenshots
 ```
 
-### Устройство проекта
+### Project layout
 
 ```
-App.xaml                 стили и общие ресурсы (тёмная / светлая тема)
-MainWindow.xaml          остров: свёрнутый вид, уведомления, все вкладки
-MainWindow.*.cs          логика по частям: Media, Weather, Actions, Chat, Live, Tools, Liquid, Settings, Claude
-Views/                   редактор скриншотов и выбор области / пипетка
-Services/                музыка, погода, слова песен, захват экрана и OCR, запись, календарь,
-                         уведомления, буфер, системная нагрузка, «Не беспокоить», хуки Claude Code
-Assets/                  иконка и скрипт моста для Claude Code
+App.xaml               styles and shared resources (dark / light theme)
+MainWindow.xaml        the island: compact view, notifications, all pages
+MainWindow.*.cs        logic in parts: Media, Weather, Actions, Chat, Live, Tools, Liquid, Glass,
+                       Command, TextShelf, Buddy, Settings, Claude, Demo
+Views/                 characters, screenshot editor, region picker / colour picker, chromatic effect
+Services/              music, weather, lyrics, capture and OCR, recording, calendar, notifications,
+                       clipboard, system load, Do Not Disturb, Claude Code hooks and bridge, safe link opening
+Assets/                icon and the Claude Code bridge script
 ```
 
-Каждый push собирается в GitHub Actions — готовый архив лежит во вкладке **Actions → артефакты**.
+Every push is built by GitHub Actions; the ready zip is under **Actions → artifacts**.
 
 ---
 
 <div align="center">
 
-Сделано с любовью к мелочам · [MIT License](LICENSE)
+Made with love for the little things · [MIT License](LICENSE)
 
 </div>

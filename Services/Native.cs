@@ -27,6 +27,7 @@ internal static class Native
     [DllImport("user32.dll")] public static extern bool AddClipboardFormatListener(IntPtr h);
     [DllImport("user32.dll")] public static extern bool RemoveClipboardFormatListener(IntPtr h);
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+    [DllImport("user32.dll")] public static extern bool LockWorkStation();
     [DllImport("user32.dll")] public static extern bool IsWindow(IntPtr h);
     [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
     public const int WM_COMMAND = 0x0111;
@@ -49,6 +50,21 @@ internal static class Native
     public static IntPtr SendMessage(IntPtr h, int msg, int w, int l) => SendMessage(h, msg, (IntPtr)w, (IntPtr)l);
     [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
     [DllImport("shell32.dll")] public static extern int SHQueryUserNotificationState(out int state);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct LASTINPUTINFO { public uint cbSize; public uint dwTime; }
+
+    [DllImport("user32.dll")] private static extern bool GetLastInputInfo(ref LASTINPUTINFO info);
+
+    /// <summary>Seconds since the user last touched the mouse or keyboard.</summary>
+    public static double IdleSeconds()
+    {
+        var info = new LASTINPUTINFO { cbSize = (uint)Marshal.SizeOf<LASTINPUTINFO>() };
+        return GetLastInputInfo(ref info) ? unchecked((uint)Environment.TickCount - info.dwTime) / 1000.0 : 0;
+    }
+
+    [DllImport("user32.dll")] public static extern bool SetWindowDisplayAffinity(IntPtr h, uint affinity);
+    public const uint WDA_EXCLUDEFROMCAPTURE = 0x11;
 
     public static string ClassName(IntPtr h)
     {

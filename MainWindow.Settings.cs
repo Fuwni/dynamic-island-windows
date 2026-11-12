@@ -46,7 +46,71 @@ public partial class MainWindow
             };
             ActionChips.Children.Add(chip);
         }
+        BuildCharacterGallery();
+        BuildSettingsNav();
+        BuildAuraChips();
         RefreshSettingsPage();
+    }
+
+    private void BuildCharacterGallery()
+    {
+        foreach (var (id, name) in Views.CharacterView.All)
+        {
+            var preview = new Views.CharacterView { Kind = id, LayoutTransform = new ScaleTransform(1.5, 1.5), HorizontalAlignment = HorizontalAlignment.Center };
+            _previewCharacters.Add(preview);
+            var stack = new StackPanel();
+            stack.Children.Add(new Border { Height = 40, Child = preview });
+            stack.Children.Add(new TextBlock { Text = name, FontSize = 11, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 2, 0, 0) });
+
+            var card = new Border
+            {
+                Width = 126, Padding = new Thickness(6, 8, 6, 8), Margin = new Thickness(0, 0, 8, 8),
+                CornerRadius = new CornerRadius(16), BorderThickness = new Thickness(1.5), Cursor = Cursors.Hand, Child = stack, Tag = id,
+            };
+            card.SetResourceReference(Border.BackgroundProperty, "ChipBg");
+            card.MouseLeftButtonUp += (_, _) =>
+            {
+                if (_justDragged) return;
+                _settings.Character = id;
+                _settings.Save();
+                Character.Kind = id;
+                preview.Cheer();
+                SetupAura(); // Claude Code lights the island orange
+                HighlightCharacter();
+            };
+            CharacterGallery.Children.Add(card);
+        }
+        HighlightCharacter();
+    }
+
+    private void HighlightCharacter()
+    {
+        foreach (Border card in CharacterGallery.Children)
+        {
+            if ((string)card.Tag == _settings.Character) card.SetResourceReference(Border.BorderBrushProperty, "Accent");
+            else card.BorderBrush = Brushes.Transparent;
+        }
+    }
+
+    private void Reactive_Click(object sender, RoutedEventArgs e)
+    {
+        _settings.Reactive = ReactiveSwitch.IsChecked == true;
+        _settings.Save();
+        UpdateShape(false);
+    }
+
+    private void HandDrawn_Click(object sender, RoutedEventArgs e)
+    {
+        _settings.HandDrawn = HandDrawnSwitch.IsChecked == true;
+        _settings.Save();
+    }
+
+    private void ClaudeGlow_Click(object sender, RoutedEventArgs e)
+    {
+        _settings.ClaudeGlow = ClaudeGlowSwitch.IsChecked == true;
+        _settings.Save();
+        _auraThinking = false;
+        SetupAura();
     }
 
     private void RefreshSettingsPage()
@@ -54,6 +118,10 @@ public partial class MainWindow
         _settingsLoading = true;
         DarkSwitch.IsChecked = _settings.DarkTheme;
         LiquidSwitch.IsChecked = _settings.LiquidWaves;
+        RefreshLookControls();
+        ReactiveSwitch.IsChecked = _settings.Reactive;
+        ClaudeGlowSwitch.IsChecked = _settings.ClaudeGlow;
+        HandDrawnSwitch.IsChecked = _settings.HandDrawn;
         GameStatsSwitch.IsChecked = _settings.GameStats;
         KaraokeSwitch.IsChecked = _settings.Karaoke;
         NotifySwitch.IsChecked = _settings.MirrorNotifications;
@@ -94,6 +162,8 @@ public partial class MainWindow
         ApplyTheme();
         Kick(4);
     }
+
+
 
     private void Liquid_Click(object sender, RoutedEventArgs e)
     {

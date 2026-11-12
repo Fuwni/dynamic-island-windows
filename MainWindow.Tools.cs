@@ -158,7 +158,7 @@ public partial class MainWindow
         if (item.Text != null) _clips.RemoveAll(c => c.Text == item.Text); // copying again moves it up
         _clips.Insert(0, item);
         if (_clips.Count > 30) _clips.RemoveRange(30, _clips.Count - 30);
-        if (_mode == Mode.Expanded && TabClip.IsChecked == true) RenderClipboard();
+        if (_mode == Mode.Expanded && TabClip.IsChecked == true && ClipSegHistory.IsChecked == true) RenderClipboard();
     }
 
     private void RenderClipboard()
@@ -229,8 +229,10 @@ public partial class MainWindow
 
     private void ClipClear_Click(object sender, RoutedEventArgs e)
     {
-        _clips.Clear();
-        RenderClipboard();
+        if (ClipSegShelf.IsChecked == true) { _settings.Shelf.Clear(); _settings.Save(); }
+        else if (ClipSegText.IsChecked == true) { TextToolsBox.Clear(); QrFrame.Visibility = Visibility.Collapsed; }
+        else _clips.Clear();
+        RenderClipSection();
     }
 
     // ================================================================ notes
@@ -368,7 +370,7 @@ public partial class MainWindow
 
     private void Island_DragEnter(object sender, DragEventArgs e)
     {
-        if (!e.Data.GetDataPresent(DataFormats.FileDrop) || _mode == Mode.Claude) { e.Effects = DragDropEffects.None; e.Handled = true; return; }
+        if (_draggingOut || !e.Data.GetDataPresent(DataFormats.FileDrop) || _mode == Mode.Claude) { e.Effects = DragDropEffects.None; e.Handled = true; return; }
         e.Effects = DragDropEffects.Copy;
         e.Handled = true;
         if (_mode == Mode.Drop && DropActions.Visibility == Visibility.Visible) return;
@@ -402,6 +404,7 @@ public partial class MainWindow
         DropSubtitle.Text = size > 0 ? DownloadWatcher.FormatBytes(size) : "папка";
 
         DropActions.Children.Clear();
+        AddDropAction("\uE7B8", "На полку", () => { AddToShelf(files); Done("На полке", $"{_settings.Shelf.Count} файл(ов) ждут во вкладке «Буфер → Полка»"); });
         AddDropAction("", "Поделиться", () => FileDropActions.Share(_hwnd, files), keepOpen: true);
         AddDropAction("", "Копировать для вставки", () => { FileDropActions.CopyFiles(files); Done("Файлы в буфере", "Вставьте в Telegram, чат или папку: Ctrl+V"); });
         AddDropAction("", "В ZIP", () => Done("Архив готов", null, FileDropActions.Zip(files)));

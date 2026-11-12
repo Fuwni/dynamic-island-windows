@@ -1,5 +1,6 @@
 using System.IO;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -13,6 +14,45 @@ namespace DynamicIsland.Services;
 public sealed class ClaudeBridge
 {
     public const int Port = 47811;
+    private const long MaxBody = 1_000_000;
+    private const int MaxPending = 4;
+    private int _pending;
+
+    /// <summary>
+    /// A random secret only this Windows user can read. The hook script sends it with every call,
+    /// so other programs and web pages can't fake Claude Code requests.
+    /// </summary>
+    public static string TokenPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DynamicIsland", "bridge.token");
+
+    private static readonly Lazy<byte[]> Token = new(() =>
+    {
+        try
+        {
+            if (File.Exists(TokenPath))
+            {
+                var existing = File.ReadAllText(TokenPath).Trim();
+                if (existing.Length >= 32) return Encoding.ASCII.GetBytes(existing);
+            }
+            Directory.CreateDirectory(Path.GetDirectoryName(TokenPath)!);
+            var fresh = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+            File.WriteAllText(TokenPath, fresh);
+            return Encoding.ASCII.GetBytes(fresh);
+        }
+        catch { return RandomNumberGenerator.GetBytes(32); }   // unusable token = bridge stays closed
+    });
+
+    /// <summary>Only the hook script may talk to us: no browsers, the right secret, small JSON bodies.</summary>
+    private static bool IsTrusted(HttpListenerRequest r)
+    {
+        if (r.HttpMethod != "POST") return false;
+        if (r.Headers["Origin"] != null || r.Headers["Referer"] != null) return false;          // a web page
+        if (!(r.ContentType ?? "").StartsWith("application/json", StringComparison.OrdinalIgnoreCase)) return false;
+        if (r.ContentLength64 is < 0 or > MaxBody) return false;
+        if (!r.IsLocal) return false;
+        var sent = Encoding.ASCII.GetBytes(r.Headers["X-Island-Token"] ?? "");
+        return CryptographicOperations.FixedTimeEquals(sent, Token.Value);
+    }
 
     public sealed class PermissionRequest
     {
@@ -36,6 +76,7 @@ public sealed class ClaudeBridge
     {
         try
         {
+            _ = Token.Value;   // the hook script needs the secret on disk before the first call
             _listener = new HttpListener();
             _listener.Prefixes.Add($"http://localhost:{Port}/");
             _listener.Start();
@@ -61,6 +102,11 @@ public sealed class ClaudeBridge
     private async Task HandleAsync(HttpListenerContext ctx)
     {
         string response = "";
+        if (!IsTrusted(ctx.Request))
+        {
+            try { ctx.Response.StatusCode = 403; ctx.Response.Close(); } catch { }
+            return;
+        }
         try
         {
             using var reader = new StreamReader(ctx.Request.InputStream, Encoding.UTF8);
@@ -72,6 +118,14 @@ public sealed class ClaudeBridge
             {
                 case "/permission":
                 {
+                    // too many open questions at once: let Claude Code ask in the terminal instead
+                    if (Interlocked.Increment(ref _pending) > MaxPending)
+                    {
+                        Interlocked.Decrement(ref _pending);
+                        break;
+                    }
+                    try
+                    {
                     var req = new PermissionRequest
                     {
                         Tool = json["tool_name"]?.GetValue<string>() ?? "?",
@@ -96,6 +150,8 @@ public sealed class ClaudeBridge
                             },
                         }.ToJsonString();
                     }
+                    }
+                    finally { Interlocked.Decrement(ref _pending); }
                     break; // empty response = ask in the terminal as usual
                 }
                 case "/notify":

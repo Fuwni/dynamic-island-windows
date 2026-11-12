@@ -29,6 +29,27 @@ public sealed class Settings
     public double GlassOpacity { get; set; } = 1;
     /// <summary>Jelly / ripple physics (off = calm, smooth animation).</summary>
     public bool LiquidWaves { get; set; }
+    /// <summary>Which creature lives in the pill (see CharacterView.All).</summary>
+    public string Character { get; set; } = "eyes";
+    /// <summary>Edge reaches for the cursor, breathes with music, glows on events.</summary>
+    public bool Reactive { get; set; } = true;
+    /// <summary>Orange light under the island while a Claude character is on.</summary>
+    public bool ClaudeGlow { get; set; } = true;
+    /// <summary>Characters look hand-drawn: ink outlines that "boil", animated on twos (12 fps).</summary>
+    public bool HandDrawn { get; set; }
+    /// <summary>Frosted glass: the desktop behind the island, blurred, under a tint.</summary>
+    public bool Glass { get; set; } = true;
+    /// <summary>Tint strength over the frosted glass, 20…100 %.</summary>
+    public int GlassTint { get; set; } = 72;
+    /// <summary>Lower half of the island fades to see-through.</summary>
+    public bool BottomFade { get; set; } = true;
+    /// <summary>Shimmering colour along the lower edge when idle: none, aurora, sunset, ocean, neon, mono.</summary>
+    public string Aura { get; set; } = "aurora";
+    /// <summary>Panels land with a small springy hop.</summary>
+    public bool Bouncy { get; set; } = true;
+    public bool FastAnimations { get; set; }
+    /// <summary>Header: "hover" = page dots that turn into icons under the cursor, "always" = icons.</summary>
+    public string TabIcons { get; set; } = "hover";
     public int Version { get; set; }
 
     // live activities & extras
@@ -37,12 +58,16 @@ public sealed class Settings
     public bool MirrorNotifications { get; set; } = true;
     public bool MirrorAllApps { get; set; }
     public string CalendarIcs { get; set; } = "";
+    /// <summary>Files parked on the shelf (paths only, the files stay where they are).</summary>
+    public List<string> Shelf { get; set; } = [];
     public List<Reminder> Reminders { get; set; } = [];
     public bool PomodoroFocus { get; set; } = true;
     public string RestoreToasts { get; set; } = ""; // "1"/"0" while our "Не беспокоить" is on
 
     // behaviour
     public bool HideInFullscreen { get; set; } = true;
+    /// <summary>Attached to the top edge of the screen like a notch (true) or floating pill (false).</summary>
+    public bool Docked { get; set; }
     public bool ExpandOnHover { get; set; } = true;
 
     // Home tab, "build it yourself"
@@ -97,7 +122,10 @@ public sealed class Settings
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
-            File.WriteAllText(FilePath, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
+            // write to a temp file and swap: a kill in the middle can't leave a half-written settings file
+            var tmp = FilePath + ".tmp";
+            File.WriteAllText(tmp, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
+            File.Move(tmp, FilePath, overwrite: true);
         }
         catch { /* not critical */ }
     }

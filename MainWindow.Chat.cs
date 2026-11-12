@@ -11,6 +11,16 @@ namespace DynamicIsland;
 public partial class MainWindow
 {
     private WebView2CompositionControl? _chat;
+    private DateTime _chatTypedAt, _chatSentAt;
+
+    /// <summary>What the chat buddy is doing: typing along, thinking after you send, or just sitting.</summary>
+    private Views.CharacterMood ChatBuddyMood()
+    {
+        var now = DateTime.Now;
+        if (now - _chatTypedAt < TimeSpan.FromMilliseconds(700)) return Views.CharacterMood.Typing;
+        if (now - _chatSentAt < TimeSpan.FromSeconds(6)) return Views.CharacterMood.Think;
+        return Views.CharacterMood.Idle;
+    }
     private bool _chatStarting;
 
     private static string ChatUrl(string provider) => provider switch
@@ -42,7 +52,11 @@ public partial class MainWindow
         try
         {
             var dataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DynamicIsland", "WebView2");
-            var env = await CoreWebView2Environment.CreateAsync(null, dataDir);
+            // Google's "device bound sessions" tie a login to a hardware key that embedded browsers
+            // can't always re-prove after a restart - which looks like being logged out. Plain cookies instead.
+            var options = new CoreWebView2EnvironmentOptions(
+                "--disable-features=DeviceBoundSessions,EnableBoundSessionCredentials,DeviceBoundSessionsRefreshQuota");
+            var env = await CoreWebView2Environment.CreateAsync(null, dataDir, options);
 
             // composition control renders inside our transparent window (the classic one can't)
             _chat = new WebView2CompositionControl { Visibility = Visibility.Hidden };
@@ -52,17 +66,47 @@ public partial class MainWindow
 
             await _chat.EnsureCoreWebView2Async(env);
             var core = _chat.CoreWebView2;
+            // tell the island when you type (only that a key was pressed - never what)
+            await core.AddScriptToExecuteOnDocumentCreatedAsync(
+                "addEventListener('keydown',e=>{try{chrome.webview.postMessage(e.key==='Enter'&&!e.shiftKey?'enter':'key')}catch(_){}},true);");
+            core.WebMessageReceived += (_, e) =>
+            {
+                string? m = null;
+                try { m = e.TryGetWebMessageAsString(); } catch { }
+                if (!Services.SafeShell.IsOnHost(e.Source, ChatHosts)) return;   // only from the chat sites
+                if (m == "enter") _chatSentAt = DateTime.Now;
+                else if (m == "key") _chatTypedAt = DateTime.Now;
+            };
             core.Settings.AreDevToolsEnabled = false;
+            core.Settings.AreHostObjectsAllowed = false;
+            // never let a page start a program through a custom protocol (ms-..., file:, etc.)
+            core.NavigationStarting += (_, e) =>
+            {
+                var u = e.Uri ?? "";
+                if (!(u.StartsWith("https://", StringComparison.OrdinalIgnoreCase) || u.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                      || u.StartsWith("about:", StringComparison.OrdinalIgnoreCase) || u.StartsWith("data:", StringComparison.OrdinalIgnoreCase)))
+                    e.Cancel = true;
+            };
             core.Settings.IsStatusBarEnabled = false;
             core.NewWindowRequested += (_, e) =>
             {
                 var uri = e.Uri ?? "";
-                if (ChatHosts.Any(h => uri.Contains(h, StringComparison.OrdinalIgnoreCase))) return; // sign-in popup
+                if (Services.SafeShell.IsOnHost(uri, ChatHosts)) return; // sign-in popup stays inside
                 e.Handled = true;
-                try { Process.Start(new ProcessStartInfo(uri) { UseShellExecute = true }); } catch { }
+                Services.SafeShell.OpenUrl(uri);                          // other links: the normal browser, web pages only
             };
-            core.NavigationCompleted += (_, _) =>
+            core.NavigationCompleted += async (_, _) =>
             {
+                if (Environment.GetCommandLineArgs().Contains("--cookie-debug"))
+                {
+                    try
+                    {
+                        var cookies = await core.CookieManager.GetCookiesAsync(core.Source);
+                        Services.Log.Write($"cookies for {new Uri(core.Source).Host}: " + string.Join(", ",
+                            cookies.Select(c => $"{c.Name}[{(c.IsSession ? "session" : c.Expires.ToString("MM-dd"))}]")));
+                    }
+                    catch (Exception ex) { Services.Log.Write("cookie debug: " + ex.Message); }
+                }
                 ChatPlaceholder.Visibility = Visibility.Collapsed;
                 if (_chat.Visibility != Visibility.Visible)
                 {
@@ -91,11 +135,32 @@ public partial class MainWindow
         _chat?.CoreWebView2?.Navigate(ChatUrl(provider));
     }
 
+    /// <summary>
+    /// Close the embedded browser properly so it writes its cookies to disk.
+    /// Without this a Windows shutdown kills it mid-flight and recent logins are lost.
+    /// </summary>
+    private void ShutdownChat()
+    {
+        var chat = _chat;
+        _chat = null;
+        if (chat == null) return;
+        try
+        {
+            var browserPid = (int)chat.CoreWebView2.BrowserProcessId;
+            ChatHost.Children.Remove(chat);
+            chat.Dispose();
+            // give the browser process a moment to flush and exit by itself
+            using var p = Process.GetProcessById(browserPid);
+            p.WaitForExit(2500);
+        }
+        catch { }
+    }
+
     private void ChatReload_Click(object sender, RoutedEventArgs e) => _chat?.CoreWebView2?.Reload();
 
     private void ChatOpenExternal_Click(object sender, RoutedEventArgs e)
     {
         var url = _chat?.CoreWebView2?.Source ?? ChatUrl(_settings.ChatProvider);
-        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        Services.SafeShell.OpenUrl(url);
     }
 }

@@ -42,7 +42,7 @@ public static class CaptureService
         return CaptureRect(screen.Bounds);
     }
 
-    private static BitmapSource CaptureRect(Drawing.Rectangle r)
+    public static BitmapSource CaptureRect(Drawing.Rectangle r)
     {
         using var bmp = new Drawing.Bitmap(r.Width, r.Height, Drawing.Imaging.PixelFormat.Format32bppArgb);
         using (var g = Drawing.Graphics.FromImage(bmp))
@@ -134,6 +134,25 @@ public static class CaptureService
 
     /// <summary>Google Translate public endpoint (no key). Only called when the user presses "Перевести".</summary>
     public static async Task<string> TranslateAsync(string text, string to)
+        => (await TranslateDetailedAsync(text, to)).Text;
+
+    /// <summary>
+    /// Translate with Google's public endpoint. If the text is already in the target language
+    /// (a Russian text "to Russian"), it goes the other way - to English, or to Russian when the target is English.
+    /// </summary>
+    public static async Task<(string Text, string From, string To)> TranslateDetailedAsync(string text, string to)
+    {
+        var (result, from) = await TranslateOnceAsync(text, to);
+        if (string.Equals(from, to, StringComparison.OrdinalIgnoreCase) || result.Trim() == text.Trim())
+        {
+            var other = to.Equals("en", StringComparison.OrdinalIgnoreCase) ? "ru" : "en";
+            (result, from) = await TranslateOnceAsync(text, other);
+            return (result, from, other);
+        }
+        return (result, from, to);
+    }
+
+    private static async Task<(string Text, string From)> TranslateOnceAsync(string text, string to)
     {
         using var content = new FormUrlEncodedContent(new Dictionary<string, string> { ["q"] = text });
         var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={Uri.EscapeDataString(to)}&dt=t";
@@ -144,7 +163,9 @@ public static class CaptureService
         foreach (var part in doc.RootElement[0].EnumerateArray())
             if (part.ValueKind == JsonValueKind.Array && part[0].ValueKind == JsonValueKind.String)
                 sb.Append(part[0].GetString());
-        return sb.ToString();
+        var from = doc.RootElement.GetArrayLength() > 2 && doc.RootElement[2].ValueKind == JsonValueKind.String
+            ? doc.RootElement[2].GetString() ?? "" : "";
+        return (sb.ToString(), from);
     }
 
     // ----------------------------------------------------------- clean text

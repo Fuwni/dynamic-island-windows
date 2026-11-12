@@ -9,9 +9,9 @@
     <FontFamily x:Key="DisplayFont">Segoe UI Variable Display, Segoe UI</FontFamily>
 
     <!-- Theme brushes: replaced at runtime by Theme.Apply (dark/light + island colour). -->
-    <SolidColorBrush x:Key="IslandBg" Color="#DB000000"/>
-    <SolidColorBrush x:Key="GlassRim" Color="#33FFFFFF"/>
-    <SolidColorBrush x:Key="GlassShine" Color="#10FFFFFF"/>
+    <SolidColorBrush x:Key="IslandBg" Color="#000000"/>
+    <SolidColorBrush x:Key="GlassRim" Color="#1FFFFFFF"/>
+    <SolidColorBrush x:Key="GlassShine" Color="Transparent"/>
     <SolidColorBrush x:Key="TileBg" Color="#1A1A1D"/>
     <SolidColorBrush x:Key="TileBgHover" Color="#232327"/>
     <SolidColorBrush x:Key="TileStroke" Color="#14FFFFFF"/>
@@ -27,6 +27,14 @@
     <SolidColorBrush x:Key="Danger" Color="#FF453A"/>
     <SolidColorBrush x:Key="Warm" Color="#FFD60A"/>
     <SolidColorBrush x:Key="ClaudeOrange" Color="#D97757"/>
+    <LinearGradientBrush x:Key="AccentGradient" StartPoint="0.5,0" EndPoint="0.5,1">
+      <GradientStop Color="#4AE06F" Offset="0"/>
+      <GradientStop Color="#27C24F" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- shared easing -->
+    <CubicEase x:Key="EaseOut" EasingMode="EaseOut"/>
+    <BackEase x:Key="Bounce" EasingMode="EaseOut" Amplitude="0.6"/>
 
     <Style x:Key="Tile" TargetType="Border">
       <Setter Property="Background" Value="{DynamicResource TileBg}"/>
@@ -52,7 +60,7 @@
       <Setter Property="Foreground" Value="{DynamicResource Fg2}"/>
     </Style>
 
-    <!-- round icon button -->
+    <!-- ============ round icon button: soft glow on hover, springy press ============ -->
     <Style x:Key="IconButton" TargetType="Button">
       <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
       <Setter Property="Background" Value="Transparent"/>
@@ -65,17 +73,54 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid>
+            <Grid RenderTransformOrigin="0.5,0.5">
+              <Grid.RenderTransform>
+                <ScaleTransform x:Name="S"/>
+              </Grid.RenderTransform>
               <Border Background="{TemplateBinding Background}" CornerRadius="99"/>
               <Border x:Name="Hover" Background="{DynamicResource Fg}" CornerRadius="99" Opacity="0"/>
               <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="Hover" Property="Opacity" Value="0.1"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0.12" Duration="0:0:0.14"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1.08" Duration="0:0:0.22" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1.08" Duration="0:0:0.22" EasingFunction="{StaticResource Bounce}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.25" EasingFunction="{StaticResource EaseOut}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.25" EasingFunction="{StaticResource EaseOut}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="Hover" Property="Opacity" Value="0.2"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="0.86" Duration="0:0:0.08"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="0.86" Duration="0:0:0.08"/>
+                      <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0.22" Duration="0:0:0.08"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.32" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.32" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.3"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Opacity" Value="0.35"/>
@@ -94,28 +139,68 @@
       <Setter Property="FontSize" Value="17"/>
     </Style>
 
-    <!-- soft rounded text button -->
+    <!-- ============ soft rounded text button ============ -->
     <Style x:Key="Pill" TargetType="Button">
       <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
       <Setter Property="Background" Value="{DynamicResource ChipBg}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource TileStroke}"/>
       <Setter Property="FontSize" Value="12"/>
-      <Setter Property="Padding" Value="14,7"/>
+      <Setter Property="Padding" Value="15,8"/>
       <Setter Property="Cursor" Value="Hand"/>
       <Setter Property="Focusable" Value="False"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid>
-              <Border Background="{TemplateBinding Background}" CornerRadius="14"/>
-              <Border x:Name="Hover" Background="{DynamicResource Fg}" CornerRadius="14" Opacity="0"/>
+            <Grid RenderTransformOrigin="0.5,0.5">
+              <Grid.RenderTransform>
+                <ScaleTransform x:Name="S"/>
+              </Grid.RenderTransform>
+              <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                      BorderThickness="1" CornerRadius="16"/>
+              <Border x:Name="Hover" Background="{DynamicResource Fg}" CornerRadius="16" Opacity="0"/>
               <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="Hover" Property="Opacity" Value="0.08"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0.1" Duration="0:0:0.14"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1.04" Duration="0:0:0.22" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1.04" Duration="0:0:0.22" EasingFunction="{StaticResource Bounce}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.25" EasingFunction="{StaticResource EaseOut}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.25" EasingFunction="{StaticResource EaseOut}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="Hover" Property="Opacity" Value="0.16"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="0.94" Duration="0:0:0.08"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="0.94" Duration="0:0:0.08"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.32" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.32" EasingFunction="{StaticResource Bounce}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.4"/>
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -123,38 +208,100 @@
       </Setter>
     </Style>
 
+    <!-- primary: solid, high contrast, no glow -->
     <Style x:Key="AccentPill" TargetType="Button" BasedOn="{StaticResource Pill}">
-      <Setter Property="Background" Value="{DynamicResource Accent}"/>
-      <Setter Property="Foreground" Value="Black"/>
+      <Setter Property="Background" Value="{DynamicResource PlayBg}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{DynamicResource PlayFg}"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
-    <!-- quick-action tile on the Home tab -->
+    <!-- ============ quick-action tile: coloured icon chip + label ============ -->
     <Style x:Key="ActionTile" TargetType="Button">
       <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
-      <Setter Property="Height" Value="64"/>
+      <Setter Property="Background" Value="{DynamicResource AccentBlue}"/>
+      <Setter Property="Height" Value="82"/>
       <Setter Property="Margin" Value="4"/>
       <Setter Property="Cursor" Value="Hand"/>
       <Setter Property="Focusable" Value="False"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Border x:Name="Bg" Background="{DynamicResource TileBg}" BorderBrush="{DynamicResource TileStroke}"
-                    BorderThickness="1" CornerRadius="18">
+            <Grid RenderTransformOrigin="0.5,0.5">
+              <Grid.RenderTransform>
+                <ScaleTransform x:Name="S"/>
+              </Grid.RenderTransform>
+              <Border Background="{DynamicResource TileBg}" BorderBrush="{DynamicResource TileStroke}"
+                      BorderThickness="1" CornerRadius="22"/>
+              <Border x:Name="Hover" Background="{DynamicResource Fg}" CornerRadius="22" Opacity="0"/>
               <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
-                           FontFamily="{StaticResource IconFont}" FontSize="18"
-                           HorizontalAlignment="Center"/>
-                <ContentPresenter HorizontalAlignment="Center" Margin="0,6,0,0"
-                                  TextElement.FontSize="11" TextElement.Foreground="{DynamicResource Fg2}"/>
+                <Border x:Name="Chip" Width="36" Height="36" CornerRadius="12" HorizontalAlignment="Center"
+                        Background="{TemplateBinding Background}" RenderTransformOrigin="0.5,0.5">
+                  <Border.RenderTransform>
+                    <ScaleTransform x:Name="ChipS"/>
+                  </Border.RenderTransform>
+                  <Grid>
+                    <!-- soft top highlight so the chip looks lit, not flat -->
+                    <Border CornerRadius="12">
+                      <Border.Background>
+                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                          <GradientStop Color="#40FFFFFF" Offset="0"/>
+                          <GradientStop Color="#00FFFFFF" Offset="0.55"/>
+                          <GradientStop Color="#1A000000" Offset="1"/>
+                        </LinearGradientBrush>
+                      </Border.Background>
+                    </Border>
+                    <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                               FontFamily="{StaticResource IconFont}" FontSize="16" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+                <ContentPresenter HorizontalAlignment="Center" Margin="0,8,0,0"
+                                  TextElement.FontSize="11.5" TextElement.Foreground="{DynamicResource Fg2}"/>
               </StackPanel>
-            </Border>
+            </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TileBgHover}"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0.07" Duration="0:0:0.14"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1.03" Duration="0:0:0.24" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1.03" Duration="0:0:0.24" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="ChipS" Storyboard.TargetProperty="ScaleX" To="1.12" Duration="0:0:0.28" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="ChipS" Storyboard.TargetProperty="ScaleY" To="1.12" Duration="0:0:0.28" EasingFunction="{StaticResource Bounce}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.28"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.28" EasingFunction="{StaticResource EaseOut}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.28" EasingFunction="{StaticResource EaseOut}"/>
+                      <DoubleAnimation Storyboard.TargetName="ChipS" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.28" EasingFunction="{StaticResource EaseOut}"/>
+                      <DoubleAnimation Storyboard.TargetName="ChipS" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.28" EasingFunction="{StaticResource EaseOut}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="Bg" Property="Opacity" Value="0.75"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="0.95" Duration="0:0:0.08"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="0.95" Duration="0:0:0.08"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.34" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.34" EasingFunction="{StaticResource Bounce}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -162,7 +309,7 @@
       </Setter>
     </Style>
 
-    <!-- tab: icon only, label appears when selected -->
+    <!-- ============ tab: icon only, label appears when selected ============ -->
     <Style x:Key="TabButton" TargetType="RadioButton">
       <Setter Property="Foreground" Value="{DynamicResource Fg2}"/>
       <Setter Property="FontSize" Value="12"/>
@@ -172,21 +319,72 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="RadioButton">
-            <Border x:Name="Bg" Background="Transparent" CornerRadius="15" Padding="10,6" MinWidth="32">
-              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
-                           FontFamily="{StaticResource IconFont}" FontSize="13" VerticalAlignment="Center"/>
-                <ContentPresenter x:Name="Label" VerticalAlignment="Center" Margin="7,0,0,0" Visibility="Collapsed"/>
-              </StackPanel>
-            </Border>
+            <Grid RenderTransformOrigin="0.5,0.5">
+              <Grid.RenderTransform>
+                <ScaleTransform x:Name="S"/>
+              </Grid.RenderTransform>
+              <Border x:Name="Sel" Background="{DynamicResource ChipBg}" CornerRadius="16" Opacity="0"/>
+              <Border x:Name="Hover" Background="{DynamicResource Fg}" CornerRadius="16" Opacity="0"/>
+              <Border Background="Transparent" CornerRadius="16" Padding="10,7" MinWidth="34">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                  <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                             FontFamily="{StaticResource IconFont}" FontSize="13" VerticalAlignment="Center"/>
+                  <ContentPresenter x:Name="Label" VerticalAlignment="Center" Margin="7,0,0,0" Visibility="Collapsed"/>
+                </StackPanel>
+              </Border>
+            </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TileBg}"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0.08" Duration="0:0:0.14"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="0.9" Duration="0:0:0.08"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="0.9" Duration="0:0:0.08"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.32" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.32" EasingFunction="{StaticResource Bounce}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
               </Trigger>
               <Trigger Property="IsChecked" Value="True">
-                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ChipBg}"/>
                 <Setter TargetName="Label" Property="Visibility" Value="Visible"/>
                 <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Sel" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.22"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Sel" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.22"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -194,7 +392,7 @@
       </Setter>
     </Style>
 
-    <!-- segmented choice (chat provider etc.) -->
+    <!-- segmented choice (chat provider, timer mode) -->
     <Style x:Key="Segment" TargetType="RadioButton">
       <Setter Property="Foreground" Value="{DynamicResource Fg2}"/>
       <Setter Property="FontSize" Value="12"/>
@@ -203,13 +401,39 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="RadioButton">
-            <Border x:Name="Bg" Background="Transparent" CornerRadius="12" Padding="14,5">
-              <ContentPresenter HorizontalAlignment="Center"/>
-            </Border>
+            <Grid>
+              <Border x:Name="Sel" Background="{DynamicResource ChipBg}" BorderBrush="{DynamicResource TileStroke}"
+                      BorderThickness="1" CornerRadius="12" Opacity="0"/>
+              <Border x:Name="Hover" Background="{DynamicResource Fg}" CornerRadius="12" Opacity="0"/>
+              <Border Background="Transparent" Padding="15,6">
+                <ContentPresenter HorizontalAlignment="Center"/>
+              </Border>
+            </Grid>
             <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard><DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0.06" Duration="0:0:0.14"/></Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard><DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25"/></Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
               <Trigger Property="IsChecked" Value="True">
-                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ChipBg}"/>
                 <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard><DoubleAnimation Storyboard.TargetName="Sel" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/></Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard><DoubleAnimation Storyboard.TargetName="Sel" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/></Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -233,36 +457,50 @@
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
               <ContentPresenter VerticalAlignment="Center" Margin="0,0,12,0"/>
-              <Border x:Name="Track" Grid.Column="1" Width="38" Height="22" CornerRadius="11"
-                      Background="{DynamicResource TrackBg}">
-                <Ellipse x:Name="Knob" Width="18" Height="18" Fill="White" HorizontalAlignment="Left" Margin="2,0">
+              <Grid Grid.Column="1" Width="42" Height="25">
+                <Border CornerRadius="12.5" Background="{DynamicResource TrackBg}"/>
+                <Border x:Name="On" CornerRadius="12.5" Background="{StaticResource AccentGradient}" Opacity="0"/>
+                <Ellipse x:Name="Knob" Width="21" Height="21" Fill="White" HorizontalAlignment="Left" Margin="2,0"
+                         RenderTransformOrigin="0.5,0.5">
                   <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="KnobShift" X="0"/>
+                    <TransformGroup>
+                      <ScaleTransform x:Name="KnobS"/>
+                      <TranslateTransform x:Name="KnobShift" X="0"/>
+                    </TransformGroup>
                   </Ellipse.RenderTransform>
                   <Ellipse.Effect>
-                    <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.25"/>
+                    <DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.28"/>
                   </Ellipse.Effect>
                 </Ellipse>
-              </Border>
+              </Grid>
             </Grid>
             <ControlTemplate.Triggers>
+              <Trigger Property="IsPressed" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard><DoubleAnimation Storyboard.TargetName="KnobS" Storyboard.TargetProperty="ScaleX" To="1.18" Duration="0:0:0.1"/></Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard><DoubleAnimation Storyboard.TargetName="KnobS" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.25" EasingFunction="{StaticResource Bounce}"/></Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
               <Trigger Property="IsChecked" Value="True">
-                <Setter TargetName="Track" Property="Background" Value="{DynamicResource Accent}"/>
                 <Trigger.EnterActions>
                   <BeginStoryboard>
                     <Storyboard>
-                      <DoubleAnimation Storyboard.TargetName="KnobShift" Storyboard.TargetProperty="X" To="16" Duration="0:0:0.18">
-                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                      </DoubleAnimation>
+                      <DoubleAnimation Storyboard.TargetName="KnobShift" Storyboard.TargetProperty="X" To="17" Duration="0:0:0.3" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="On" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/>
                     </Storyboard>
                   </BeginStoryboard>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
                   <BeginStoryboard>
                     <Storyboard>
-                      <DoubleAnimation Storyboard.TargetName="KnobShift" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.18">
-                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                      </DoubleAnimation>
+                      <DoubleAnimation Storyboard.TargetName="KnobShift" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.3" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="On" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
                     </Storyboard>
                   </BeginStoryboard>
                 </Trigger.ExitActions>
@@ -273,7 +511,7 @@
       </Setter>
     </Style>
 
-    <!-- small checkbox chip for "build your Home" -->
+    <!-- small toggle chip for "build your Home" -->
     <Style x:Key="ChipToggle" TargetType="CheckBox">
       <Setter Property="Cursor" Value="Hand"/>
       <Setter Property="Focusable" Value="False"/>
@@ -283,15 +521,54 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="CheckBox">
-            <Border x:Name="Bg" Background="{DynamicResource TileBg}" BorderBrush="{DynamicResource TileStroke}"
-                    BorderThickness="1" CornerRadius="12" Padding="11,5">
-              <ContentPresenter/>
-            </Border>
+            <Grid RenderTransformOrigin="0.5,0.5">
+              <Grid.RenderTransform>
+                <ScaleTransform x:Name="S"/>
+              </Grid.RenderTransform>
+              <Border Background="{DynamicResource TileBg}" BorderBrush="{DynamicResource TileStroke}"
+                      BorderThickness="1" CornerRadius="13"/>
+              <Border x:Name="On" Background="{StaticResource AccentGradient}" CornerRadius="13" Opacity="0"/>
+              <Border Padding="12,6" Background="Transparent">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock x:Name="Tick" Text="&#xE73E;" FontFamily="{StaticResource IconFont}" FontSize="10"
+                             VerticalAlignment="Center" Margin="0,1,6,0" Visibility="Collapsed"/>
+                  <ContentPresenter VerticalAlignment="Center"/>
+                </StackPanel>
+              </Border>
+            </Grid>
             <ControlTemplate.Triggers>
+              <Trigger Property="IsPressed" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="0.93" Duration="0:0:0.08"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="0.93" Duration="0:0:0.08"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.3" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.3" EasingFunction="{StaticResource Bounce}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
               <Trigger Property="IsChecked" Value="True">
-                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ChipBg}"/>
-                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource Accent}"/>
-                <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+                <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                <Setter Property="Foreground" Value="#06280F"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard><DoubleAnimation Storyboard.TargetName="On" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.18"/></Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard><DoubleAnimation Storyboard.TargetName="On" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.18"/></Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -320,14 +597,14 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Slider">
-            <Grid Height="20">
-              <Border Height="5" CornerRadius="2.5" Background="{DynamicResource TrackBg}" VerticalAlignment="Center"/>
+            <Grid Height="22">
+              <Border Height="6" CornerRadius="3" Background="{DynamicResource TrackBg}" VerticalAlignment="Center"/>
               <Track x:Name="PART_Track">
                 <Track.DecreaseRepeatButton>
                   <RepeatButton Command="Slider.DecreaseLarge" Style="{StaticResource SliderRepeat}">
                     <RepeatButton.Template>
                       <ControlTemplate TargetType="RepeatButton">
-                        <Border Height="5" CornerRadius="2.5" Background="{DynamicResource Fg}" VerticalAlignment="Center"/>
+                        <Border Height="6" CornerRadius="3" Background="{DynamicResource Fg}" VerticalAlignment="Center"/>
                       </ControlTemplate>
                     </RepeatButton.Template>
                   </RepeatButton>
@@ -336,14 +613,37 @@
                   <RepeatButton Command="Slider.IncreaseLarge" Style="{StaticResource SliderRepeat}"/>
                 </Track.IncreaseRepeatButton>
                 <Track.Thumb>
-                  <Thumb Width="16" Height="16">
+                  <Thumb Width="18" Height="18">
                     <Thumb.Template>
                       <ControlTemplate TargetType="Thumb">
-                        <Ellipse Fill="White">
+                        <Ellipse x:Name="T" Fill="White" RenderTransformOrigin="0.5,0.5">
+                          <Ellipse.RenderTransform>
+                            <ScaleTransform x:Name="TS"/>
+                          </Ellipse.RenderTransform>
                           <Ellipse.Effect>
-                            <DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.3"/>
+                            <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.3"/>
                           </Ellipse.Effect>
                         </Ellipse>
+                        <ControlTemplate.Triggers>
+                          <Trigger Property="IsMouseOver" Value="True">
+                            <Trigger.EnterActions>
+                              <BeginStoryboard>
+                                <Storyboard>
+                                  <DoubleAnimation Storyboard.TargetName="TS" Storyboard.TargetProperty="ScaleX" To="1.2" Duration="0:0:0.2" EasingFunction="{StaticResource Bounce}"/>
+                                  <DoubleAnimation Storyboard.TargetName="TS" Storyboard.TargetProperty="ScaleY" To="1.2" Duration="0:0:0.2" EasingFunction="{StaticResource Bounce}"/>
+                                </Storyboard>
+                              </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                              <BeginStoryboard>
+                                <Storyboard>
+                                  <DoubleAnimation Storyboard.TargetName="TS" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.2"/>
+                                  <DoubleAnimation Storyboard.TargetName="TS" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.2"/>
+                                </Storyboard>
+                              </BeginStoryboard>
+                            </Trigger.ExitActions>
+                          </Trigger>
+                        </ControlTemplate.Triggers>
                       </ControlTemplate>
                     </Thumb.Template>
                   </Thumb>
@@ -363,9 +663,25 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="TextBox">
-            <Border Background="{DynamicResource ChipBg}" CornerRadius="12" Padding="10,5">
-              <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
-            </Border>
+            <Grid>
+              <Border Background="{DynamicResource ChipBg}" BorderBrush="{DynamicResource TileStroke}" BorderThickness="1" CornerRadius="13"/>
+              <Border x:Name="Focus" BorderBrush="{DynamicResource AccentBlue}" BorderThickness="1.5" CornerRadius="13" Opacity="0"/>
+              <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" Margin="11,5"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard><DoubleAnimation Storyboard.TargetName="Focus" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15"/></Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard><DoubleAnimation Storyboard.TargetName="Focus" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/></Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
@@ -381,13 +697,198 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid>
-              <Ellipse x:Name="Ring" Stroke="{DynamicResource Fg3}" StrokeThickness="1.5" Margin="-3" Opacity="0"/>
-              <Ellipse Fill="{TemplateBinding Background}" Stroke="#33FFFFFF" StrokeThickness="1"/>
+            <Grid RenderTransformOrigin="0.5,0.5">
+              <Grid.RenderTransform>
+                <ScaleTransform x:Name="S"/>
+              </Grid.RenderTransform>
+              <Ellipse Fill="{TemplateBinding Background}" Stroke="#44FFFFFF" StrokeThickness="1"/>
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="Ring" Property="Opacity" Value="1"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1.22" Duration="0:0:0.22" EasingFunction="{StaticResource Bounce}"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1.22" Duration="0:0:0.22" EasingFunction="{StaticResource Bounce}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.22"/>
+                      <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.22"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- ============ more button kinds: different jobs look different ============ -->
+
+    <!-- secondary: text only, a quiet fill appears on hover -->
+    <Style x:Key="GhostPill" TargetType="Button" BasedOn="{StaticResource Pill}">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{DynamicResource Fg2}"/>
+    </Style>
+
+    <!-- small outlined chip for tools and options -->
+    <Style x:Key="ToolChip" TargetType="Button" BasedOn="{StaticResource Pill}">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource TrackBg}"/>
+      <Setter Property="FontSize" Value="11.5"/>
+      <Setter Property="Padding" Value="12,6"/>
+    </Style>
+
+    <!-- tinted: colour at low strength behind coloured text (set Background / Foreground) -->
+    <Style x:Key="TintPill" TargetType="Button" BasedOn="{StaticResource Pill}">
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style x:Key="DangerPill" TargetType="Button" BasedOn="{StaticResource Pill}">
+      <Setter Property="Background" Value="#2EFF453A"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Foreground" Value="#FF6961"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <!-- wide tile: filled colour chip + label on one line -->
+    <Style x:Key="WideAction" TargetType="Button">
+      <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+      <Setter Property="Height" Value="58"/>
+      <Setter Property="Margin" Value="4"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid RenderTransformOrigin="0.5,0.5">
+              <Grid.RenderTransform><ScaleTransform x:Name="S"/></Grid.RenderTransform>
+              <Border Background="{DynamicResource TileBg}" BorderBrush="{DynamicResource TileStroke}" BorderThickness="1" CornerRadius="20"/>
+              <Border x:Name="Hover" Background="{DynamicResource Fg}" CornerRadius="20" Opacity="0"/>
+              <StackPanel Orientation="Horizontal" Margin="12,0" VerticalAlignment="Center">
+                <Border Width="34" Height="34" CornerRadius="17" Background="{TemplateBinding Background}">
+                  <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" FontFamily="{StaticResource IconFont}"
+                             FontSize="14" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <ContentPresenter VerticalAlignment="Center" Margin="10,0,0,0" TextElement.FontSize="12.5"/>
+              </StackPanel>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0.07" Duration="0:0:0.16"/>
+                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.3"/>
+                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="0.96" Duration="0:0:0.08"/>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="0.96" Duration="0:0:0.08"/>
+                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.36" EasingFunction="{StaticResource Bounce}"/>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.36" EasingFunction="{StaticResource Bounce}"/>
+                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- round button: coloured icon in a soft circle, tiny label underneath -->
+    <Style x:Key="RoundAction" TargetType="Button">
+      <Setter Property="Margin" Value="0,6,0,2"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <StackPanel Background="Transparent">
+              <Grid Width="52" Height="52" RenderTransformOrigin="0.5,0.5">
+                <Grid.RenderTransform><ScaleTransform x:Name="S"/></Grid.RenderTransform>
+                <Ellipse Fill="{TemplateBinding Background}"/>
+                <Ellipse x:Name="Hover" Fill="{DynamicResource Fg}" Opacity="0"/>
+                <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" FontFamily="{StaticResource IconFont}"
+                           FontSize="19" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              </Grid>
+              <ContentPresenter HorizontalAlignment="Center" Margin="0,6,0,0"
+                                TextElement.FontSize="10.5" TextElement.Foreground="{DynamicResource Fg2}"/>
+            </StackPanel>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0.1" Duration="0:0:0.16"/>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1.08" Duration="0:0:0.3" EasingFunction="{StaticResource Bounce}"/>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1.08" Duration="0:0:0.3" EasingFunction="{StaticResource Bounce}"/>
+                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.3"/>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.3" EasingFunction="{StaticResource EaseOut}"/>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.3" EasingFunction="{StaticResource EaseOut}"/>
+                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="0.88" Duration="0:0:0.08"/>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="0.88" Duration="0:0:0.08"/>
+                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.4" EasingFunction="{StaticResource Bounce}"/>
+                  <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.4" EasingFunction="{StaticResource Bounce}"/>
+                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- settings sidebar item -->
+    <Style x:Key="SideNav" TargetType="RadioButton">
+      <Setter Property="Foreground" Value="{DynamicResource Fg2}"/>
+      <Setter Property="FontSize" Value="12.5"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Margin" Value="0,0,0,2"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="RadioButton">
+            <Grid>
+              <Border x:Name="Sel" Background="{DynamicResource ChipBg}" CornerRadius="12" Opacity="0"/>
+              <Border x:Name="Hover" Background="{DynamicResource Fg}" CornerRadius="12" Opacity="0"/>
+              <StackPanel Orientation="Horizontal" Margin="10,8">
+                <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" FontFamily="{StaticResource IconFont}"
+                           FontSize="13" VerticalAlignment="Center" Width="20"/>
+                <ContentPresenter VerticalAlignment="Center" Margin="6,0,0,0"/>
+              </StackPanel>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0.06" Duration="0:0:0.14"/>
+                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25"/>
+                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Sel" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/>
+                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Sel" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
+                </Storyboard></BeginStoryboard></Trigger.ExitActions>
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>

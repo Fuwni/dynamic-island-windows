@@ -139,14 +139,18 @@ public partial class ScreenshotEditor : Window
         if (string.IsNullOrEmpty(_ocrText)) return;
         var to = Settings.Current.TranslateTo;
         ShowResult("ПЕРЕВОД", "Перевожу…");
-        try { ShowResult($"ПЕРЕВОД → {to.ToUpperInvariant()}", await CaptureService.TranslateAsync(_ocrText, to)); }
+        try
+        {
+            var (text, from, target) = await CaptureService.TranslateDetailedAsync(_ocrText, to);
+            ShowResult($"ПЕРЕВОД {from.ToUpperInvariant()} → {target.ToUpperInvariant()}", text);
+        }
         catch { ShowResult("ПЕРЕВОД", "Нет связи с сервисом перевода"); }
     }
 
     private void Qr_Click(object sender, RoutedEventArgs e)
     {
         var text = CaptureService.DecodeQr(_image);
-        _link = text != null && Uri.TryCreate(text, UriKind.Absolute, out var u) && u.Scheme.StartsWith("http") ? text : null;
+        _link = Services.SafeShell.IsWebUrl(text) ? text : null;
         ShowResult("QR-КОД", text ?? "QR-код не найден");
     }
 
@@ -165,7 +169,7 @@ public partial class ScreenshotEditor : Window
 
     private void OpenLink_Click(object sender, RoutedEventArgs e)
     {
-        if (_link != null) Process.Start(new ProcessStartInfo(_link) { UseShellExecute = true });
+        Services.SafeShell.OpenUrl(_link);
     }
 
     private void Flash(string text) => (Application.Current.MainWindow as MainWindow)?.ShowToast("", text, null);

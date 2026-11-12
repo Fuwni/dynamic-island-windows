@@ -27,6 +27,7 @@ public partial class MainWindow
         UpdateMediaUi();
     }
 
+    private System.Windows.Media.Imaging.BitmapImage? _lastArt;
     private DateTime? _pausedSince;
     private static readonly TimeSpan PausedHideAfter = TimeSpan.FromMinutes(2);
 
@@ -34,7 +35,7 @@ public partial class MainWindow
 
     private void UpdateMediaUi()
     {
-        var m = _demoMedia ?? _media.Current;
+        var m = _demoIdle ? null : _demoMedia ?? _media.Current;
         // a forgotten paused tab shouldn't sit on the island forever
         if (m != null && !m.IsPlaying)
         {
@@ -65,6 +66,18 @@ public partial class MainWindow
             ArtPlaceholder.Visibility = HomeArtPlaceholder.Visibility = Visibility.Visible;
         }
 
+        // equaliser, glow and character accents take the cover's colour
+        if (!ReferenceEquals(m?.Art, _lastArt))
+        {
+            _lastArt = m?.Art;
+            _albumColor = _lastArt != null ? DominantColor(_lastArt) : null;
+            foreach (var bar in EqBars.Children.OfType<Rectangle>())
+            {
+                if (_albumColor is Color ac) bar.Fill = new SolidColorBrush(ac);
+                else bar.SetResourceReference(Shape.FillProperty, "Accent");
+            }
+        }
+
         PlayPauseButton.Content = HomePlay.Content = playing ? "" : "";
         UpdateEyesVisibility();
         SetEqualizer(playing);
@@ -79,7 +92,12 @@ public partial class MainWindow
         var key = hasTrack ? $"{m!.Artist}\n{m.Title}" : "";
         if (key != _lyricsKey)
         {
-            if (_lyricsKey.Length > 0 && key.Length > 0) Kick(3.5); // new track
+            if (_lyricsKey.Length > 0 && key.Length > 0)
+            {
+                Kick(3.5); // new track
+                Character.Cheer();
+                PulseGlow(_albumColor ?? Color.FromRgb(0x30, 0xD1, 0x58));
+            }
             _lyricsKey = key;
             _currentLyrics = null;
             _lyricIndex = int.MinValue;
