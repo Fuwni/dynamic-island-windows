@@ -1,12 +1,14 @@
 <div align="center">
 
-<img src="docs/icon.png" width="96" alt="Dynamic Island icon">
+<img src="docs/icon.png" width="96" alt="Atoll icon">
 
-<img src="docs/screenshots/en/compact-music.png" width="420" alt="Dynamic Island in its compact state">
+<img src="docs/screenshots/en/compact-music.png" width="420" alt="Atoll in its compact state">
 
-# Dynamic Island for Windows
+# Atoll
 
-**The iPhone "island" — on your PC.**
+### The Dynamic Island–style island for Windows
+
+**The iPhone "island", reimagined for your PC.**
 Music with live lyrics, weather, timers, screenshots with OCR and translation, an AI chat, clipboard history,
 notes, a calendar, notifications and a little character that lives in the pill — all in one soft, springy island at the top of the screen.
 
@@ -28,7 +30,7 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 ## Contents
 
-- [What's new in 1.2](#whats-new-in-12)
+- [What's new in 1.3](#whats-new-in-13)
 - [Features](#features)
 - [Install (2 minutes, no admin rights)](#install)
 - [How to use it](#how-to-use-it)
@@ -41,7 +43,13 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 ---
 
-## What's new in 1.2
+## What's new in 1.3
+
+- ✨ **New name and logo — Atoll.** An atoll is a ring-shaped island: the mark is that ring, with one warm "live" dot in its lagoon. Minimal, and sharp even at 16 px in the tray.
+- 🔄 **Automatic updates**: a notice on the island when a new version is out, one click to update (Settings → Behavior → Updates).
+- 📦 **Installer and quick uninstall** (from 1.2.1): per-user setup with Start-menu entry and autostart, and *Settings → Behavior → Uninstall Atoll*.
+
+### Earlier, in 1.2
 
 - 🌍 **The interface speaks 7 languages**: English, Russian, Ukrainian, Spanish, German, Portuguese and Chinese. It follows your Windows language, and you can switch it in Settings → Behavior. Dates, units and quick reminders ("tomorrow 9:00", "in 20 min", "mañana 9:00", "明天 9:00") work in every language.
 - 🎨 **New icon**: a violet squircle with the island, its little eyes and a warm glow.
@@ -120,7 +128,7 @@ drag the island anywhere or **flick it up** to hide it; it hides itself in games
 **Installer (recommended)**
 
 1. Open **[Releases](https://github.com/Fuwni/dynamic-island-windows/releases/latest)** and download **`DynamicIsland-…-setup.exe`**.
-2. Run it. It installs just for you (no admin rights), adds Dynamic Island to the Start menu and can start it with Windows.
+2. Run it. It installs just for you (no admin rights), adds Atoll to the Start menu and can start it with Windows.
 3. Windows may show a blue **"Windows protected your PC"** window because the app isn't signed with a paid certificate.
    Click **More info → Run anyway**. You only need to do this once.
 
@@ -138,7 +146,7 @@ drag the island anywhere or **flick it up** to hide it; it hides itself in games
 
 **Update:** run the new setup over the old one. Your settings are kept.
 
-**Uninstall (10 seconds):** **Settings → Behavior → Uninstall Dynamic Island**, or Windows **Settings → Apps → Installed apps → Dynamic Island → Uninstall**.
+**Uninstall (10 seconds):** **Settings → Behavior → Uninstall Atoll**, or Windows **Settings → Apps → Installed apps → Atoll → Uninstall**.
 It removes the app, its Start-menu entry, autostart and Claude Code hooks, and asks whether to delete your settings, notes and chat logins too.
 The same button works for the portable version: it cleans up and deletes its own folder.
 

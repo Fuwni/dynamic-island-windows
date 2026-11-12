@@ -90,7 +90,7 @@ GOOGLE / OUTLOOK / ЛЮБОЙ КАЛЕНДАРЬ (ICS)	GOOGLE / OUTLOOK / ANY CA
 Запись экрана: звук компьютера	Screen recording: computer sound	Запис екрана: звук комп'ютера	Grabación: sonido del equipo	Bildschirmaufnahme: PC-Ton	Gravação da tela: som do computador	屏幕录制：系统声音
 Запись экрана: микрофон	Screen recording: microphone	Запис екрана: мікрофон	Grabación: micrófono	Bildschirmaufnahme: Mikrofon	Gravação da tela: microfone	屏幕录制：麦克风
 Ctrl+Alt+S — скриншот области · Ctrl+Alt+R — запись · Ctrl+Alt+I — показать/спрятать · Ctrl+Alt+Space — командная строка	Ctrl+Alt+S — region screenshot · Ctrl+Alt+R — record · Ctrl+Alt+I — show/hide · Ctrl+Alt+Space — command bar	Ctrl+Alt+S — знімок області · Ctrl+Alt+R — запис · Ctrl+Alt+I — показати/сховати · Ctrl+Alt+Space — командний рядок	Ctrl+Alt+S: captura de región · Ctrl+Alt+R: grabar · Ctrl+Alt+I: mostrar/ocultar · Ctrl+Alt+Espacio: barra de comandos	Strg+Alt+S – Bereichs-Screenshot · Strg+Alt+R – Aufnahme · Strg+Alt+I – anzeigen/ausblenden · Strg+Alt+Leertaste – Befehlsleiste	Ctrl+Alt+S — captura de região · Ctrl+Alt+R — gravar · Ctrl+Alt+I — mostrar/ocultar · Ctrl+Alt+Espaço — barra de comandos	Ctrl+Alt+S — 区域截图 · Ctrl+Alt+R — 录制 · Ctrl+Alt+I — 显示/隐藏 · Ctrl+Alt+Space — 命令栏
-Скриншот — Dynamic Island	Screenshot — Dynamic Island	Знімок — Dynamic Island	Captura — Dynamic Island	Screenshot — Dynamic Island	Captura — Dynamic Island	截图 — Dynamic Island
+Скриншот — Atoll	Screenshot — Atoll	Знімок — Atoll	Captura — Atoll	Screenshot — Atoll	Captura — Atoll	截图 — Atoll
 Красный	Red	Червоний	Rojo	Rot	Vermelho	红色
 Жёлтый	Yellow	Жовтий	Amarillo	Gelb	Amarelo	黄色
 Зелёный	Green	Зелений	Verde	Grün	Verde	绿色
@@ -106,7 +106,23 @@ Ctrl+Alt+S — скриншот области · Ctrl+Alt+R — запись ·
 Открыть ссылку	Open link	Відкрити посилання	Abrir enlace	Link öffnen	Abrir link	打开链接
 Выровнять по центру	Align to center	Вирівняти по центру	Centrar	Zentrieren	Centralizar	居中对齐
 Поставить остров ровно по центру вверху экрана	Put the island exactly at the top center of the screen	Поставити острів рівно по центру вгорі екрана	Colocar la isla justo en el centro superior de la pantalla	Insel genau oben mittig platzieren	Colocar a ilha exatamente no centro superior da tela	把灵动岛放到屏幕顶部正中
-Удалить Dynamic Island	Uninstall Dynamic Island	Видалити Dynamic Island	Desinstalar Dynamic Island	Dynamic Island deinstallieren	Desinstalar o Dynamic Island	卸载 Dynamic Island
+Удалить Atoll	Uninstall Atoll	Видалити Atoll	Desinstalar Atoll	Atoll deinstallieren	Desinstalar o Atoll	卸载 Atoll
 Удалить приложение, автозапуск и хуки Claude Code	Remove the app, autostart and Claude Code hooks	Видалити застосунок, автозапуск і хуки Claude Code	Quitar la app, el inicio automático y los hooks de Claude Code	App, Autostart und Claude-Code-Hooks entfernen	Remover o app, a inicialização automática e os hooks do Claude Code	移除应用、开机启动和 Claude Code 钩子
-Удалить Dynamic Island с этого компьютера?	Uninstall Dynamic Island from this computer?	Видалити Dynamic Island з цього комп'ютера?	¿Desinstalar Dynamic Island de este equipo?	Dynamic Island von diesem Computer entfernen?	Desinstalar o Dynamic Island deste computador?	要从这台电脑上卸载 Dynamic Island 吗？
+Удалить Atoll с этого компьютера?	Uninstall Atoll from this computer?	Видалити Atoll з цього комп'ютера?	¿Desinstalar Atoll de este equipo?	Atoll von diesem Computer entfernen?	Desinstalar o Atoll deste computador?	要从这台电脑上卸载 Atoll 吗？
 Удалить также настройки, заметки и вход в чаты?	Also delete settings, notes and chat logins?	Видалити також налаштування, нотатки та вхід у чати?	¿Eliminar también los ajustes, las notas y las sesiones de chat?	Auch Einstellungen, Notizen und Chat-Anmeldungen löschen?	Excluir também configurações, notas e logins dos chats?	同时删除设置、笔记和聊天登录信息吗？
+Обновления	Updates	Оновлення	Actualizaciones	Updates	Atualizações	更新
+Проверить сейчас	Check now	Перевірити зараз	Buscar ahora	Jetzt prüfen	Verificar agora	立即检查
+Проверять обновления автоматически	Check for updates automatically	Перевіряти оновлення автоматично	Buscar actualizaciones automáticamente	Automatisch nach Updates suchen	Verificar atualizações automaticamente	自动检查更新
+Проверяю…	Checking…	Перевіряю…	Comprobando…	Prüfe…	Verificando…	正在检查…
+Доступна версия {0}	Version {0} is available	Доступна версія {0}	Versión {0} disponible	Version {0} ist verfügbar	Versão {0} disponível	有新版本 {0}
+Нажмите, чтобы обновить	Click to update	Натисніть, щоб оновити	Haz clic para actualizar	Zum Aktualisieren klicken	Clique para atualizar	点击更新
+Нажмите, чтобы скачать	Click to download	Натисніть, щоб завантажити	Haz clic para descargar	Zum Herunterladen klicken	Clique para baixar	点击下载
+Нет связи с GitHub	Can't reach GitHub	Немає зв'язку з GitHub	No se puede conectar con GitHub	GitHub nicht erreichbar	Sem conexão com o GitHub	无法连接 GitHub
+Установлена последняя версия · {0}	You're up to date · {0}	Встановлено останню версію · {0}	Tienes la última versión · {0}	Aktuellste Version · {0}	Você está na versão mais recente · {0}	已是最新版本 · {0}
+Доступна версия {0} (у вас {1})	Version {0} is available (you have {1})	Доступна версія {0} (у вас {1})	Versión {0} disponible (tienes la {1})	Version {0} verfügbar (installiert: {1})	Versão {0} disponível (você tem a {1})	有新版本 {0}（当前 {1}）
+Обновить до {0}	Update to {0}	Оновити до {0}	Actualizar a {0}	Auf {0} aktualisieren	Atualizar para {0}	更新到 {0}
+Скачать с GitHub	Download from GitHub	Завантажити з GitHub	Descargar de GitHub	Von GitHub herunterladen	Baixar do GitHub	从 GitHub 下载
+Скачиваю обновление… {0:0}%	Downloading the update… {0:0}%	Завантажую оновлення… {0:0}%	Descargando la actualización… {0:0}%	Lade Update… {0:0}%	Baixando a atualização… {0:0}%	正在下载更新… {0:0}%
+Скачиваю Atoll {0}…	Downloading Atoll {0}…	Завантажую Atoll {0}…	Descargando Atoll {0}…	Lade Atoll {0}…	Baixando o Atoll {0}…	正在下载 Atoll {0}…
+Устанавливаю…	Installing…	Встановлюю…	Instalando…	Installiere…	Instalando…	正在安装…
+Проверить обновления	Check for updates	Перевірити оновлення	Buscar actualizaciones	Nach Updates suchen	Verificar atualizações	检查更新

@@ -85,6 +85,8 @@ public sealed class Settings
     public string TranslateTarget => string.IsNullOrWhiteSpace(TranslateTo) ? Loc.Lang : TranslateTo;
     /// <summary>Interface language: "" = like Windows, or en / ru / uk / es / de / pt / zh.</summary>
     public string Language { get; set; } = "";
+    /// <summary>Look for a newer release on GitHub now and then.</summary>
+    public bool AutoUpdateCheck { get; set; } = true;
     public bool RecordSystemAudio { get; set; } = true;
     public bool RecordMicrophone { get; set; } = true;
 

@@ -18,7 +18,9 @@ public sealed class ScreenRecording
     {
         get
         {
-            var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "Dynamic Island");
+            var root = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+            var dir = Path.Combine(root, "Dynamic Island");          // folder from before the rename
+            if (!Directory.Exists(dir)) dir = Path.Combine(root, "Atoll");
             Directory.CreateDirectory(dir);
             return dir;
         }

@@ -1,4 +1,4 @@
-# Dynamic Island <-> Claude Code bridge.
+# Atoll <-> Claude Code bridge.
 # Claude Code runs this for PermissionRequest / Notification / Stop hooks.
 # If the island is not running, it silently does nothing and Claude Code behaves as usual.
 param([string]$Event = "Notification")

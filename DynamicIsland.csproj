@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -12,9 +12,10 @@
     <AssemblyName>DynamicIsland</AssemblyName>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
 
-    <Version>1.2.1</Version>
-    <Product>Dynamic Island for Windows</Product>
-    <Description>Dynamic Island for Windows: music, lyrics, weather, timers, screenshots, chat and more at the top of the screen.</Description>
+    <Version>1.3.0</Version>
+    <Product>Atoll</Product>
+    <AssemblyTitle>Atoll</AssemblyTitle>
+    <Description>Atoll, a Dynamic Island-style island for Windows: music, lyrics, weather, timers, screenshots, chat and more at the top of the screen.</Description>
     <Copyright>Copyright (c) 2026 mykolaichechelnytskyi, MIT License</Copyright>
     <SatelliteResourceLanguages>ru;en</SatelliteResourceLanguages>
 

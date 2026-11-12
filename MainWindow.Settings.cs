@@ -54,7 +54,7 @@ public partial class MainWindow
     /// <summary>Quick uninstall from the settings: the installer's uninstaller, or a clean self-removal for a portable copy.</summary>
     private void Uninstall_Click(object sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show(this, L.T("Удалить Dynamic Island с этого компьютера?"), "Dynamic Island",
+        if (MessageBox.Show(this, L.T("Удалить Atoll с этого компьютера?"), "Atoll",
                 MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
 
         var uninstaller = Services.Uninstaller.InstalledUninstaller;
@@ -66,7 +66,7 @@ public partial class MainWindow
             return;
         }
 
-        bool data = MessageBox.Show(this, L.T("Удалить также настройки, заметки и вход в чаты?"), "Dynamic Island",
+        bool data = MessageBox.Show(this, L.T("Удалить также настройки, заметки и вход в чаты?"), "Atoll",
             MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes;
         Services.Uninstaller.RemoveRegistrations();
         Services.Uninstaller.ScheduleDelete(data, appFolder: true);

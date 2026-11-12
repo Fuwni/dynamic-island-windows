@@ -89,6 +89,7 @@ public partial class MainWindow : Window
         InitHome();
         InitSettingsPage();
         InitBuddyReactions();
+        InitUpdates();
         InitClaude();
         InitRecording();
         InitExtras();
@@ -130,6 +131,18 @@ public partial class MainWindow : Window
             {
                 await Task.Delay(1500);
                 if (action.StartsWith("lang:")) { SwitchLanguage(action[5..]); return; }   // test the language switch
+                if (action == "update-dry")   // test: check + download + verify the newest installer, but don't run it
+                {
+                    try
+                    {
+                        var info = await Updater.CheckAsync();
+                        if (info == null) { Log.Write("update-dry: up to date"); return; }
+                        var path = await Updater.DownloadAsync(info, null);
+                        Log.Write($"update-dry: {info.Tag} -> {path} ({new System.IO.FileInfo(path).Length} bytes, sha256 {(info.Sha256 != null ? "verified" : "not published")})");
+                    }
+                    catch (Exception ex) { Log.Write("update-dry failed: " + ex.Message); }
+                    return;
+                }
                 if (action == "kick") { Kick(6); Squish(0.92); await Task.Delay(120); Unsquish(3); return; }
                 if (action == "timer") { _timer.SetKind(TimerKind.Timer); _timer.SetDuration(TimeSpan.FromMinutes(secs > 0 ? secs : 5)); _timer.Start(); return; }
                 RunAction(action);
@@ -1018,7 +1031,7 @@ public partial class MainWindow : Window
         _tray = new Forms.NotifyIcon
         {
             Icon = new System.Drawing.Icon(iconStream, Forms.SystemInformation.SmallIconSize),
-            Text = "Dynamic Island",
+            Text = "Atoll",
             Visible = true,
             ContextMenuStrip = new Forms.ContextMenuStrip(),
         };

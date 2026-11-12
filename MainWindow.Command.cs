@@ -160,6 +160,7 @@ public partial class MainWindow
         (["чистый текст", "очистить текст", "plain"], L.T("Чистый текст в буфере"), "", () => RunAction("cleantext")),
         (["тема", "theme", "светлая", "тёмная", "темная"], L.T("Сменить тему"), "", ToggleTheme),
         (["выровнять", "центр", "align", "center"], L.T("Выровнять по центру"), "", AlignIsland),
+        (["обновить", "обновления", "update", "updates"], L.T("Проверить обновления"), "", () => _ = CheckForUpdatesAsync(manual: true)),
         (["спрятать", "скрыть", "hide"], L.T("Спрятать остров"), "", () => HideIsland(animate: true)),
         (["настройки", "settings"], L.T("Настройки"), "", () => OpenTab(TabSettings)),
         (["погода", "weather"], L.T("Погода"), "", () => OpenTab(TabWeather)),

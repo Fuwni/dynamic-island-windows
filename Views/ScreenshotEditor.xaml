@@ -1,7 +1,7 @@
 <Window x:Class="DynamicIsland.Views.ScreenshotEditor"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Скриншот — Dynamic Island"
+        Title="Скриншот — Atoll"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Topmost="True"
         FontFamily="Segoe UI Variable Text, Segoe UI" Foreground="{DynamicResource Fg}"

@@ -140,7 +140,7 @@ public sealed class ClaudeBridge
                     if (behavior is "allow" or "deny")
                     {
                         var decision = new JsonObject { ["behavior"] = behavior };
-                        if (behavior == "deny") decision["message"] = "The user denied this from Dynamic Island.";
+                        if (behavior == "deny") decision["message"] = "The user denied this from Atoll.";
                         response = new JsonObject
                         {
                             ["hookSpecificOutput"] = new JsonObject

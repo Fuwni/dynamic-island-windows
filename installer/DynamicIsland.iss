@@ -1,4 +1,4 @@
-; Dynamic Island for Windows — installer (Inno Setup 6).
+; Atoll for Windows — installer (Inno Setup 6).
 ;
 ;   dotnet publish DynamicIsland.csproj -c Release -r win-x64 --self-contained true -o publish/DynamicIsland
 ;   iscc /DAppVer=1.2.1 installer\DynamicIsland.iss          -> dist\DynamicIsland-1.2.1-setup.exe
@@ -8,14 +8,14 @@
 ; hooks and autostart, and offers to delete settings, notes and chat logins.
 
 #ifndef AppVer
-  #define AppVer "1.2.1"
+  #define AppVer "1.3.0"
 #endif
 
 [Setup]
 AppId={{6D2A9B57-3C41-4E8E-9F0B-5A7C1E2D8B90}
-AppName=Dynamic Island
+AppName=Atoll
 AppVersion={#AppVer}
-AppVerName=Dynamic Island {#AppVer}
+AppVerName=Atoll {#AppVer}
 AppPublisher=Fuwni
 AppPublisherURL=https://github.com/Fuwni/dynamic-island-windows
 AppSupportURL=https://github.com/Fuwni/dynamic-island-windows/issues
@@ -29,10 +29,10 @@ PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir=..\dist
-OutputBaseFilename=DynamicIsland-{#AppVer}-setup
+OutputBaseFilename=Atoll-{#AppVer}-setup
 SetupIconFile=..\Assets\icon.ico
 UninstallDisplayIcon={app}\DynamicIsland.exe
-UninstallDisplayName=Dynamic Island
+UninstallDisplayName=Atoll
 WizardStyle=modern
 WizardImageFile=wizard.bmp
 WizardSmallImageFile=wizard-small.bmp
@@ -51,12 +51,12 @@ Name: "de"; MessagesFile: "compiler:Languages\German.isl"
 Name: "pt"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
 
 [CustomMessages]
-en.AutoStart=Start Dynamic Island with Windows
-ru.AutoStart=Запускать Dynamic Island вместе с Windows
-uk.AutoStart=Запускати Dynamic Island разом із Windows
-es.AutoStart=Iniciar Dynamic Island con Windows
-de.AutoStart=Dynamic Island mit Windows starten
-pt.AutoStart=Iniciar o Dynamic Island com o Windows
+en.AutoStart=Start Atoll with Windows
+ru.AutoStart=Запускать Atoll вместе с Windows
+uk.AutoStart=Запускати Atoll разом із Windows
+es.AutoStart=Iniciar Atoll con Windows
+de.AutoStart=Atoll mit Windows starten
+pt.AutoStart=Iniciar o Atoll com o Windows
 en.DeleteData=Also delete your settings, notes and chat logins?
 ru.DeleteData=Удалить также настройки, заметки и вход в чаты?
 uk.DeleteData=Видалити також налаштування, нотатки та вхід у чати?
@@ -78,16 +78,23 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "..\publish\DynamicIsland\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\Dynamic Island"; Filename: "{app}\DynamicIsland.exe"
-Name: "{autodesktop}\Dynamic Island"; Filename: "{app}\DynamicIsland.exe"; Tasks: desktopicon
+Name: "{autoprograms}\Atoll"; Filename: "{app}\DynamicIsland.exe"
+Name: "{autodesktop}\Atoll"; Filename: "{app}\DynamicIsland.exe"; Tasks: desktopicon
 
 [Registry]
 ; same value the app's own "Start with Windows" switch uses, so both stay in sync
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "DynamicIsland"; \
   ValueData: """{app}\DynamicIsland.exe"""; Tasks: autostart; Flags: uninsdeletevalue
 
+[InstallDelete]
+; shortcuts from before the rename
+Type: files; Name: "{autoprograms}\Dynamic Island.lnk"
+Type: files; Name: "{autodesktop}\Dynamic Island.lnk"
+
 [Run]
-Filename: "{app}\DynamicIsland.exe"; Description: "{cm:LaunchProgram,Dynamic Island}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\DynamicIsland.exe"; Description: "{cm:LaunchProgram,Atoll}"; Flags: nowait postinstall skipifsilent
+; auto-update (setup.exe /SILENT /RELAUNCH=1): start the new version straight away
+Filename: "{app}\DynamicIsland.exe"; Flags: nowait; Check: ShouldRelaunch
 
 [UninstallRun]
 ; the app removes its Claude Code hooks and autostart entry itself
@@ -97,6 +104,11 @@ Filename: "{app}\DynamicIsland.exe"; Parameters: "--uninstall"; Flags: runhidden
 Type: filesandordirs; Name: "{app}"
 
 [Code]
+function ShouldRelaunch(): Boolean;
+begin
+  Result := ExpandConstant('{param:RELAUNCH|0}') = '1';
+end;
+
 { Close a running island gently (it saves cookies and settings), then make sure it is gone. }
 procedure CloseIsland();
 var

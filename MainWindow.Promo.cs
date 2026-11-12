@@ -38,7 +38,7 @@ public partial class MainWindow
     private static Dictionary<string, (string, string)> PromoCaptions(string lang) => lang == "en"
         ? new()
         {
-            ["intro"] = ("Dynamic Island", "now on Windows"),
+            ["intro"] = ("Atoll", "now on Windows"),
             ["reach"] = ("It feels alive", "it reaches for your cursor"),
             ["music"] = ("Music with live lyrics", "works with any player"),
             ["home"] = ("Everything one click away", "screenshots, OCR, recording, QR"),
@@ -51,7 +51,7 @@ public partial class MainWindow
         }
         : new()
         {
-            ["intro"] = ("Dynamic Island", "теперь на Windows"),
+            ["intro"] = ("Atoll", "теперь на Windows"),
             ["reach"] = ("Он живой", "тянется к курсору"),
             ["music"] = ("Музыка со словами песен", "любой плеер: Spotify, YouTube, Яндекс"),
             ["home"] = ("Всё под рукой", "скриншот, текст с экрана, запись, QR"),
@@ -104,7 +104,7 @@ public partial class MainWindow
         Glow(Color.FromRgb(0x5E, 0x5C, 0xE6), 900, 1750, 600);
         var brand = new TextBlock
         {
-            Text = "DYNAMIC ISLAND  ·  WINDOWS", FontSize = 28, FontWeight = FontWeights.SemiBold, FontFamily = DisplayFont,
+            Text = "ATOLL  ·  WINDOWS", FontSize = 28, FontWeight = FontWeights.SemiBold, FontFamily = DisplayFont,
             Foreground = new SolidColorBrush(Color.FromRgb(0xF0, 0xA2, 0x7A)), Width = PW, TextAlignment = TextAlignment.Center,
         };
         Canvas.SetTop(brand, 196);
@@ -196,7 +196,7 @@ public partial class MainWindow
             WindowStyle = WindowStyle.None, ResizeMode = ResizeMode.NoResize, ShowInTaskbar = false, ShowActivated = false,
             Topmost = true, Width = PromoStage.Width, Height = PromoStage.Height,
             Left = (SystemParameters.PrimaryScreenWidth - PromoStage.Width) / 2, Top = 140,
-            Content = wall, Background = Brushes.Black, Title = "Dynamic Island promo",
+            Content = wall, Background = Brushes.Black, Title = "Atoll promo",
         };
     }
 

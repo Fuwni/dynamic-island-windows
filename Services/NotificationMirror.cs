@@ -50,7 +50,7 @@ public sealed class NotificationMirror
             try
             {
                 var app = n.AppInfo?.DisplayInfo?.DisplayName ?? "";
-                if (app.Contains("Dynamic Island", StringComparison.OrdinalIgnoreCase)) continue;
+                if (app.Contains("Dynamic Island", StringComparison.OrdinalIgnoreCase) || app.Contains("Atoll", StringComparison.OrdinalIgnoreCase)) continue;
                 if (!allApps && !Messengers.Any(m => app.Contains(m, StringComparison.OrdinalIgnoreCase))) continue;
 
                 var binding = n.Notification?.Visual?.GetBinding(KnownNotificationBindings.ToastGeneric);

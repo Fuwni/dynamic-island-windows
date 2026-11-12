@@ -111,7 +111,7 @@ public partial class MainWindow
                     BrandArt.DrawIcon(dc, new Rect(c.X - size / 2, c.Y - size / 2, size, size), expand, blink, Math.Sin(t * 2.4) * 0.8);
                     dc.Pop();
                 }
-                BrandText(dc, "Dynamic Island", 108, Brushes.White, 1170, EaseOut((t - 1.5) / 0.45), (1 - EaseOut((t - 1.5) / 0.45)) * 50, FontWeights.Bold);
+                BrandText(dc, "Atoll", 108, Brushes.White, 1170, EaseOut((t - 1.5) / 0.45), (1 - EaseOut((t - 1.5) / 0.45)) * 50, FontWeights.Bold);
                 BrandText(dc, "для Windows", 60, orange, 1290, EaseOut((t - 1.75) / 0.45), (1 - EaseOut((t - 1.75) / 0.45)) * 40, FontWeights.SemiBold);
                 BrandText(dc, "обзор версии 1.1", 42, gray, 1385, EaseOut((t - 2.0) / 0.45), (1 - EaseOut((t - 2.0) / 0.45)) * 30, null, "Segoe UI Variable Text, Segoe UI");
             }

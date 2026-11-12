@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:v="clr-namespace:DynamicIsland.Views"
-        Title="Dynamic Island"
+        Title="Atoll"
         Width="900" Height="720"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize" ShowActivated="False"
@@ -988,6 +988,22 @@
                 </Border>
                 <Border Style="{StaticResource Tile}" Margin="0,0,0,10">
                   <StackPanel>
+                    <DockPanel>
+                      <Button x:Name="UpdateButton" DockPanel.Dock="Right" Style="{StaticResource AccentPill}" Padding="14,7"
+                              Visibility="Collapsed" Click="UpdateNow_Click"/>
+                      <Button DockPanel.Dock="Right" Style="{StaticResource GhostPill}" Margin="0,0,8,0" Padding="12,7"
+                              Click="CheckUpdates_Click" Content="Проверить сейчас"/>
+                      <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Обновления" FontSize="13"/>
+                        <TextBlock x:Name="UpdateStatus" Style="{StaticResource Muted}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                      </StackPanel>
+                    </DockPanel>
+                    <CheckBox x:Name="AutoUpdateSwitch" Style="{StaticResource Switch}" Margin="0,10,0,0" Click="AutoUpdate_Click"
+                              Content="Проверять обновления автоматически"/>
+                  </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tile}" Margin="0,0,0,10">
+                  <StackPanel>
                     <CheckBox x:Name="HoverSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Раскрывать при наведении"/>
                     <CheckBox x:Name="FullscreenSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Прятать в играх и полноэкранном режиме"/>
                     <CheckBox x:Name="GameStatsSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="В играх показывать CPU / GPU / RAM вместо полного скрытия"/>
@@ -1006,7 +1022,7 @@
                             Click="Uninstall_Click" ToolTip="Удалить приложение, автозапуск и хуки Claude Code">
                       <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE74D;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="Удалить Dynamic Island" VerticalAlignment="Center"/>
+                        <TextBlock Text="Удалить Atoll" VerticalAlignment="Center"/>
                       </StackPanel>
                     </Button>
                   </StackPanel>
