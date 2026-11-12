@@ -2,6 +2,18 @@
 
 All notable changes to Dynamic Island for Windows. Русская версия каждого пункта — ниже английской.
 
+## 1.2.1 — 2026-11-12
+
+- **Installer**: `DynamicIsland-1.2.1-setup.exe` installs per user (no admin rights) with a Start-menu entry, optional desktop icon and autostart, in 6 languages, and shows up in Windows "Installed apps".
+- **Quick uninstall**: Settings → Behavior → *Uninstall Dynamic Island* (or Windows Settings → Apps). Removes the app, autostart and Claude Code hooks, and asks about deleting settings, notes and chat logins. Works for the portable zip too.
+- **Language list** is a proper drop-down that opens inside the island; switching relaunches reliably.
+- **Align to center** button (Settings, right-click menu, tray, command bar).
+
+### По-русски
+- **Установщик** без прав администратора: ярлык в «Пуске», автозапуск, запись в «Приложениях» Windows.
+- **Быстрое удаление**: «Настройки → Поведение → Удалить Dynamic Island» — убирает программу, автозапуск и хуки, спрашивает про личные данные.
+- Новый выпадающий список языков и кнопка «Выровнять по центру».
+
 ## 1.2.0 — 2026-11-12
 
 ### Languages

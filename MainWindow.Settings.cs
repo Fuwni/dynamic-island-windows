@@ -51,6 +51,28 @@ public partial class MainWindow
         catch (Exception ex) { ShowToast("", L.T("Не получилось"), ex.Message); }
     }
 
+    /// <summary>Quick uninstall from the settings: the installer's uninstaller, or a clean self-removal for a portable copy.</summary>
+    private void Uninstall_Click(object sender, RoutedEventArgs e)
+    {
+        if (MessageBox.Show(this, L.T("Удалить Dynamic Island с этого компьютера?"), "Dynamic Island",
+                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+
+        var uninstaller = Services.Uninstaller.InstalledUninstaller;
+        if (uninstaller != null)
+        {
+            // installed with the setup: its uninstaller removes everything and asks about personal data
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(uninstaller) { UseShellExecute = true });
+            Close();
+            return;
+        }
+
+        bool data = MessageBox.Show(this, L.T("Удалить также настройки, заметки и вход в чаты?"), "Dynamic Island",
+            MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes;
+        Services.Uninstaller.RemoveRegistrations();
+        Services.Uninstaller.ScheduleDelete(data, appFolder: true);
+        Close();
+    }
+
     private void InitSettingsPage()
     {
         BuildLanguageList();

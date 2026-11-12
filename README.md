@@ -117,17 +117,16 @@ drag the island anywhere or **flick it up** to hide it; it hides itself in games
 <a id="install"></a>
 ## Install (2 minutes, no admin rights)
 
-1. Open **[Releases](https://github.com/Fuwni/dynamic-island-windows/releases/latest)** and download `DynamicIsland-…-win-x64.zip`.
-2. Unzip it into a folder of your choice, for example paste this into the Explorer address bar:
-   ```
-   %LOCALAPPDATA%\Programs\DynamicIsland
-   ```
-3. Run **`DynamicIsland.exe`**. The island appears at the top of the screen.
-4. Windows may show a blue **"Windows protected your PC"** window because the app isn't signed with a paid certificate.
-   Click **More info → Run anyway**. You only need to do this once.
-5. To start it with Windows: right-click the island → **Settings** → **Behavior** → **Start with Windows**.
+**Installer (recommended)**
 
-> You don't need to install .NET: everything is inside the zip.
+1. Open **[Releases](https://github.com/Fuwni/dynamic-island-windows/releases/latest)** and download **`DynamicIsland-…-setup.exe`**.
+2. Run it. It installs just for you (no admin rights), adds Dynamic Island to the Start menu and can start it with Windows.
+3. Windows may show a blue **"Windows protected your PC"** window because the app isn't signed with a paid certificate.
+   Click **More info → Run anyway**. You only need to do this once.
+
+**Portable (no installation)**: download `DynamicIsland-…-win-x64.zip`, unzip it anywhere and run `DynamicIsland.exe`.
+
+> You don't need to install .NET: everything is included.
 
 **Requirements**
 
@@ -137,8 +136,11 @@ drag the island anywhere or **flick it up** to hide it; it hides itself in games
 | Microsoft Edge WebView2 Runtime | the Chat page | already in Windows 11; otherwise [download](https://developer.microsoft.com/microsoft-edge/webview2/) |
 | Visual C++ Redistributable 2015–2022 (x64) | screen recording | usually installed; otherwise [download](https://aka.ms/vs/17/release/vc_redist.x64.exe) |
 
-**Update:** quit the island (right-click → Exit) and replace the files with the new release. Your settings are kept.
-**Uninstall:** turn off autostart, quit, delete the folder. Settings and notes live in `%APPDATA%\DynamicIsland`; delete it too if you like.
+**Update:** run the new setup over the old one. Your settings are kept.
+
+**Uninstall (10 seconds):** **Settings → Behavior → Uninstall Dynamic Island**, or Windows **Settings → Apps → Installed apps → Dynamic Island → Uninstall**.
+It removes the app, its Start-menu entry, autostart and Claude Code hooks, and asks whether to delete your settings, notes and chat logins too.
+The same button works for the portable version: it cleans up and deletes its own folder.
 
 ---
 

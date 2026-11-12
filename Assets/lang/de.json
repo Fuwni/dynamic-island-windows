@@ -384,5 +384,9 @@
  "Закрыть (Esc)": "Schließen (Esc)",
  "Открыть ссылку": "Link öffnen",
  "Выровнять по центру": "Zentrieren",
- "Поставить остров ровно по центру вверху экрана": "Insel genau oben mittig platzieren"
+ "Поставить остров ровно по центру вверху экрана": "Insel genau oben mittig platzieren",
+ "Удалить Dynamic Island": "Dynamic Island deinstallieren",
+ "Удалить приложение, автозапуск и хуки Claude Code": "App, Autostart und Claude-Code-Hooks entfernen",
+ "Удалить Dynamic Island с этого компьютера?": "Dynamic Island von diesem Computer entfernen?",
+ "Удалить также настройки, заметки и вход в чаты?": "Auch Einstellungen, Notizen und Chat-Anmeldungen löschen?"
 }

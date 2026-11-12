@@ -11,6 +11,14 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        if (e.Args.Contains("--uninstall"))
+        {
+            // the setup's uninstaller: remove Claude Code hooks and autostart, nothing else on screen
+            Uninstaller.RemoveRegistrations();
+            Shutdown();
+            return;
+        }
+
         _mutex = new Mutex(true, "DynamicIsland.SingleInstance", out bool created);
         if (!created && e.Args.Contains("--restart"))
         {
