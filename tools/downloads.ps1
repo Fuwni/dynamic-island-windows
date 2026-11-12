@@ -16,4 +16,4 @@ $rows = foreach ($r in $releases) {
 $rows | Format-Table -AutoSize
 $apps = $rows | Where-Object { $_.File -match '\.(exe|zip)$' }
 "Installers and zips downloaded: {0}" -f ($apps | Measure-Object Downloads -Sum).Sum
-"Stars: {0} · Watchers: {1} · Forks: {2}" -f $info.stargazers_count, $info.subscribers_count, $info.forks_count
+"Stars: {0} | Watchers: {1} | Forks: {2}" -f $info.stargazers_count, $info.subscribers_count, $info.forks_count
