@@ -196,6 +196,24 @@ public partial class MainWindow
             Snap(folder, name);
             if (tab == TabTimer) { _timer.Reset(); _timer.SetKind(TimerKind.Timer); }
         }
+        // settings: the Behaviour section with the language list, closed and open
+        TabSettings.IsChecked = true;
+        ((RadioButton)SettingsNav.Children[3]).IsChecked = true;
+        await Task.Delay(900);
+        Snap(folder, "settings-behavior");
+        LanguageBox.IsDropDownOpen = true;
+        await Task.Delay(700);
+        if (LanguageBox.Template.FindName("PART_Popup", LanguageBox) is System.Windows.Controls.Primitives.Popup { Child: FrameworkElement menu })
+        {
+            var rtb = new RenderTargetBitmap((int)(menu.ActualWidth * 2) + 4, (int)(menu.ActualHeight * 2) + 4, 192, 192, PixelFormats.Pbgra32);
+            rtb.Render(menu);
+            var enc = new PngBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(rtb));
+            using var fs = File.Create(Path.Combine(folder, "language-menu.png"));
+            enc.Save(fs);
+        }
+        LanguageBox.IsDropDownOpen = false;
+
         // Claude Code typing over the chat window
         _settings.Character = "clawd";
         SetupAura();

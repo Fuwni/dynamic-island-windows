@@ -11,40 +11,49 @@ public partial class MainWindow
 {
     private bool _settingsLoading;
 
-    private void BuildLanguageChips()
+    /// <summary>One row of the language list: its own name, and the English name as a hint.</summary>
+    public sealed record LanguageOption(string Code, string Name, string Hint);
+
+    private static readonly Dictionary<string, string> EnglishNames = new()
     {
-        LanguageChips.Children.Clear();
-        var options = new List<(string Code, string Name)> { ("", L.T("Как в Windows")) };
-        options.AddRange(Services.Loc.Languages);
-        foreach (var (code, name) in options)
+        ["en"] = "", ["ru"] = "Russian", ["uk"] = "Ukrainian", ["es"] = "Spanish", ["de"] = "German", ["pt"] = "Portuguese", ["zh"] = "Chinese",
+    };
+
+    private void BuildLanguageList()
+    {
+        var auto = Services.Loc.Resolve("");
+        var autoName = Services.Loc.Languages.First(l => l.Code == auto).Name;
+        var options = new List<LanguageOption> { new("", L.T("Как в Windows"), autoName) };
+        options.AddRange(Services.Loc.Languages.Select(l => new LanguageOption(l.Code, l.Name, EnglishNames[l.Code])));
+        LanguageBox.ItemsSource = options;
+        LanguageSub.Visibility = Services.Loc.Lang == "en" ? Visibility.Collapsed : Visibility.Visible;
+        LanguageBox.SelectedItem = options.FirstOrDefault(o => o.Code == _settings.Language) ?? options[0];
+    }
+
+    private void LanguageBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_settingsLoading || LanguageBox.SelectedItem is not LanguageOption opt || opt.Code == _settings.Language) return;
+        SwitchLanguage(opt.Code);
+    }
+
+    /// <summary>Save the language and, if it really changes, relaunch: the interface is translated at start-up.</summary>
+    private void SwitchLanguage(string code)
+    {
+        _settings.Language = code;
+        _settings.Save();
+        if (Services.Loc.Resolve(code) == Services.Loc.Lang) return;
+        try
         {
-            var chip = new CheckBox
-            {
-                Style = (Style)FindResource("ChipToggle"), Content = name, Tag = code,
-                IsChecked = _settings.Language == code, Margin = new Thickness(0, 0, 6, 6),
-            };
-            chip.Click += (_, _) =>
-            {
-                foreach (CheckBox other in LanguageChips.Children) other.IsChecked = (string)other.Tag == code;   // one at a time
-                if (_settingsLoading || _settings.Language == code) return;
-                _settings.Language = code;
-                _settings.Save();
-                if (Services.Loc.Resolve(code) == Services.Loc.Lang) return;   // same language, nothing to reload
-                // the whole interface is translated at start-up: relaunch in the new language
-                try
-                {
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!, "--restart") { UseShellExecute = false });
-                    Application.Current.Shutdown();
-                }
-                catch (Exception ex) { ShowToast("", L.T("Не получилось"), ex.Message); }
-            };
-            LanguageChips.Children.Add(chip);
+            ((App)Application.Current).ReleaseSingleInstance();   // let the new copy start right away
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!, "--restart") { UseShellExecute = false });
+            Close();
         }
+        catch (Exception ex) { ShowToast("", L.T("Не получилось"), ex.Message); }
     }
 
     private void InitSettingsPage()
     {
-        BuildLanguageChips();
+        BuildLanguageList();
         foreach (var hex in Theme.Palette)
         {
             var b = new Button

@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -129,6 +129,7 @@ public partial class MainWindow : Window
             _ = Dispatcher.InvokeAsync(async () =>
             {
                 await Task.Delay(1500);
+                if (action.StartsWith("lang:")) { SwitchLanguage(action[5..]); return; }   // test the language switch
                 if (action == "kick") { Kick(6); Squish(0.92); await Task.Delay(120); Unsquish(3); return; }
                 if (action == "timer") { _timer.SetKind(TimerKind.Timer); _timer.SetDuration(TimeSpan.FromMinutes(secs > 0 ? secs : 5)); _timer.Start(); return; }
                 RunAction(action);

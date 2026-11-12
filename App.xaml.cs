@@ -37,6 +37,14 @@ public partial class App : Application
         window.Show();
     }
 
+    /// <summary>Give up the "only one island" lock early, so a relaunched copy can start while this one closes.</summary>
+    public void ReleaseSingleInstance()
+    {
+        try { _mutex?.ReleaseMutex(); } catch { }
+        _mutex?.Dispose();
+        _mutex = null;
+    }
+
     protected override void OnExit(ExitEventArgs e)
     {
         _mutex?.Dispose();

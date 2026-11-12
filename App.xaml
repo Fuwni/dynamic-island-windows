@@ -687,6 +687,107 @@
       </Setter>
     </Style>
 
+    <!-- drop-down list in the same soft style: rounded field, floating rounded menu with a soft shadow -->
+    <Style x:Key="SoftComboToggle" TargetType="ToggleButton">
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ToggleButton">
+            <Grid Background="Transparent">
+              <Border x:Name="Bg" Background="{DynamicResource ChipBg}" BorderBrush="{DynamicResource TileStroke}" BorderThickness="1" CornerRadius="13"/>
+              <Border x:Name="Ring" BorderBrush="{DynamicResource AccentBlue}" BorderThickness="1.5" CornerRadius="13" Opacity="0"/>
+              <TextBlock x:Name="Chevron" Text="&#xE70D;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="10"
+                         Foreground="{DynamicResource Fg2}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0"
+                         RenderTransformOrigin="0.5,0.5">
+                <TextBlock.RenderTransform><RotateTransform x:Name="ChevronSpin"/></TextBlock.RenderTransform>
+              </TextBlock>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TileBgHover}"/>
+              </Trigger>
+              <Trigger Property="IsChecked" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="ChevronSpin" Storyboard.TargetProperty="Angle" To="180" Duration="0:0:0.25" EasingFunction="{StaticResource EaseOut}"/>
+                      <DoubleAnimation Storyboard.TargetName="Ring" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="ChevronSpin" Storyboard.TargetProperty="Angle" To="0" Duration="0:0:0.25" EasingFunction="{StaticResource EaseOut}"/>
+                      <DoubleAnimation Storyboard.TargetName="Ring" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="SoftComboItem" TargetType="ComboBoxItem">
+      <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ComboBoxItem">
+            <Grid Margin="4,1">
+              <Border x:Name="Bg" Background="Transparent" CornerRadius="9"/>
+              <TextBlock x:Name="Tick" Text="&#xE73E;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="11"
+                         Foreground="{DynamicResource AccentBlue}" VerticalAlignment="Center" Margin="10,0,0,0" Opacity="0"/>
+              <ContentPresenter Margin="32,8,12,8" VerticalAlignment="Center"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsHighlighted" Value="True">
+                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TileBgHover}"/>
+              </Trigger>
+              <Trigger Property="IsSelected" Value="True">
+                <Setter TargetName="Tick" Property="Opacity" Value="1"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="SoftCombo" TargetType="ComboBox">
+      <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="ItemContainerStyle" Value="{StaticResource SoftComboItem}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ComboBox">
+            <Grid>
+              <ToggleButton Style="{StaticResource SoftComboToggle}"
+                            IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+              <ContentPresenter Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                IsHitTestVisible="False" VerticalAlignment="Center" Margin="14,0,34,0"/>
+              <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" VerticalOffset="-4" HorizontalOffset="-10"
+                     AllowsTransparency="True" PopupAnimation="Fade" Focusable="False">
+                <Border Margin="10,0,10,14" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                        Background="{DynamicResource IslandBg}" BorderBrush="{DynamicResource TileStroke}" BorderThickness="1"
+                        CornerRadius="14" Padding="0,5">
+                  <Border.Effect>
+                    <DropShadowEffect BlurRadius="22" ShadowDepth="6" Direction="270" Opacity="0.45"/>
+                  </Border.Effect>
+                  <ScrollViewer MaxHeight="320" VerticalScrollBarVisibility="Auto">
+                    <ItemsPresenter/>
+                  </ScrollViewer>
+                </Border>
+              </Popup>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
     <!-- colour swatch -->
     <Style x:Key="Swatch" TargetType="Button">
       <Setter Property="Width" Value="26"/>

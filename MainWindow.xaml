@@ -966,10 +966,24 @@
                   </StackPanel>
                   <StackPanel Tag="Поведение|&#xE713;" Visibility="Collapsed">
                 <Border Style="{StaticResource Tile}" Margin="0,0,0,10">
-                  <StackPanel>
-                    <TextBlock Style="{StaticResource Caption}" Text="ЯЗЫК · LANGUAGE"/>
-                    <WrapPanel x:Name="LanguageChips" Margin="0,10,0,0"/>
-                  </StackPanel>
+                  <DockPanel>
+                    <ComboBox x:Name="LanguageBox" DockPanel.Dock="Right" Style="{StaticResource SoftCombo}" Width="250"
+                              SelectionChanged="LanguageBox_SelectionChanged">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <DockPanel LastChildFill="True">
+                            <TextBlock DockPanel.Dock="Right" Text="{Binding Hint}" Foreground="{DynamicResource Fg2}" FontSize="11.5"
+                                       Margin="14,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Name}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                          </DockPanel>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <StackPanel VerticalAlignment="Center">
+                      <TextBlock Text="Язык интерфейса" FontSize="13"/>
+                      <TextBlock x:Name="LanguageSub" Text="Language" Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                  </DockPanel>
                 </Border>
                 <Border Style="{StaticResource Tile}" Margin="0,0,0,10">
                   <StackPanel>
