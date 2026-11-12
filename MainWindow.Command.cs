@@ -87,7 +87,7 @@ public partial class MainWindow
     {
         CloseCommandBar();
         try { item.Run(); }
-        catch (Exception ex) { ShowToast("", "Не получилось", ex.Message); }
+        catch (Exception ex) { ShowToast("", L.T("Не получилось"), ex.Message); }
     }
 
     // ------------------------------------------------------------------ results
@@ -151,27 +151,27 @@ public partial class MainWindow
     // island actions reachable by typing (Russian and English words)
     private (string[] Words, string Title, string Glyph, Action Run)[] IslandCommands =>
     [
-        (["скриншот", "область", "screenshot"], "Скриншот области", "", () => RunAction("region")),
-        (["весь экран", "экран", "fullscreen"], "Скриншот всего экрана", "", () => RunAction("full")),
-        (["текст с экрана", "распознать", "ocr"], "Текст с экрана", "", () => RunAction("ocr")),
-        (["qr", "куар", "код"], "QR-код с экрана", "", () => RunAction("qr")),
-        (["пипетка", "цвет", "color", "picker"], "Пипетка", "", () => RunAction("picker")),
-        (["запись", "record", "видео"], _recording.IsRecording ? "Остановить запись экрана" : "Запись экрана", "", () => RunAction("record")),
-        (["чистый текст", "очистить текст", "plain"], "Чистый текст в буфере", "", () => RunAction("cleantext")),
-        (["тема", "theme", "светлая", "тёмная", "темная"], "Сменить тему", "", ToggleTheme),
-        (["спрятать", "скрыть", "hide"], "Спрятать остров", "", () => HideIsland(animate: true)),
-        (["настройки", "settings"], "Настройки", "", () => OpenTab(TabSettings)),
-        (["погода", "weather"], "Погода", "", () => OpenTab(TabWeather)),
-        (["музыка", "music", "плеер"], "Музыка", "", () => OpenTab(TabMusic)),
-        (["чат", "chat", "claude", "gemini", "deepseek", "ии", "ai"], "Чат с ИИ", "", () => OpenTab(TabChat)),
-        (["буфер", "clipboard", "полка", "история"], "Буфер обмена", "", () => OpenTab(TabClip)),
-        (["заметки", "заметка", "notes"], "Заметки", "", () => OpenTab(TabNotes)),
-        (["календарь", "calendar", "напоминания"], "Календарь", "", () => OpenTab(TabCalendar)),
-        (["система", "system", "cpu", "gpu"], "Система", "", () => OpenTab(TabSystem)),
-        (["блокировка", "заблокировать", "lock"], "Заблокировать компьютер", "", () => Native.LockWorkStation()),
-        (["не беспокоить", "фокус", "focus", "dnd"], FocusMode.IsOn ? "Выключить «Не беспокоить»" : "Не беспокоить на 1 час", "",
+        (["скриншот", "область", "screenshot"], L.T("Скриншот области"), "", () => RunAction("region")),
+        (["весь экран", "экран", "fullscreen"], L.T("Скриншот всего экрана"), "", () => RunAction("full")),
+        (["текст с экрана", "распознать", "ocr"], L.T("Текст с экрана"), "", () => RunAction("ocr")),
+        (["qr", "куар", "код"], L.T("QR-код с экрана"), "", () => RunAction("qr")),
+        (["пипетка", "цвет", "color", "picker"], L.T("Пипетка"), "", () => RunAction("picker")),
+        (["запись", "record", "видео"], _recording.IsRecording ? L.T("Остановить запись экрана") : L.T("Запись экрана"), "", () => RunAction("record")),
+        (["чистый текст", "очистить текст", "plain"], L.T("Чистый текст в буфере"), "", () => RunAction("cleantext")),
+        (["тема", "theme", "светлая", "тёмная", "темная"], L.T("Сменить тему"), "", ToggleTheme),
+        (["спрятать", "скрыть", "hide"], L.T("Спрятать остров"), "", () => HideIsland(animate: true)),
+        (["настройки", "settings"], L.T("Настройки"), "", () => OpenTab(TabSettings)),
+        (["погода", "weather"], L.T("Погода"), "", () => OpenTab(TabWeather)),
+        (["музыка", "music", "плеер"], L.T("Музыка"), "", () => OpenTab(TabMusic)),
+        (["чат", "chat", "claude", "gemini", "deepseek", "ии", "ai"], L.T("Чат с ИИ"), "", () => OpenTab(TabChat)),
+        (["буфер", "clipboard", "полка", "история"], L.T("Буфер обмена"), "", () => OpenTab(TabClip)),
+        (["заметки", "заметка", "notes"], L.T("Заметки"), "", () => OpenTab(TabNotes)),
+        (["календарь", "calendar", "напоминания"], L.T("Календарь"), "", () => OpenTab(TabCalendar)),
+        (["система", "system", "cpu", "gpu"], L.T("Система"), "", () => OpenTab(TabSystem)),
+        (["блокировка", "заблокировать", "lock"], L.T("Заблокировать компьютер"), "", () => Native.LockWorkStation()),
+        (["не беспокоить", "фокус", "focus", "dnd"], FocusMode.IsOn ? L.T("Выключить «Не беспокоить»") : L.T("Не беспокоить на 1 час"), "",
             () => { if (FocusMode.IsOn) FocusMode.End(); else FocusMode.Start(TimeSpan.FromHours(1)); }),
-        (["микрофон", "mute", "mic"], _audio.MicMuted == true ? "Включить микрофон" : "Выключить микрофон", "",
+        (["микрофон", "mute", "mic"], _audio.MicMuted == true ? L.T("Включить микрофон") : L.T("Выключить микрофон"), "",
             () => _audio.MicMuted = !(_audio.MicMuted ?? false)),
     ];
 
@@ -185,8 +185,8 @@ public partial class MainWindow
         {
             // a few useful things to start from
             foreach (var c in IslandCommands.Take(4))
-                list.Add(new CommandItem(c.Title, "действие", c.Glyph, c.Run));
-            list.Add(new CommandItem("Таймер на 5 минут", "таймер 5", "", () => StartQuickTimer(TimeSpan.FromMinutes(5))));
+                list.Add(new CommandItem(c.Title, L.T("действие"), c.Glyph, c.Run));
+            list.Add(new CommandItem(L.T("Таймер на 5 минут"), L.T("таймер 5"), "", () => StartQuickTimer(TimeSpan.FromMinutes(5))));
             return list;
         }
 
@@ -195,21 +195,21 @@ public partial class MainWindow
         {
             var cmd = q[1..].Trim();
             if (cmd.Length > 0)
-                list.Add(new CommandItem($"Выполнить: {cmd}", "cmd", "",
+                list.Add(new CommandItem(L.F("Выполнить: {0}", cmd), "cmd", "",
                     () => Process.Start(new ProcessStartInfo("cmd.exe", "/k " + cmd) { UseShellExecute = true })));
             return list;
         }
 
         // calculator
         if (TryCalculate(q, out var result))
-            list.Add(new CommandItem($"= {result}", "Enter — скопировать", "", () =>
+            list.Add(new CommandItem($"= {result}", L.T("Enter — скопировать"), "", () =>
             {
                 Clipboard.SetText(result);
-                ShowToast("", $"{q} = {result}", "Скопировано");
+                ShowToast("", $"{q} = {result}", L.T("Скопировано"));
             }));
 
         // "таймер 10", "timer 90 сек", "таймер 2 ч"
-        var tm = Regex.Match(lower, @"^(?:таймер|timer)\s+(\d+(?:[.,]\d+)?)\s*(с|сек|s|sec|ч|час|h|м|мин|min|m)?");
+        var tm = Regex.Match(lower, @"^(?:таймер|timer|temporizador|计时)\s+(\d+(?:[.,]\d+)?)\s*(с|сек|s|sec|ч|час|h|м|мин|min|m)?");
         if (tm.Success)
         {
             double n = double.Parse(tm.Groups[1].Value.Replace(',', '.'), CultureInfo.InvariantCulture);
@@ -217,11 +217,11 @@ public partial class MainWindow
             var span = unit.StartsWith('с') || unit.StartsWith('s') ? TimeSpan.FromSeconds(n)
                      : unit.StartsWith('ч') || unit == "h" ? TimeSpan.FromHours(n) : TimeSpan.FromMinutes(n);
             if (span.TotalSeconds is >= 1 and <= 36000)
-                list.Add(new CommandItem($"Таймер на {FormatSpan(span)}", "запустить", "", () => StartQuickTimer(span)));
+                list.Add(new CommandItem(L.F("Таймер на {0}", FormatSpan(span)), L.T("запустить"), "", () => StartQuickTimer(span)));
         }
 
         // "напомни позвонить маме в 19:00", "remind … через 20 мин"
-        var rm = Regex.Match(q, @"^(?:напомни(?:ть)?|remind(?: me)?)\s+(.+)$", RegexOptions.IgnoreCase);
+        var rm = Regex.Match(q, @"^(?:напомни(?:ть)?|нагадай|remind(?: me)?|recuérdame|erinnere(?: mich)?|lembre(?:-me)?|提醒)\s+(.+)$", RegexOptions.IgnoreCase);
         if (rm.Success)
         {
             var rest = rm.Groups[1].Value;
@@ -229,12 +229,12 @@ public partial class MainWindow
             if (when != null)
             {
                 var title = Regex.Replace(rest, @"(послезавтра|завтра|сегодня|через\s+\d+\s*\S+|\bв\s+\d{1,2}([:.]\d{2})?|\d{1,2}[:.]\d{2}|\d{1,2}\.\d{1,2}(\.\d{2,4})?)", "", RegexOptions.IgnoreCase).Trim(' ', ',', '.');
-                if (title.Length == 0) title = "Напоминание";
-                list.Add(new CommandItem($"Напомнить: {title}", when.Value.ToString("dd.MM в HH:mm"), "", () =>
+                if (title.Length == 0) title = L.T("Напоминание");
+                list.Add(new CommandItem(L.F("Напомнить: {0}", title), when.Value.ToString(L.T("dd.MM в HH:mm")), "", () =>
                 {
                     _settings.Reminders.Add(new Reminder { Title = title, When = when.Value });
                     _settings.Save();
-                    ShowToast("", "Напомню " + when.Value.ToString("dd.MM в HH:mm"), title);
+                    ShowToast("", L.T("Напомню ") + when.Value.ToString(L.T("dd.MM в HH:mm")), title);
                 }));
             }
         }
@@ -243,19 +243,19 @@ public partial class MainWindow
         foreach (var c in IslandCommands)
             if (c.Words.Any(w => w.StartsWith(lower) || (lower.Length >= 3 && w.Contains(lower))) ||
                 c.Title.Contains(q, StringComparison.OrdinalIgnoreCase))
-                list.Add(new CommandItem(c.Title, "действие", c.Glyph, c.Run));
+                list.Add(new CommandItem(c.Title, L.T("действие"), c.Glyph, c.Run));
 
         // installed apps
         foreach (var app in _apps.Search(q, 5))
-            list.Add(new CommandItem(app.Name, "приложение", "", () => AppIndex.Launch(app.Path), app.Path));
+            list.Add(new CommandItem(app.Name, L.T("приложение"), "", () => AppIndex.Launch(app.Path), app.Path));
 
         // link or web search
         if (Regex.IsMatch(q, @"^(https?://)?[\w-]+(\.[\w-]+)+(/\S*)?$") && !q.Contains(' '))
         {
             var url = q.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? q : "https://" + q;
-            list.Add(new CommandItem($"Открыть {q}", "сайт", "", () => Services.SafeShell.OpenUrl(url)));
+            list.Add(new CommandItem(L.F("Открыть {0}", q), L.T("сайт"), "", () => Services.SafeShell.OpenUrl(url)));
         }
-        list.Add(new CommandItem($"Искать «{q}» в интернете", "Google", "",
+        list.Add(new CommandItem(L.F("Искать «{0}» в интернете", q), "Google", "",
             () => Services.SafeShell.OpenUrl("https://www.google.com/search?q=" + Uri.EscapeDataString(q))));
 
         return list.Take(8).ToList();
@@ -270,7 +270,7 @@ public partial class MainWindow
     }
 
     private static string FormatSpan(TimeSpan t) =>
-        t.TotalHours >= 1 ? $"{t.TotalHours:0.#} ч" : t.TotalMinutes >= 1 ? $"{t.TotalMinutes:0.#} мин" : $"{t.TotalSeconds:0} с";
+        t.TotalHours >= 1 ? L.F("{0:0.#} ч", t.TotalHours) : t.TotalMinutes >= 1 ? L.F("{0:0.#} мин", t.TotalMinutes) : L.F("{0:0} с", t.TotalSeconds);
 
     private static bool TryCalculate(string q, out string result)
     {

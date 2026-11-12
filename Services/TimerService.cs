@@ -89,9 +89,9 @@ public sealed class TimerService
 
     public string Phase => Kind switch
     {
-        TimerKind.Pomodoro => PomodoroWork ? $"Работа · {PomodoroRound}/4" : PomodoroRound > 4 ? "Длинный перерыв" : "Перерыв",
-        TimerKind.Stopwatch => Running ? "идёт" : "",
-        _ => Running ? "идёт" : _remainingWhenPaused.HasValue ? "пауза" : "",
+        TimerKind.Pomodoro => PomodoroWork ? L.F("Работа · {0}/4", PomodoroRound) : PomodoroRound > 4 ? L.T("Длинный перерыв") : L.T("Перерыв"),
+        TimerKind.Stopwatch => Running ? L.T("идёт") : "",
+        _ => Running ? L.T("идёт") : _remainingWhenPaused.HasValue ? L.T("пауза") : "",
     };
 
     /// <summary>Call a few times per second.</summary>
@@ -102,7 +102,7 @@ public sealed class TimerService
         if (Kind == TimerKind.Timer)
         {
             Running = false;
-            Finished?.Invoke("Таймер закончился", $"{(int)_duration.TotalMinutes} мин прошло");
+            Finished?.Invoke(L.T("Таймер закончился"), L.F("{0} мин прошло", (int)_duration.TotalMinutes));
             return;
         }
 
@@ -113,14 +113,14 @@ public sealed class TimerService
             PomodoroWork = false;
             _duration = longBreak ? LongBreak : ShortBreak;
             if (longBreak) PomodoroRound = 5;
-            Finished?.Invoke("Время отдохнуть", longBreak ? "Длинный перерыв · 15 мин" : "Перерыв · 5 мин");
+            Finished?.Invoke(L.T("Время отдохнуть"), longBreak ? L.T("Длинный перерыв · 15 мин") : L.T("Перерыв · 5 мин"));
         }
         else
         {
             PomodoroRound = PomodoroRound >= 4 ? 1 : PomodoroRound + 1;
             PomodoroWork = true;
             _duration = Work;
-            Finished?.Invoke("За работу", $"Помодоро {PomodoroRound}/4 · 25 мин");
+            Finished?.Invoke(L.T("За работу"), L.F("Помодоро {0}/4 · 25 мин", PomodoroRound));
         }
         _endsAt = DateTime.Now + _duration;
     }

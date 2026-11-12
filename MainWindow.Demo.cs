@@ -18,12 +18,15 @@ public partial class MainWindow
 
     private static readonly Lyrics DemoLyrics = new(
     [
-        new LyricLine(TimeSpan.FromSeconds(60), "Город спит, а мы опять не спим"),
-        new LyricLine(TimeSpan.FromSeconds(66), "Свет фонарей рисует наши тени"),
-        new LyricLine(TimeSpan.FromSeconds(72), "Этой ночью всё неважно, кроме нас"),
-        new LyricLine(TimeSpan.FromSeconds(80), "И музыка, что тихо в окна льётся"),
-        new LyricLine(TimeSpan.FromSeconds(86), "Пусть утро подождёт ещё немного"),
+        new LyricLine(TimeSpan.FromSeconds(60), D("Город спит, а мы опять не спим", "The city sleeps, but we're awake again")),
+        new LyricLine(TimeSpan.FromSeconds(66), D("Свет фонарей рисует наши тени", "Streetlights draw our shadows on the wall")),
+        new LyricLine(TimeSpan.FromSeconds(72), D("Этой ночью всё неважно, кроме нас", "Tonight nothing matters but the two of us")),
+        new LyricLine(TimeSpan.FromSeconds(80), D("И музыка, что тихо в окна льётся", "And music softly pouring through the windows")),
+        new LyricLine(TimeSpan.FromSeconds(86), D("Пусть утро подождёт ещё немного", "Let the morning wait a little longer")),
     ], true);
+
+    /// <summary>Demo data in Russian, or in English for every other interface language.</summary>
+    private static string D(string ru, string en) => Loc.Lang == "ru" ? ru : en;
 
     private void BeginDemo()
     {
@@ -37,26 +40,26 @@ public partial class MainWindow
         _settings.City = "London";
         _settings.Reminders =
         [
-            new Reminder { Title = "Созвон с командой", When = DateTime.Today.AddHours(DateTime.Now.Hour + 1).AddMinutes(30) },
-            new Reminder { Title = "Забрать посылку", When = DateTime.Today.AddDays(1).AddHours(18) },
-            new Reminder { Title = "Тренировка", When = DateTime.Today.AddDays(2).AddHours(9) },
+            new Reminder { Title = D("Созвон с командой", "Team call"), When = DateTime.Today.AddHours(DateTime.Now.Hour + 1).AddMinutes(30) },
+            new Reminder { Title = D("Забрать посылку", "Pick up the parcel"), When = DateTime.Today.AddDays(1).AddHours(18) },
+            new Reminder { Title = D("Тренировка", "Workout"), When = DateTime.Today.AddDays(2).AddHours(9) },
         ];
         NotesStore.Notes.Clear();
         NotesStore.Notes.AddRange(
         [
-            new Note { Text = "Идея: тёмная тема для сайта + плавные переходы", Created = DateTime.Now.AddMinutes(-20) },
-            new Note { Text = "Купить: молоко, кофе, батарейки AA", Created = DateTime.Now.AddHours(-3) },
-            new Note { Text = "Перезвонить в сервис насчёт ноутбука", Created = DateTime.Now.AddDays(-1) },
+            new Note { Text = D("Идея: тёмная тема для сайта + плавные переходы", "Idea: dark theme for the site + smooth transitions"), Created = DateTime.Now.AddMinutes(-20) },
+            new Note { Text = D("Купить: молоко, кофе, батарейки AA", "Buy: milk, coffee, AA batteries"), Created = DateTime.Now.AddHours(-3) },
+            new Note { Text = D("Перезвонить в сервис насчёт ноутбука", "Call the repair shop about the laptop"), Created = DateTime.Now.AddDays(-1) },
         ]);
         _clips.Clear();
         _clips.AddRange(
         [
             new ClipItem("https://github.com/", null, null, DateTime.Now.AddMinutes(-1)),
-            new ClipItem("Встречаемся в 19:00 у входа в парк", null, null, DateTime.Now.AddMinutes(-6)),
+            new ClipItem(D("Встречаемся в 19:00 у входа в парк", "Meet at 7 pm at the park entrance"), null, null, DateTime.Now.AddMinutes(-6)),
             new ClipItem("dotnet publish -c Release -r win-x64", null, null, DateTime.Now.AddMinutes(-15)),
         ]);
         Theme.Apply(true, "#000000");
-        _demoMedia = new MediaSnapshot("Ночной город", "Demo Artist", "Spotify", "Spotify", DemoArt(), true,
+        _demoMedia = new MediaSnapshot(D("Ночной город", "Night City"), "Demo Artist", "Spotify", "Spotify", DemoArt(), true,
             TimeSpan.FromSeconds(73), DateTimeOffset.Now, TimeSpan.FromSeconds(214));
     }
 

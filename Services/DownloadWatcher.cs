@@ -85,11 +85,11 @@ public sealed class DownloadWatcher
     {
         var n = Path.GetFileNameWithoutExtension(tempName);
         return n.StartsWith("Unconfirmed", StringComparison.OrdinalIgnoreCase) || n.StartsWith("Неподтвержден", StringComparison.OrdinalIgnoreCase)
-            ? "файл" : n;
+            ? L.T("файл") : n;
     }
 
     public static string FormatBytes(double b) =>
-        b >= 1 << 30 ? $"{b / (1 << 30):0.0} ГБ" : b >= 1 << 20 ? $"{b / (1 << 20):0.0} МБ" : $"{Math.Max(1, b / 1024):0} КБ";
+        b >= 1 << 30 ? L.F("{0:0.0} ГБ", b / (1 << 30)) : b >= 1 << 20 ? L.F("{0:0.0} МБ", b / (1 << 20)) : L.F("{0:0} КБ", Math.Max(1, b / 1024));
 
     [DllImport("shell32.dll")]
     private static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid id, uint flags, IntPtr token, out IntPtr path);

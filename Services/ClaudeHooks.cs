@@ -103,7 +103,7 @@ public static class ClaudeHooks
         {
             CommentHandling = JsonCommentHandling.Skip,
             AllowTrailingCommas = true,
-        }) as JsonObject ?? throw new InvalidDataException("settings.json не является JSON-объектом");
+        }) as JsonObject ?? throw new InvalidDataException(L.T("settings.json не является JSON-объектом"));
     }
 
     private static void Save(JsonObject root)

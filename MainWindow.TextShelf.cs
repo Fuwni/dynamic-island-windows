@@ -53,14 +53,14 @@ public partial class MainWindow
 
         if (_settings.Shelf.Count == 0)
         {
-            ShelfList.Children.Add(new TextBlock { Text = "Полка пуста", Style = (Style)FindResource("Muted"), Margin = new Thickness(4, 4, 0, 4) });
+            ShelfList.Children.Add(new TextBlock { Text = L.T("Полка пуста"), Style = (Style)FindResource("Muted"), Margin = new Thickness(4, 4, 0, 4) });
             return;
         }
 
         if (_settings.Shelf.Count > 1)
         {
             var all = new Border { Style = (Style)FindResource("Tile"), Padding = new Thickness(12, 8, 12, 8), Margin = new Thickness(0, 0, 0, 6), Cursor = Cursors.SizeAll };
-            all.Child = new TextBlock { Text = $"⠿  Потяните отсюда, чтобы забрать все {_settings.Shelf.Count}", FontSize = 12.5 };
+            all.Child = new TextBlock { Text = L.F("⠿  Потяните отсюда, чтобы забрать все {0}", _settings.Shelf.Count), FontSize = 12.5 };
             MakeDraggable(all, () => _settings.Shelf.ToArray());
             ShelfList.Children.Add(all);
         }
@@ -87,16 +87,16 @@ public partial class MainWindow
             text.Children.Add(new TextBlock { Text = Path.GetFileName(path.TrimEnd('\\')), FontSize = 13, TextTrimming = TextTrimming.CharacterEllipsis });
             text.Children.Add(new TextBlock
             {
-                Text = (dir ? "папка" : DownloadWatcher.FormatBytes(new FileInfo(path).Length)) + " · " + Path.GetDirectoryName(path),
+                Text = (dir ? L.T("папка") : DownloadWatcher.FormatBytes(new FileInfo(path).Length)) + " · " + Path.GetDirectoryName(path),
                 Style = (Style)FindResource("Muted"), FontSize = 10.5, TextTrimming = TextTrimming.CharacterEllipsis,
             });
             Grid.SetColumn(text, 1);
             row.Children.Add(text);
 
             var buttons = new StackPanel { Orientation = Orientation.Horizontal };
-            var open = new Button { Style = (Style)FindResource("IconButton"), Content = "", Width = 28, Height = 28, FontSize = 12, ToolTip = "Показать в папке" };
+            var open = new Button { Style = (Style)FindResource("IconButton"), Content = "", Width = 28, Height = 28, FontSize = 12, ToolTip = L.T("Показать в папке") };
             open.Click += (_, _) => Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true });
-            var del = new Button { Style = (Style)FindResource("IconButton"), Content = "", Width = 28, Height = 28, FontSize = 11, ToolTip = "Убрать с полки (файл останется)" };
+            var del = new Button { Style = (Style)FindResource("IconButton"), Content = "", Width = 28, Height = 28, FontSize = 11, ToolTip = L.T("Убрать с полки (файл останется)") };
             del.Click += (_, _) => { _settings.Shelf.Remove(path); _settings.Save(); RenderShelf(); Remeasure(); };
             buttons.Children.Add(open);
             buttons.Children.Add(del);
@@ -153,34 +153,34 @@ public partial class MainWindow
                 b.Click += (_, _) => ApplyTextTool(op);
                 TextToolButtons.Children.Add(b);
             }
-            Add("Раскладка", TextTools.SwapLayout, "ghbdtn → привет: текст, набранный не в той раскладке");
-            Add("ВЕРХНИЙ", TextTools.Upper);
-            Add("нижний", TextTools.Lower);
-            Add("Как в предложении", TextTools.Sentence);
-            Add("Транслит", TextTools.Transliterate, "Привет → Privet");
-            Add("Чистый текст", CaptureService.CleanText, "Убрать лишние пробелы, невидимые символы и «умные» кавычки");
-            Add("JSON", TextTools.JsonPretty, "Красиво отформатировать JSON");
+            Add(L.T("Раскладка"), TextTools.SwapLayout, L.T("ghbdtn → привет: текст, набранный не в той раскладке"));
+            Add(L.T("ВЕРХНИЙ"), TextTools.Upper);
+            Add(L.T("нижний"), TextTools.Lower);
+            Add(L.T("Как в предложении"), TextTools.Sentence);
+            Add(L.T("Транслит"), TextTools.Transliterate, L.T("Привет → Privet"));
+            Add(L.T("Чистый текст"), CaptureService.CleanText, L.T("Убрать лишние пробелы, невидимые символы и «умные» кавычки"));
+            Add("JSON", TextTools.JsonPretty, L.T("Красиво отформатировать JSON"));
             Add("→ Base64", TextTools.Base64Encode);
             Add("Base64 →", TextTools.Base64Decode);
             Add("→ URL", TextTools.UrlEncode);
             Add("URL →", TextTools.UrlDecode);
 
-            var qr = new Button { Style = (Style)FindResource("ToolChip"), Content = "QR-код", Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 6, 6), ToolTip = "Сделать QR-код из текста или ссылки" };
+            var qr = new Button { Style = (Style)FindResource("ToolChip"), Content = L.T("QR-код"), Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 6, 6), ToolTip = L.T("Сделать QR-код из текста или ссылки") };
             qr.Click += (_, _) => MakeQr();
             TextToolButtons.Children.Add(qr);
 
-            var tr = new Button { Style = (Style)FindResource("TintPill"), Background = TintBrush("#0A84FF"), Foreground = TintText("#5AB0FF"), Content = "Перевести", Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 6, 6) };
+            var tr = new Button { Style = (Style)FindResource("TintPill"), Background = TintBrush("#0A84FF"), Foreground = TintText("#5AB0FF"), Content = L.T("Перевести"), Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 6, 6) };
             tr.Click += async (_, _) => await TranslateTextAsync();
             TextToolButtons.Children.Add(tr);
 
-            var paste = new Button { Style = (Style)FindResource("GhostPill"), Content = "Вставить из буфера", Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 6, 6) };
+            var paste = new Button { Style = (Style)FindResource("GhostPill"), Content = L.T("Вставить из буфера"), Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 6, 6) };
             paste.Click += (_, _) => { try { if (Clipboard.ContainsText()) TextToolsBox.Text = Clipboard.GetText(); } catch { } };
             TextToolButtons.Children.Add(paste);
 
-            var copy = new Button { Style = (Style)FindResource("AccentPill"), Content = "Копировать", Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 6, 6) };
+            var copy = new Button { Style = (Style)FindResource("AccentPill"), Content = L.T("Копировать"), Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 6, 6) };
             copy.Click += (_, _) =>
             {
-                try { Clipboard.SetText(TextToolsBox.Text); TextToolsStatus.Text = "Скопировано"; } catch { }
+                try { Clipboard.SetText(TextToolsBox.Text); TextToolsStatus.Text = L.T("Скопировано"); } catch { }
             };
             TextToolButtons.Children.Add(copy);
         }
@@ -203,7 +203,7 @@ public partial class MainWindow
         // work on the selection if there is one, otherwise on everything
         bool selection = TextToolsBox.SelectionLength > 0;
         var input = selection ? TextToolsBox.SelectedText : TextToolsBox.Text;
-        if (input.Length == 0) { TextToolsStatus.Text = "Сначала введите или вставьте текст"; return; }
+        if (input.Length == 0) { TextToolsStatus.Text = L.T("Сначала введите или вставьте текст"); return; }
         try
         {
             var output = op(input);
@@ -213,23 +213,23 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            TextToolsStatus.Text = "Не получилось: " + ex.Message;
+            TextToolsStatus.Text = L.T("Не получилось: ") + ex.Message;
         }
     }
 
     private void MakeQr()
     {
         var text = TextToolsBox.Text.Trim();
-        if (text.Length == 0) { TextToolsStatus.Text = "Сначала введите текст или ссылку"; return; }
+        if (text.Length == 0) { TextToolsStatus.Text = L.T("Сначала введите текст или ссылку"); return; }
         try
         {
             var qr = TextTools.QrCode(text);
             QrImage.Source = qr;
             QrFrame.Visibility = Visibility.Visible;
             Clipboard.SetImage(qr);
-            TextToolsStatus.Text = "QR-код готов и скопирован как картинка";
+            TextToolsStatus.Text = L.T("QR-код готов и скопирован как картинка");
         }
-        catch (Exception ex) { TextToolsStatus.Text = "Не получилось: " + ex.Message; }
+        catch (Exception ex) { TextToolsStatus.Text = L.T("Не получилось: ") + ex.Message; }
         Remeasure();
     }
 
@@ -237,17 +237,17 @@ public partial class MainWindow
     {
         var text = TextToolsBox.Text;
         if (text.Trim().Length == 0) return;
-        TextToolsStatus.Text = "Перевожу…";
+        TextToolsStatus.Text = L.T("Перевожу…");
         try
         {
-            var (result, from, to) = await CaptureService.TranslateDetailedAsync(text, _settings.TranslateTo);
+            var (result, from, to) = await CaptureService.TranslateDetailedAsync(text, _settings.TranslateTarget);
             TextToolsBox.Text = result;
             TextToolsStatus.Text = $"{from.ToUpperInvariant()} → {to.ToUpperInvariant()}";
         }
         catch (Exception ex)
         {
             Log.Write("translate: " + ex.Message);
-            TextToolsStatus.Text = "Нет связи с сервисом перевода";
+            TextToolsStatus.Text = L.T("Нет связи с сервисом перевода");
         }
     }
 }

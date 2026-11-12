@@ -21,12 +21,12 @@ public partial class MainWindow
 
     public static readonly (string Id, string Name, string[] Colors)[] Auras =
     [
-        ("none", "Нет", []),
-        ("aurora", "Аврора", ["#5B8CFF", "#A066FF", "#3DE1FF"]),
-        ("sunset", "Закат", ["#FF6B6B", "#FFB347", "#FF5E9C"]),
-        ("ocean", "Океан", ["#00C6FF", "#0072FF", "#00E0B0"]),
-        ("neon", "Неон", ["#39FF14", "#00F0FF", "#FF00E5"]),
-        ("mono", "Иней", ["#FFFFFF", "#8E8E93", "#D1D1D6"]),
+        ("none", L.T("Нет"), []),
+        ("aurora", L.T("Аврора"), ["#5B8CFF", "#A066FF", "#3DE1FF"]),
+        ("sunset", L.T("Закат"), ["#FF6B6B", "#FFB347", "#FF5E9C"]),
+        ("ocean", L.T("Океан"), ["#00C6FF", "#0072FF", "#00E0B0"]),
+        ("neon", L.T("Неон"), ["#39FF14", "#00F0FF", "#FF00E5"]),
+        ("mono", L.T("Иней"), ["#FFFFFF", "#8E8E93", "#D1D1D6"]),
     ];
 
     private void InitGlass()
@@ -210,7 +210,7 @@ public partial class MainWindow
             dot.SetResourceReference(Border.BackgroundProperty, on ? "Fg" : "Fg3");
             dot.BeginAnimation(WidthProperty, new DoubleAnimation(on ? 18 : 6, TimeSpan.FromMilliseconds(320)) { EasingFunction = new SpringEase { DampingRatio = 0.6 } });
         }
-        PageTitle.Text = current?.Content as string ?? (TabSettings.IsChecked == true ? "Настройки" : "");
+        PageTitle.Text = current?.Content as string ?? (TabSettings.IsChecked == true ? L.T("Настройки") : "");
     }
 
     private void ApplyTabIconsMode()

@@ -273,7 +273,7 @@ public sealed class MediaService
         if (string.IsNullOrEmpty(aumid)) return "";
         // installed web apps: "Chrome._crx_<id>", "MSEdge._crx_<id>"
         var crx = aumid.IndexOf("._crx_", StringComparison.OrdinalIgnoreCase);
-        if (crx > 0) return (aumid[..crx].Equals("MSEdge", StringComparison.OrdinalIgnoreCase) ? "Edge" : aumid[..crx]) + " · веб-приложение";
+        if (crx > 0) return (aumid[..crx].Equals("MSEdge", StringComparison.OrdinalIgnoreCase) ? "Edge" : aumid[..crx]) + L.T(" · веб-приложение");
         var name = aumid;
         var bang = name.LastIndexOf('!');
         if (bang >= 0) name = name[(bang + 1)..];
@@ -281,7 +281,7 @@ public sealed class MediaService
         name = name.Replace("App", "", StringComparison.Ordinal).Trim();
         if (name.Length == 0) return "";
         // Firefox and some others report a hash instead of a name.
-        if (name.Length >= 12 && name.All(Uri.IsHexDigit)) return "Браузер";
+        if (name.Length >= 12 && name.All(Uri.IsHexDigit)) return L.T("Браузер");
         return char.ToUpper(name[0]) + name[1..];
     }
 }

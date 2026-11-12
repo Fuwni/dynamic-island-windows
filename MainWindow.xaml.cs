@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -50,6 +50,8 @@ public partial class MainWindow : Window
     public MainWindow(string[] args)
     {
         InitializeComponent();
+        Services.Loc.TranslateTree(this);
+        if (ContextMenu != null) Services.Loc.TranslateTree(ContextMenu);
 
         PlaceWindow();
         _tick.Tick += (_, _) => OnTick();
@@ -75,7 +77,11 @@ public partial class MainWindow : Window
     private async Task OnLoadedAsync(string[] args)
     {
         int snap = Array.IndexOf(args, "--snapshot");
-        if (snap >= 0) BeginDemo();
+        int promo = Array.IndexOf(args, "--promo");
+        int review = Array.IndexOf(args, "--review");
+        int live = Array.IndexOf(args, "--live-demo");
+        if (snap >= 0 || promo >= 0 || review >= 0 || live >= 0) BeginDemo();
+        if (live >= 0) StartLiveDemo(args.ElementAtOrDefault(live + 1) ?? "demo-commands.txt");
         ApplyThemeLocal();
         Character.Kind = _settings.Character;
         InitGlass();
@@ -136,6 +142,11 @@ public partial class MainWindow : Window
 
         if (snap >= 0)
             _ = RunSnapshotsAsync(snap + 1 < args.Length ? args[snap + 1] : System.IO.Path.Combine(AppContext.BaseDirectory, "snapshots"));
+        if (review >= 0) _ = RunReviewAsync(args.ElementAtOrDefault(review + 1) ?? "review");
+        int brand = Array.IndexOf(args, "--brand");
+        if (brand >= 0) _ = RunBrandAsync(args.ElementAtOrDefault(brand + 1) ?? "brand");
+        if (promo >= 0)
+            _ = RunPromoAsync(args.ElementAtOrDefault(promo + 1) ?? "promo", args.ElementAtOrDefault(promo + 2) ?? "ru");
 
         await InitMediaAsync();
         await InitWeatherAsync();
@@ -997,12 +1008,12 @@ public partial class MainWindow : Window
             Visible = true,
             ContextMenuStrip = new Forms.ContextMenuStrip(),
         };
-        _tray.ContextMenuStrip.Items.Add("Показать / спрятать  (Ctrl+Alt+I)", null, (_, _) => ToggleHidden());
-        _tray.ContextMenuStrip.Items.Add("Скриншот области  (Ctrl+Alt+S)", null, (_, _) => RunAction("region"));
-        _tray.ContextMenuStrip.Items.Add("Сменить тему  (Ctrl+Alt+T)", null, (_, _) => ToggleTheme());
-        _tray.ContextMenuStrip.Items.Add("Настройки", null, (_, _) => OpenTab(TabSettings));
+        _tray.ContextMenuStrip.Items.Add(L.T("Показать / спрятать  (Ctrl+Alt+I)"), null, (_, _) => ToggleHidden());
+        _tray.ContextMenuStrip.Items.Add(L.T("Скриншот области  (Ctrl+Alt+S)"), null, (_, _) => RunAction("region"));
+        _tray.ContextMenuStrip.Items.Add(L.T("Сменить тему  (Ctrl+Alt+T)"), null, (_, _) => ToggleTheme());
+        _tray.ContextMenuStrip.Items.Add(L.T("Настройки"), null, (_, _) => OpenTab(TabSettings));
         _tray.ContextMenuStrip.Items.Add(new Forms.ToolStripSeparator());
-        _tray.ContextMenuStrip.Items.Add("Выход", null, (_, _) => Close());
+        _tray.ContextMenuStrip.Items.Add(L.T("Выход"), null, (_, _) => Close());
         _tray.MouseClick += (_, a) => { if (a.Button == Forms.MouseButtons.Left) ToggleHidden(); };
     }
 }

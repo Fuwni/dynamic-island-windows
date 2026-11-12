@@ -28,7 +28,7 @@ public static class FileDropActions
     public static string Zip(IReadOnlyList<string> paths)
     {
         var dir = Path.GetDirectoryName(paths[0])!;
-        var name = paths.Count == 1 ? Path.GetFileNameWithoutExtension(paths[0]) : $"Архив {DateTime.Now:yyyy-MM-dd HH-mm}";
+        var name = paths.Count == 1 ? Path.GetFileNameWithoutExtension(paths[0]) : L.T("Архив") + DateTime.Now.ToString(" yyyy-MM-dd HH-mm");
         var zip = Unique(Path.Combine(dir, name + ".zip"));
         using var archive = ZipFile.Open(zip, ZipArchiveMode.Create);
         foreach (var p in paths)
@@ -66,7 +66,7 @@ public static class FileDropActions
             src = new FormatConvertedBitmap(src, PixelFormats.Bgr24, null, 0); // JPEG has no alpha
         enc.Frames.Add(BitmapFrame.Create(src));
 
-        var suffix = maxSide > 0 ? " (сжато)" : "";
+        var suffix = maxSide > 0 ? L.T(" (сжато)") : "";
         var output = Unique(Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path) + suffix + "." + format));
         using (var outFs = File.Create(output)) enc.Save(outFs);
         return output;
@@ -111,7 +111,7 @@ public static class FileDropActions
                 var items = new List<IStorageItem>();
                 foreach (var f in files)
                     items.Add(Directory.Exists(f) ? await StorageFolder.GetFolderFromPathAsync(f) : await StorageFile.GetFileFromPathAsync(f));
-                args.Request.Data.Properties.Title = files.Count == 1 ? Path.GetFileName(files[0]) : $"{files.Count} файла(ов)";
+                args.Request.Data.Properties.Title = files.Count == 1 ? Path.GetFileName(files[0]) : L.F("{0} файла(ов)", files.Count);
                 args.Request.Data.SetStorageItems(items);
             }
             finally { deferral.Complete(); }

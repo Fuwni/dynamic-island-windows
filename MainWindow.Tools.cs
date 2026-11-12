@@ -23,7 +23,7 @@ public partial class MainWindow
             var b = new Button
             {
                 Style = (Style)FindResource("Pill"),
-                Content = m < 60 ? $"{m} мин" : "1 ч",
+                Content = m < 60 ? L.F("{0} мин", m) : L.T("1 ч"),
                 Padding = new Thickness(11, 5, 11, 5),
                 Margin = new Thickness(0, 0, 6, 6),
             };
@@ -73,7 +73,7 @@ public partial class MainWindow
         TimerPhase.Text = _timer.Phase;
         TimerRing.Data = _timer.Progress > 0 ? RingGeometry(132, 7, _timer.Progress) : null;
         TimerRing.Stroke = (Brush)FindResource(_timer.Kind == TimerKind.Pomodoro && !_timer.PomodoroWork ? "AccentBlue" : "Accent");
-        TimerStartButton.Content = _timer.Running ? "Пауза" : _timer.Active ? "Продолжить" : "Старт";
+        TimerStartButton.Content = _timer.Running ? L.T("Пауза") : _timer.Active ? L.T("Продолжить") : L.T("Старт");
     }
 
     private void TimerStart_Click(object sender, RoutedEventArgs e)
@@ -166,7 +166,7 @@ public partial class MainWindow
         ClipList.Children.Clear();
         if (_clips.Count == 0)
         {
-            ClipList.Children.Add(new TextBlock { Text = "Скопируйте что-нибудь (Ctrl+C) — оно появится здесь", Style = (Style)FindResource("Muted"), Margin = new Thickness(4, 6, 0, 6) });
+            ClipList.Children.Add(new TextBlock { Text = L.T("Скопируйте что-нибудь (Ctrl+C) — оно появится здесь"), Style = (Style)FindResource("Muted"), Margin = new Thickness(4, 6, 0, 6) });
             Remeasure();
             return;
         }
@@ -186,7 +186,7 @@ public partial class MainWindow
             row.Children.Add(content);
             var time = new TextBlock
             {
-                Text = (c.Files != null ? "файлы · " : "") + c.At.ToString("HH:mm"),
+                Text = (c.Files != null ? L.T("файлы · ") : "") + c.At.ToString("HH:mm"),
                 Style = (Style)FindResource("Muted"), FontSize = 10.5, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Top,
             };
             Grid.SetColumn(time, 1);
@@ -210,7 +210,7 @@ public partial class MainWindow
             else if (c.Image != null) Clipboard.SetImage(c.Image);
             else if (c.Files != null) FileDropActions.CopyFiles(c.Files);
         }
-        catch { ShowToast("", "Буфер обмена занят", null); return; }
+        catch { ShowToast("", L.T("Буфер обмена занят"), null); return; }
 
         SetMode(Mode.Compact);
         var target = _lastExternalWindow;
@@ -224,7 +224,7 @@ public partial class MainWindow
             Native.keybd_event(0x56, 0, 2, UIntPtr.Zero);
             Native.keybd_event(0x11, 0, 2, UIntPtr.Zero);
         }
-        else ShowToast("", "Скопировано", "Вставьте Ctrl+V");
+        else ShowToast("", L.T("Скопировано"), L.T("Вставьте Ctrl+V"));
     }
 
     private void ClipClear_Click(object sender, RoutedEventArgs e)
@@ -270,7 +270,7 @@ public partial class MainWindow
             body.Children.Add(new TextBlock { Text = n.Created.ToString("d MMMM, HH:mm"), Style = (Style)FindResource("Muted"), FontSize = 10.5, Margin = new Thickness(0, 4, 0, 0) });
             row.Children.Add(body);
 
-            var del = new Button { Style = (Style)FindResource("IconButton"), Content = "", Width = 28, Height = 28, FontSize = 12, ToolTip = "Удалить", VerticalAlignment = VerticalAlignment.Top };
+            var del = new Button { Style = (Style)FindResource("IconButton"), Content = "", Width = 28, Height = 28, FontSize = 12, ToolTip = L.T("Удалить"), VerticalAlignment = VerticalAlignment.Top };
             var note = n;
             del.Click += (_, _) => { NotesStore.Notes.Remove(note); NotesStore.Save(); RenderNotes(); };
             Grid.SetColumn(del, 1);
@@ -280,12 +280,12 @@ public partial class MainWindow
             body.MouseLeftButtonUp += (_, _) =>
             {
                 try { Clipboard.SetText(note.Text); } catch { }
-                ShowToast("", "Заметка скопирована", null);
+                ShowToast("", L.T("Заметка скопирована"), null);
             };
             NotesList.Children.Add(tile);
         }
         if (NotesStore.Notes.Count == 0)
-            NotesList.Children.Add(new TextBlock { Text = "Пока пусто — напишите мысль выше", Style = (Style)FindResource("Muted"), Margin = new Thickness(4, 4, 0, 4) });
+            NotesList.Children.Add(new TextBlock { Text = L.T("Пока пусто — напишите мысль выше"), Style = (Style)FindResource("Muted"), Margin = new Thickness(4, 4, 0, 4) });
         Remeasure();
     }
 
@@ -297,7 +297,7 @@ public partial class MainWindow
         var events = _calendar.Upcoming(7);
         foreach (var e in events.Take(8))
         {
-            var when = e.Start.Date == DateTime.Today ? "Сегодня" : e.Start.Date == DateTime.Today.AddDays(1) ? "Завтра" : e.Start.ToString("ddd d MMM");
+            var when = e.Start.Date == DateTime.Today ? L.T("Сегодня") : e.Start.Date == DateTime.Today.AddDays(1) ? L.T("Завтра") : e.Start.ToString("ddd d MMM");
             var row = new Grid { Margin = new Thickness(0, 3, 0, 3) };
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(110) });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -322,11 +322,11 @@ public partial class MainWindow
             EventsList.Children.Add(row);
         }
         if (events.Count == 0)
-            EventsList.Children.Add(new TextBlock { Text = "На неделю ничего не запланировано", Style = (Style)FindResource("Muted") });
+            EventsList.Children.Add(new TextBlock { Text = L.T("На неделю ничего не запланировано"), Style = (Style)FindResource("Muted") });
         IcsStatus.Text = _calendar.Error != null
-            ? "Не удалось загрузить календарь: " + _calendar.Error
-            : _settings.CalendarIcs.Length > 0 ? "Календарь подключён, обновляется каждые 15 минут."
-            : "Google Календарь → Настройки календаря → «Секретный адрес в формате iCal».";
+            ? L.T("Не удалось загрузить календарь: ") + _calendar.Error
+            : _settings.CalendarIcs.Length > 0 ? L.T("Календарь подключён, обновляется каждые 15 минут.")
+            : L.T("Google Календарь → Настройки календаря → «Секретный адрес в формате iCal».");
         Remeasure();
     }
 
@@ -336,7 +336,7 @@ public partial class MainWindow
         var when = CalendarService.ParseWhen(ReminderWhenBox.Text);
         if (title.Length == 0 || when == null)
         {
-            ReminderHint.Text = title.Length == 0 ? "Напишите, о чём напомнить" : "Не понял время. Примеры: 18:30, завтра 9:00, через 20 мин, 15.11 14:00";
+            ReminderHint.Text = title.Length == 0 ? L.T("Напишите, о чём напомнить") : L.T("Не понял время. Примеры: 18:30, завтра 9:00, через 20 мин, 15.11 14:00");
             ReminderHint.SetResourceReference(TextBlock.ForegroundProperty, "Danger");
             return;
         }
@@ -344,7 +344,7 @@ public partial class MainWindow
         _settings.Save();
         ReminderTitleBox.Clear();
         ReminderWhenBox.Clear();
-        ReminderHint.Text = $"Напомню {when.Value:dd.MM в HH:mm}";
+        ReminderHint.Text = L.T("Напомню ") + when.Value.ToString(L.T("dd.MM в HH:mm"));
         ReminderHint.SetResourceReference(TextBlock.ForegroundProperty, "Fg2");
         Keyboard.ClearFocus();
         RenderCalendar();
@@ -359,7 +359,7 @@ public partial class MainWindow
     {
         _settings.CalendarIcs = IcsBox.Text.Trim();
         _settings.Save();
-        IcsStatus.Text = "Загружаю…";
+        IcsStatus.Text = L.T("Загружаю…");
         await _calendar.RefreshAsync(force: true);
         RenderCalendar();
     }
@@ -376,8 +376,8 @@ public partial class MainWindow
         if (_mode == Mode.Drop && DropActions.Visibility == Visibility.Visible) return;
         _dropped = [];
         DropIcon.Text = "";
-        DropTitle.Text = "Отпустите файл на острове";
-        DropSubtitle.Text = "Поделиться, ZIP, конвертировать или сжать картинку";
+        DropTitle.Text = L.T("Отпустите файл на острове");
+        DropSubtitle.Text = L.T("Поделиться, ZIP, конвертировать или сжать картинку");
         DropActions.Visibility = Visibility.Collapsed;
         if (_hidden) ShowIsland();
         SetMode(Mode.Drop);
@@ -400,22 +400,22 @@ public partial class MainWindow
         long size = files.Where(File.Exists).Sum(f => new FileInfo(f).Length);
         bool images = files.All(f => File.Exists(f) && FileDropActions.IsImage(f));
         DropIcon.Text = images ? "" : files.Any(Directory.Exists) ? "" : "";
-        DropTitle.Text = files.Length == 1 ? Path.GetFileName(files[0].TrimEnd('\\')) : $"{files.Length} файла(ов)";
-        DropSubtitle.Text = size > 0 ? DownloadWatcher.FormatBytes(size) : "папка";
+        DropTitle.Text = files.Length == 1 ? Path.GetFileName(files[0].TrimEnd('\\')) : L.F("{0} файла(ов)", files.Length);
+        DropSubtitle.Text = size > 0 ? DownloadWatcher.FormatBytes(size) : L.T("папка");
 
         DropActions.Children.Clear();
-        AddDropAction("\uE7B8", "На полку", () => { AddToShelf(files); Done("На полке", $"{_settings.Shelf.Count} файл(ов) ждут во вкладке «Буфер → Полка»"); });
-        AddDropAction("", "Поделиться", () => FileDropActions.Share(_hwnd, files), keepOpen: true);
-        AddDropAction("", "Копировать для вставки", () => { FileDropActions.CopyFiles(files); Done("Файлы в буфере", "Вставьте в Telegram, чат или папку: Ctrl+V"); });
-        AddDropAction("", "В ZIP", () => Done("Архив готов", null, FileDropActions.Zip(files)));
+        AddDropAction("\uE7B8", L.T("На полку"), () => { AddToShelf(files); Done(L.T("На полке"), L.F("{0} файл(ов) ждут во вкладке «Буфер → Полка»", _settings.Shelf.Count)); });
+        AddDropAction("", L.T("Поделиться"), () => FileDropActions.Share(_hwnd, files), keepOpen: true);
+        AddDropAction("", L.T("Копировать для вставки"), () => { FileDropActions.CopyFiles(files); Done(L.T("Файлы в буфере"), L.T("Вставьте в Telegram, чат или папку: Ctrl+V")); });
+        AddDropAction("", L.T("В ZIP"), () => Done(L.T("Архив готов"), null, FileDropActions.Zip(files)));
         if (images)
         {
-            AddDropAction("", "В JPG", () => Done("Готово", null, files.Select(f => FileDropActions.ConvertImage(f, "jpg")).Last()));
-            AddDropAction("", "В PNG", () => Done("Готово", null, files.Select(f => FileDropActions.ConvertImage(f, "png")).Last()));
-            AddDropAction("", "Сжать фото", () => Done("Фото сжато", null, files.Select(f => FileDropActions.ConvertImage(f, "jpg", 72, 1920)).Last()));
+            AddDropAction("", L.T("В JPG"), () => Done(L.T("Готово"), null, files.Select(f => FileDropActions.ConvertImage(f, "jpg")).Last()));
+            AddDropAction("", L.T("В PNG"), () => Done(L.T("Готово"), null, files.Select(f => FileDropActions.ConvertImage(f, "png")).Last()));
+            AddDropAction("", L.T("Сжать фото"), () => Done(L.T("Фото сжато"), null, files.Select(f => FileDropActions.ConvertImage(f, "jpg", 72, 1920)).Last()));
         }
-        AddDropAction("", "Копировать путь", () => { Clipboard.SetText(string.Join(Environment.NewLine, files)); Done("Путь скопирован", null); });
-        AddDropAction("", "Закрыть", () => { _dropped = []; SetMode(Mode.Compact); }, keepOpen: true);
+        AddDropAction("", L.T("Копировать путь"), () => { Clipboard.SetText(string.Join(Environment.NewLine, files)); Done(L.T("Путь скопирован"), null); });
+        AddDropAction("", L.T("Закрыть"), () => { _dropped = []; SetMode(Mode.Compact); }, keepOpen: true);
 
         DropActions.Visibility = Visibility.Visible;
         MorphTo(TargetSize(Mode.Drop));
@@ -438,7 +438,7 @@ public partial class MainWindow
             catch (Exception ex)
             {
                 Log.Write("drop action: " + ex);
-                ShowToast("", "Не получилось", ex.Message);
+                ShowToast("", L.T("Не получилось"), ex.Message);
             }
             finally { Mouse.OverrideCursor = null; }
         };

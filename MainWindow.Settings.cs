@@ -11,8 +11,40 @@ public partial class MainWindow
 {
     private bool _settingsLoading;
 
+    private void BuildLanguageChips()
+    {
+        LanguageChips.Children.Clear();
+        var options = new List<(string Code, string Name)> { ("", L.T("Как в Windows")) };
+        options.AddRange(Services.Loc.Languages);
+        foreach (var (code, name) in options)
+        {
+            var chip = new CheckBox
+            {
+                Style = (Style)FindResource("ChipToggle"), Content = name, Tag = code,
+                IsChecked = _settings.Language == code, Margin = new Thickness(0, 0, 6, 6),
+            };
+            chip.Click += (_, _) =>
+            {
+                foreach (CheckBox other in LanguageChips.Children) other.IsChecked = (string)other.Tag == code;   // one at a time
+                if (_settingsLoading || _settings.Language == code) return;
+                _settings.Language = code;
+                _settings.Save();
+                if (Services.Loc.Resolve(code) == Services.Loc.Lang) return;   // same language, nothing to reload
+                // the whole interface is translated at start-up: relaunch in the new language
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!, "--restart") { UseShellExecute = false });
+                    Application.Current.Shutdown();
+                }
+                catch (Exception ex) { ShowToast("", L.T("Не получилось"), ex.Message); }
+            };
+            LanguageChips.Children.Add(chip);
+        }
+    }
+
     private void InitSettingsPage()
     {
+        BuildLanguageChips();
         foreach (var hex in Theme.Palette)
         {
             var b = new Button
@@ -217,7 +249,7 @@ public partial class MainWindow
     private void Autostart_Click(object sender, RoutedEventArgs e)
     {
         try { Autostart.Set(AutostartSwitch.IsChecked == true); }
-        catch (Exception ex) { ShowToast("", "Автозапуск не изменён", ex.Message); }
+        catch (Exception ex) { ShowToast("", L.T("Автозапуск не изменён"), ex.Message); }
         AutostartSwitch.IsChecked = Autostart.IsEnabled;
     }
 
@@ -230,7 +262,7 @@ public partial class MainWindow
     private void TranslateBox_LostFocus(object sender, RoutedEventArgs e)
     {
         var lang = TranslateBox.Text.Trim().ToLowerInvariant();
-        _settings.TranslateTo = lang.Length is >= 2 and <= 5 ? lang : "ru";
+        _settings.TranslateTo = lang.Length is >= 2 and <= 5 ? lang : "";
         TranslateBox.Text = _settings.TranslateTo;
         _settings.Save();
     }

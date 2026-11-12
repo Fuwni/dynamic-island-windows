@@ -72,7 +72,7 @@ public sealed class ScreenRecording
         _recorder.OnRecordingComplete += (_, e) => Done(e.FilePath, null);
         _recorder.OnRecordingFailed += (_, e) => Done(null, e.Error);
 
-        var path = Path.Combine(VideosFolder, $"Запись экрана {DateTime.Now:yyyy-MM-dd HH-mm-ss}.mp4");
+        var path = Path.Combine(VideosFolder, L.T("Запись экрана") + DateTime.Now.ToString(" yyyy-MM-dd HH-mm-ss") + ".mp4");
         StartedAt = DateTime.Now;
         IsRecording = true;
         _recorder.Record(path);

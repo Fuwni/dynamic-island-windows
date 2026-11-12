@@ -19,10 +19,10 @@ public sealed class CharacterView : FrameworkElement
 {
     public static readonly (string Id, string Name)[] All =
     [
-        ("eyes", "Глазки"), ("cat", "Кот"), ("ghost", "Призрак"), ("robot", "Робот"),
-        ("fish", "Рыбка"), ("planet", "Планета"), ("slime", "Слайм"), ("pulse", "Пульс"),
-        ("bunny", "Зайчик"), ("owl", "Сова"), ("dino", "Дино"), ("star", "Звёздочка"),
-        ("cloud", "Облачко"), ("claude", "Claude"), ("clawd", "Claude Code"),
+        ("eyes", L.T("Глазки")), ("cat", L.T("Кот")), ("ghost", L.T("Призрак")), ("robot", L.T("Робот")),
+        ("fish", L.T("Рыбка")), ("planet", L.T("Планета")), ("slime", L.T("Слайм")), ("pulse", L.T("Пульс")),
+        ("bunny", L.T("Зайчик")), ("owl", L.T("Сова")), ("dino", L.T("Дино")), ("star", L.T("Звёздочка")),
+        ("cloud", L.T("Облачко")), ("claude", "Claude"), ("clawd", "Claude Code"),
     ];
 
     public string Kind { get; set; } = "eyes";

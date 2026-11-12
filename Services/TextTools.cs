@@ -89,7 +89,7 @@ public static class TextTools
     {
         int words = s.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
         int lines = s.Length == 0 ? 0 : s.Split('\n').Length;
-        return $"{s.Length} симв. · {words} слов · {lines} строк";
+        return L.F("{0} симв. · {1} слов · {2} строк", s.Length, words, lines);
     }
 
     /// <summary>QR code picture for any text or link.</summary>

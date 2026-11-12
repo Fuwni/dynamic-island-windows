@@ -79,7 +79,12 @@ public sealed class Settings
 
     // actions
     public string Command { get; set; } = "";
-    public string TranslateTo { get; set; } = "ru";
+    public string TranslateTo { get; set; } = "";
+    /// <summary>Where "Translate" goes: the chosen language, or the interface language when not set.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string TranslateTarget => string.IsNullOrWhiteSpace(TranslateTo) ? Loc.Lang : TranslateTo;
+    /// <summary>Interface language: "" = like Windows, or en / ru / uk / es / de / pt / zh.</summary>
+    public string Language { get; set; } = "";
     public bool RecordSystemAudio { get; set; } = true;
     public bool RecordMicrophone { get; set; } = true;
 

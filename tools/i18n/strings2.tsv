@@ -1,0 +1,148 @@
+ru	en	uk	es	de	pt	zh
+Раскладка	Layout	Розкладка	Distribución	Tastaturlayout	Layout do teclado	键盘布局
+ghbdtn → привет: текст, набранный не в той раскладке	ghbdtn → привет: text typed in the wrong keyboard layout	ghbdtn → привет: текст, набраний не в тій розкладці	ghbdtn → привет: texto escrito con la distribución equivocada	ghbdtn → привет: Text im falschen Tastaturlayout getippt	ghbdtn → привет: texto digitado no layout errado	ghbdtn → привет：修正用错键盘布局输入的文字
+ВЕРХНИЙ	UPPER	ВЕЛИКІ	MAYÚSCULAS	GROSS	MAIÚSCULAS	大写
+нижний	lower	малі	minúsculas	klein	minúsculas	小写
+Как в предложении	Sentence case	Як у реченні	Tipo oración	Satzanfang groß	Como em frase	句首大写
+Транслит	Transliterate	Транслітерація	Transliterar	Transliteration	Transliterar	音译
+Привет → Privet	Привет → Privet	Привіт → Pryvit	Привет → Privet	Привет → Privet	Привет → Privet	Привет → Privet
+Убрать лишние пробелы, невидимые символы и «умные» кавычки	Remove extra spaces, invisible characters and “smart” quotes	Прибрати зайві пробіли, невидимі символи й «розумні» лапки	Quitar espacios extra, caracteres invisibles y comillas «tipográficas»	Doppelte Leerzeichen, unsichtbare Zeichen und typografische Anführungszeichen entfernen	Remover espaços extras, caracteres invisíveis e aspas “inteligentes”	去除多余空格、不可见字符和弯引号
+Красиво отформатировать JSON	Pretty-print JSON	Гарно відформатувати JSON	Formatear JSON	JSON schön formatieren	Formatar JSON	格式化 JSON
+Сделать QR-код из текста или ссылки	Make a QR code from text or a link	Зробити QR-код із тексту чи посилання	Crear un código QR a partir de texto o un enlace	QR-Code aus Text oder Link erstellen	Criar um código QR a partir de texto ou link	用文字或链接生成二维码
+Перевести	Translate	Перекласти	Traducir	Übersetzen	Traduzir	翻译
+Вставить из буфера	Paste from clipboard	Вставити з буфера	Pegar del portapapeles	Aus Zwischenablage einfügen	Colar da área de transferência	从剪贴板粘贴
+Копировать	Copy	Копіювати	Copiar	Kopieren	Copiar	复制
+Сначала введите или вставьте текст	Type or paste some text first	Спершу введіть або вставте текст	Primero escribe o pega un texto	Zuerst Text eingeben oder einfügen	Primeiro digite ou cole um texto	请先输入或粘贴文字
+Сначала введите текст или ссылку	Type some text or a link first	Спершу введіть текст або посилання	Primero escribe un texto o un enlace	Zuerst Text oder Link eingeben	Primeiro digite um texto ou link	请先输入文字或链接
+QR-код готов и скопирован как картинка	QR code ready and copied as an image	QR-код готовий і скопійований як зображення	Código QR listo y copiado como imagen	QR-Code fertig und als Bild kopiert	Código QR pronto e copiado como imagem	二维码已生成并以图片形式复制
+Перевожу…	Translating…	Перекладаю…	Traduciendo…	Übersetze…	Traduzindo…	正在翻译…
+Нет связи с сервисом перевода	Can't reach the translation service	Немає зв'язку з сервісом перекладу	No se puede conectar con el servicio de traducción	Übersetzungsdienst nicht erreichbar	Sem conexão com o serviço de tradução	无法连接翻译服务
+{0} мин	{0} min	{0} хв	{0} min	{0} Min.	{0} min	{0} 分钟
+1 ч	1 h	1 год	1 h	1 Std.	1 h	1 小时
+Пауза	Pause	Пауза	Pausa	Pause	Pausar	暂停
+Продолжить	Resume	Продовжити	Reanudar	Fortsetzen	Continuar	继续
+Старт	Start	Старт	Iniciar	Start	Iniciar	开始
+Скопируйте что-нибудь (Ctrl+C) — оно появится здесь	Copy something (Ctrl+C) and it will show up here	Скопіюйте щось (Ctrl+C) — воно з'явиться тут	Copia algo (Ctrl+C) y aparecerá aquí	Kopiere etwas (Strg+C) – es erscheint hier	Copie algo (Ctrl+C) e aparecerá aqui	复制任意内容（Ctrl+C），它会显示在这里
+файлы · 	files · 	файли · 	archivos · 	Dateien · 	arquivos · 	文件 ·
+Буфер обмена занят	The clipboard is busy	Буфер обміну зайнятий	El portapapeles está ocupado	Zwischenablage ist belegt	A área de transferência está ocupada	剪贴板被占用
+Вставьте Ctrl+V	Paste with Ctrl+V	Вставте Ctrl+V	Pega con Ctrl+V	Mit Strg+V einfügen	Cole com Ctrl+V	按 Ctrl+V 粘贴
+Удалить	Delete	Видалити	Eliminar	Löschen	Excluir	删除
+Заметка скопирована	Note copied	Нотатку скопійовано	Nota copiada	Notiz kopiert	Nota copiada	笔记已复制
+Пока пусто — напишите мысль выше	Nothing here yet — write a thought above	Поки порожньо — напишіть думку вище	Aún no hay nada: escribe una idea arriba	Noch leer – schreib oben einen Gedanken	Ainda vazio — escreva uma ideia acima	暂无内容，在上方写下想法吧
+Сегодня	Today	Сьогодні	Hoy	Heute	Hoje	今天
+Завтра	Tomorrow	Завтра	Mañana	Morgen	Amanhã	明天
+На неделю ничего не запланировано	Nothing planned this week	На тиждень нічого не заплановано	Nada planeado esta semana	Diese Woche nichts geplant	Nada planejado para a semana	本周没有安排
+Не удалось загрузить календарь: 	Couldn't load the calendar: 	Не вдалося завантажити календар: 	No se pudo cargar el calendario: 	Kalender konnte nicht geladen werden: 	Não foi possível carregar o calendário: 	无法加载日历：
+Календарь подключён, обновляется каждые 15 минут.	Calendar connected, refreshes every 15 minutes.	Календар підключено, оновлюється кожні 15 хвилин.	Calendario conectado, se actualiza cada 15 minutos.	Kalender verbunden, wird alle 15 Minuten aktualisiert.	Calendário conectado, atualiza a cada 15 minutos.	日历已连接，每 15 分钟更新一次。
+Google Календарь → Настройки календаря → «Секретный адрес в формате iCal».	Google Calendar → Calendar settings → “Secret address in iCal format”.	Google Календар → Налаштування календаря → «Секретна адреса у форматі iCal».	Google Calendar → Configuración del calendario → «Dirección secreta en formato iCal».	Google Kalender → Kalendereinstellungen → „Privatadresse im iCal-Format“.	Google Agenda → Configurações da agenda → “Endereço secreto no formato iCal”.	Google 日历 → 日历设置 →“iCal 格式的私密地址”。
+Напишите, о чём напомнить	Write what to remind you about	Напишіть, про що нагадати	Escribe qué quieres recordar	Schreib, woran erinnert werden soll	Escreva do que lembrar	写下要提醒的内容
+Не понял время. Примеры: 18:30, завтра 9:00, через 20 мин, 15.11 14:00	Didn't get the time. Examples: 18:30, tomorrow 9:00, in 20 min, 15.11 14:00	Не зрозумів час. Приклади: 18:30, завтра 9:00, через 20 хв, 15.11 14:00	No entendí la hora. Ejemplos: 18:30, mañana 9:00, en 20 min, 15.11 14:00	Zeit nicht erkannt. Beispiele: 18:30, morgen 9:00, in 20 min, 15.11 14:00	Não entendi o horário. Exemplos: 18:30, amanhã 9:00, em 20 min, 15.11 14:00	没看懂时间。例如：18:30、明天 9:00、20分钟后、15.11 14:00
+Загружаю…	Loading…	Завантажую…	Cargando…	Lade…	Carregando…	正在加载…
+Отпустите файл на острове	Drop the file on the island	Відпустіть файл на острові	Suelta el archivo en la isla	Datei auf der Insel ablegen	Solte o arquivo na ilha	把文件放到灵动岛上
+Поделиться, ZIP, конвертировать или сжать картинку	Share, ZIP, convert or compress an image	Поділитися, ZIP, конвертувати чи стиснути зображення	Compartir, ZIP, convertir o comprimir una imagen	Teilen, ZIP, Bild konvertieren oder verkleinern	Compartilhar, ZIP, converter ou comprimir imagem	分享、压缩为 ZIP、转换或压缩图片
+{0} файла(ов)	{0} files	{0} файл(ів)	{0} archivos	{0} Dateien	{0} arquivos	{0} 个文件
+На полку	To the shelf	На полицю	A la estantería	Ins Regal	Para a prateleira	放到暂存架
+На полке	On the shelf	На полиці	En la estantería	Im Regal	Na prateleira	已放到暂存架
+{0} файл(ов) ждут во вкладке «Буфер → Полка»	{0} file(s) waiting in Clipboard → Shelf	{0} файл(ів) чекають у вкладці «Буфер → Полиця»	{0} archivo(s) esperan en Portapapeles → Estantería	{0} Datei(en) warten unter „Zwischenablage → Regal“	{0} arquivo(s) aguardando em Área de transferência → Prateleira	{0} 个文件在“剪贴板 → 暂存架”中等待
+Поделиться	Share	Поділитися	Compartir	Teilen	Compartilhar	分享
+Копировать для вставки	Copy to paste	Копіювати для вставлення	Copiar para pegar	Zum Einfügen kopieren	Copiar para colar	复制以便粘贴
+Файлы в буфере	Files copied	Файли в буфері	Archivos copiados	Dateien kopiert	Arquivos copiados	文件已复制
+Вставьте в Telegram, чат или папку: Ctrl+V	Paste into Telegram, a chat or a folder: Ctrl+V	Вставте в Telegram, чат або папку: Ctrl+V	Pégalos en Telegram, un chat o una carpeta: Ctrl+V	In Telegram, einen Chat oder Ordner einfügen: Strg+V	Cole no Telegram, num chat ou numa pasta: Ctrl+V	粘贴到 Telegram、聊天或文件夹：Ctrl+V
+В ZIP	To ZIP	У ZIP	A ZIP	Als ZIP	Para ZIP	压缩为 ZIP
+Архив готов	Archive ready	Архів готовий	Archivo listo	Archiv fertig	Arquivo pronto	压缩包已生成
+В JPG	To JPG	У JPG	A JPG	Als JPG	Para JPG	转为 JPG
+Готово	Done	Готово	Listo	Fertig	Pronto	完成
+В PNG	To PNG	У PNG	A PNG	Als PNG	Para PNG	转为 PNG
+Сжать фото	Compress photo	Стиснути фото	Comprimir foto	Foto verkleinern	Comprimir foto	压缩照片
+Фото сжато	Photo compressed	Фото стиснуто	Foto comprimida	Foto verkleinert	Foto comprimida	照片已压缩
+Копировать путь	Copy path	Копіювати шлях	Copiar ruta	Pfad kopieren	Copiar caminho	复制路径
+Путь скопирован	Path copied	Шлях скопійовано	Ruta copiada	Pfad kopiert	Caminho copiado	路径已复制
+Закрыть	Close	Закрити	Cerrar	Schließen	Fechar	关闭
+Обновляю…	Updating…	Оновлюю…	Actualizando…	Aktualisiere…	Atualizando…	正在更新…
+Впишите город и нажмите Enter	Type a city and press Enter	Впишіть місто й натисніть Enter	Escribe una ciudad y pulsa Enter	Stadt eingeben und Enter drücken	Digite uma cidade e pressione Enter	输入城市并按回车
+Город не найден	City not found	Місто не знайдено	Ciudad no encontrada	Stadt nicht gefunden	Cidade não encontrada	未找到城市
+Укажите город	Set your city	Вкажіть місто	Indica tu ciudad	Stadt angeben	Defina sua cidade	请设置城市
+Обновлено в 	Updated at 	Оновлено о 	Actualizado a las 	Aktualisiert um 	Atualizado às 	更新于
+Нет связи, повторю через {0} с	No connection, retrying in {0} s	Немає зв'язку, повторю через {0} с	Sin conexión, reintento en {0} s	Keine Verbindung, neuer Versuch in {0} s	Sem conexão, tentando de novo em {0} s	无网络，{0} 秒后重试
+{0} · жду сеть…	{0} · waiting for the network…	{0} · чекаю на мережу…	{0} · esperando la red…	{0} · warte auf Netzwerk…	{0} · aguardando a rede…	{0} · 正在等待网络…
+Ощущается {0} · ↑{1} ↓{2}	Feels like {0} · ↑{1} ↓{2}	Відчувається як {0} · ↑{1} ↓{2}	Sensación {0} · ↑{1} ↓{2}	Gefühlt {0} · ↑{1} ↓{2}	Sensação {0} · ↑{1} ↓{2}	体感 {0} · ↑{1} ↓{2}
+{0:0.#} м/с	{0:0.#} m/s	{0:0.#} м/с	{0:0.#} m/s	{0:0.#} m/s	{0:0.#} m/s	{0:0.#} m/s
+Сухо	Dry	Сухо	Seco	Trocken	Seco	干燥
+Комфортно	Comfortable	Комфортно	Agradable	Angenehm	Confortável	舒适
+Влажно	Humid	Волого	Húmedo	Feucht	Úmido	潮湿
+Очень влажно	Very humid	Дуже волого	Muy húmedo	Sehr feucht	Muito úmido	非常潮湿
+Низкий	Low	Низький	Bajo	Niedrig	Baixo	低
+Умеренный	Moderate	Помірний	Moderado	Mäßig	Moderado	中等
+Высокий	High	Високий	Alto	Hoch	Alto	高
+Очень высокий	Very high	Дуже високий	Muy alto	Sehr hoch	Muito alto	很高
+Экстремальный	Extreme	Екстремальний	Extremo	Extrem	Extremo	极高
+{0:0.#} мм	{0:0.#} mm	{0:0.#} мм	{0:0.#} mm	{0:0.#} mm	{0:0.#} mm	{0:0.#} 毫米
+Сейчас идёт: {0:0.#} мм · вероятность {1}%	Falling now: {0:0.#} mm · chance {1}%	Зараз іде: {0:0.#} мм · ймовірність {1}%	Ahora: {0:0.#} mm · probabilidad {1}%	Gerade: {0:0.#} mm · Wahrscheinlichkeit {1}%	Agora: {0:0.#} mm · chance {1}%	正在降水：{0:0.#} 毫米 · 概率 {1}%
+За сегодня · вероятность {0}%	Today · chance {0}%	За сьогодні · ймовірність {0}%	Hoy · probabilidad {0}%	Heute · Wahrscheinlichkeit {0}%	Hoje · chance {0}%	今日 · 概率 {0}%
+Показать / спрятать  (Ctrl+Alt+I)	Show / hide  (Ctrl+Alt+I)	Показати / сховати  (Ctrl+Alt+I)	Mostrar / ocultar  (Ctrl+Alt+I)	Anzeigen / ausblenden  (Strg+Alt+I)	Mostrar / ocultar  (Ctrl+Alt+I)	显示 / 隐藏  (Ctrl+Alt+I)
+Скриншот области  (Ctrl+Alt+S)	Region screenshot  (Ctrl+Alt+S)	Знімок області  (Ctrl+Alt+S)	Captura de región  (Ctrl+Alt+S)	Bereichs-Screenshot  (Strg+Alt+S)	Captura de região  (Ctrl+Alt+S)	区域截图  (Ctrl+Alt+S)
+Сменить тему  (Ctrl+Alt+T)	Switch theme  (Ctrl+Alt+T)	Змінити тему  (Ctrl+Alt+T)	Cambiar tema  (Ctrl+Alt+T)	Design wechseln  (Strg+Alt+T)	Trocar tema  (Ctrl+Alt+T)	切换主题  (Ctrl+Alt+T)
+Выход	Exit	Вихід	Salir	Beenden	Sair	退出
+Событие	Event	Подія	Evento	Termin	Evento	日程
+Скриншот	Screenshot	Знімок	Captura	Screenshot	Captura	截图
+В Windows не установлен язык для распознавания текста	No text recognition language is installed in Windows	У Windows не встановлено мову для розпізнавання тексту	Windows no tiene instalado ningún idioma para reconocer texto	In Windows ist keine Sprache für die Texterkennung installiert	Nenhum idioma de reconhecimento de texto está instalado no Windows	Windows 未安装文字识别语言
+settings.json не является JSON-объектом	settings.json is not a JSON object	settings.json не є JSON-об'єктом	settings.json no es un objeto JSON	settings.json ist kein JSON-Objekt	settings.json não é um objeto JSON	settings.json 不是 JSON 对象
+файл	file	файл	archivo	Datei	arquivo	文件
+{0:0.0} ГБ	{0:0.0} GB	{0:0.0} ГБ	{0:0.0} GB	{0:0.0} GB	{0:0.0} GB	{0:0.0} GB
+{0:0.0} МБ	{0:0.0} MB	{0:0.0} МБ	{0:0.0} MB	{0:0.0} MB	{0:0.0} MB	{0:0.0} MB
+{0:0} КБ	{0:0} KB	{0:0} КБ	{0:0} KB	{0:0} KB	{0:0} KB	{0:0} KB
+Архив	Archive	Архів	Archivo	Archiv	Arquivo	压缩包
+ (сжато)	 (compressed)	 (стиснуто)	 (comprimida)	 (verkleinert)	 (comprimida)	 （已压缩）
+ · веб-приложение	 · web app	 · вебзастосунок	 · aplicación web	 · Web-App	 · app web	 · 网页应用
+Браузер	Browser	Браузер	Navegador	Browser	Navegador	浏览器
+{0} симв. · {1} слов · {2} строк	{0} chars · {1} words · {2} lines	{0} симв. · {1} слів · {2} рядків	{0} caract. · {1} palabras · {2} líneas	{0} Zeichen · {1} Wörter · {2} Zeilen	{0} caract. · {1} palavras · {2} linhas	{0} 个字符 · {1} 个词 · {2} 行
+Работа · {0}/4	Focus · {0}/4	Робота · {0}/4	Trabajo · {0}/4	Arbeit · {0}/4	Foco · {0}/4	专注 · {0}/4
+Длинный перерыв	Long break	Довга перерва	Descanso largo	Lange Pause	Pausa longa	长休息
+Перерыв	Break	Перерва	Descanso	Pause	Pausa	休息
+идёт	running	іде	en marcha	läuft	rodando	进行中
+пауза	paused	пауза	en pausa	pausiert	pausado	已暂停
+Таймер закончился	Timer finished	Таймер завершився	El temporizador terminó	Timer abgelaufen	Temporizador terminado	计时结束
+{0} мин прошло	{0} min passed	{0} хв минуло	Han pasado {0} min	{0} Min. vorbei	{0} min se passaram	已过去 {0} 分钟
+Время отдохнуть	Time for a break	Час відпочити	Hora de descansar	Zeit für eine Pause	Hora de descansar	该休息了
+Длинный перерыв · 15 мин	Long break · 15 min	Довга перерва · 15 хв	Descanso largo · 15 min	Lange Pause · 15 Min.	Pausa longa · 15 min	长休息 · 15 分钟
+Перерыв · 5 мин	Break · 5 min	Перерва · 5 хв	Descanso · 5 min	Pause · 5 Min.	Pausa · 5 min	休息 · 5 分钟
+За работу	Back to work	До роботи	A trabajar	Zurück an die Arbeit	De volta ao trabalho	回到工作
+Помодоро {0}/4 · 25 мин	Pomodoro {0}/4 · 25 min	Помодоро {0}/4 · 25 хв	Pomodoro {0}/4 · 25 min	Pomodoro {0}/4 · 25 Min.	Pomodoro {0}/4 · 25 min	番茄钟 {0}/4 · 25 分钟
+Ясно	Clear	Ясно	Despejado	Klar	Céu limpo	晴
+Малооблачно	Mostly clear	Малохмарно	Poco nuboso	Überwiegend klar	Poucas nuvens	少云
+Переменная облачность	Partly cloudy	Мінлива хмарність	Parcialmente nublado	Teilweise bewölkt	Parcialmente nublado	多云
+Пасмурно	Overcast	Похмуро	Cubierto	Bedeckt	Nublado	阴
+Туман	Fog	Туман	Niebla	Nebel	Neblina	雾
+Морось	Drizzle	Мряка	Llovizna	Nieselregen	Garoa	毛毛雨
+Дождь	Rain	Дощ	Lluvia	Regen	Chuva	雨
+Снег	Snow	Сніг	Nieve	Schnee	Neve	雪
+Ливень	Showers	Злива	Chubascos	Regenschauer	Pancadas de chuva	阵雨
+Снегопад	Snow showers	Снігопад	Nevadas	Schneeschauer	Nevasca	阵雪
+Гроза	Thunderstorm	Гроза	Tormenta	Gewitter	Tempestade	雷雨
+С	N	Пн	N	N	N	北
+СВ	NE	ПнСх	NE	NO	NE	东北
+В	E	Сх	E	O	L	东
+ЮВ	SE	ПдСх	SE	SO	SE	东南
+Ю	S	Пд	S	S	S	南
+ЮЗ	SW	ПдЗх	SO	SW	SO	西南
+З	W	Зх	O	W	O	西
+СЗ	NW	ПнЗх	NO	NW	NO	西北
+Глазки	Eyes	Очки	Ojitos	Äuglein	Olhinhos	眼睛
+Кот	Cat	Кіт	Gato	Katze	Gato	猫咪
+Призрак	Ghost	Привид	Fantasma	Geist	Fantasma	幽灵
+Робот	Robot	Робот	Robot	Roboter	Robô	机器人
+Рыбка	Fish	Рибка	Pez	Fisch	Peixinho	小鱼
+Планета	Planet	Планета	Planeta	Planet	Planeta	星球
+Слайм	Slime	Слайм	Slime	Schleim	Slime	史莱姆
+Пульс	Pulse	Пульс	Pulso	Puls	Pulso	脉冲
+Зайчик	Bunny	Зайчик	Conejito	Häschen	Coelhinho	小兔
+Сова	Owl	Сова	Búho	Eule	Coruja	猫头鹰
+Дино	Dino	Діно	Dino	Dino	Dino	恐龙
+Звёздочка	Star	Зірочка	Estrellita	Sternchen	Estrelinha	星星
+Облачко	Cloud	Хмаринка	Nubecita	Wölkchen	Nuvenzinha	云朵
+Сохранено	Saved	Збережено	Guardado	Gespeichert	Salvo	已保存
+ТЕКСТ	TEXT	ТЕКСТ	TEXTO	TEXT	TEXTO	文字
+Распознаю…	Recognizing…	Розпізнаю…	Reconociendo…	Erkenne…	Reconhecendo…	正在识别…
+ПЕРЕВОД	TRANSLATION	ПЕРЕКЛАД	TRADUCCIÓN	ÜBERSETZUNG	TRADUÇÃO	翻译
+ПЕРЕВОД {0} → {1}	TRANSLATION {0} → {1}	ПЕРЕКЛАД {0} → {1}	TRADUCCIÓN {0} → {1}	ÜBERSETZUNG {0} → {1}	TRADUÇÃO {0} → {1}	翻译 {0} → {1}
+QR-КОД	QR CODE	QR-КОД	CÓDIGO QR	QR-CODE	CÓDIGO QR	二维码

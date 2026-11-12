@@ -1,0 +1,133 @@
+ru	en	uk	es	de	pt	zh
+Область	Region	Область	Región	Bereich	Região	区域
+Весь экран	Full screen	Весь екран	Pantalla completa	Ganzer Bildschirm	Tela inteira	全屏
+Текст с экрана	Text from screen	Текст з екрана	Texto de la pantalla	Text vom Bildschirm	Texto da tela	屏幕文字
+QR-код	QR code	QR-код	Código QR	QR-Code	Código QR	二维码
+Пипетка	Color picker	Піпетка	Cuentagotas	Farbpipette	Conta-gotas	取色器
+Чистый текст	Plain text	Чистий текст	Texto limpio	Reiner Text	Texto limpo	纯文本
+Запись экрана	Screen recording	Запис екрана	Grabar pantalla	Bildschirmaufnahme	Gravar tela	屏幕录制
+Команда	Command	Команда	Comando	Befehl	Comando	命令
+Стоп	Stop	Стоп	Detener	Stopp	Parar	停止
+Не получилось	Something went wrong	Не вийшло	Algo salió mal	Hat nicht geklappt	Algo deu errado	出错了
+Текст не найден	No text found	Текст не знайдено	No se encontró texto	Kein Text gefunden	Nenhum texto encontrado	未找到文字
+Попробуйте выделить крупнее	Try selecting a larger area	Спробуйте виділити більшу область	Prueba a seleccionar un área más grande	Wähle einen größeren Bereich	Tente selecionar uma área maior	请框选更大的区域
+QR-код не найден	No QR code found	QR-код не знайдено	No se encontró ningún código QR	Kein QR-Code gefunden	Nenhum código QR encontrado	未找到二维码
+Выделите код целиком	Select the whole code	Виділіть код повністю	Selecciona el código completo	Markiere den ganzen Code	Selecione o código inteiro	请框选完整的二维码
+Ссылка из QR — нажмите, чтобы открыть	Link from QR — click to open	Посилання з QR — натисніть, щоб відкрити	Enlace del QR: haz clic para abrir	Link aus QR – zum Öffnen klicken	Link do QR — clique para abrir	二维码链接 — 点击打开
+QR-код скопирован	QR code copied	QR-код скопійовано	Código QR copiado	QR-Code kopiert	Código QR copiado	二维码内容已复制
+{0} скопирован	{0} copied	{0} скопійовано	{0} copiado	{0} kopiert	{0} copiado	已复制 {0}
+В буфере нет текста	No text on the clipboard	У буфері немає тексту	No hay texto en el portapapeles	Kein Text in der Zwischenablage	Não há texto na área de transferência	剪贴板中没有文字
+Текст очищен	Text cleaned	Текст очищено	Texto limpio	Text bereinigt	Texto limpo	文字已清理
+Без форматирования, лишних пробелов и невидимых символов	No formatting, extra spaces or invisible characters	Без форматування, зайвих пробілів і невидимих символів	Sin formato, espacios extra ni caracteres invisibles	Ohne Formatierung, doppelte Leerzeichen und unsichtbare Zeichen	Sem formatação, espaços extras ou caracteres invisíveis	已去除格式、多余空格和不可见字符
+Команда запущена	Command started	Команду запущено	Comando ejecutado	Befehl gestartet	Comando iniciado	命令已运行
+Не удалось запустить	Couldn't start it	Не вдалося запустити	No se pudo iniciar	Konnte nicht gestartet werden	Não foi possível iniciar	无法启动
+Запись сохранена	Recording saved	Запис збережено	Grabación guardada	Aufnahme gespeichert	Gravação salva	录制已保存
+Запись не удалась	Recording failed	Запис не вдався	La grabación falló	Aufnahme fehlgeschlagen	A gravação falhou	录制失败
+со звуком и микрофоном	with sound and microphone	зі звуком і мікрофоном	con sonido y micrófono	mit Ton und Mikrofon	com som e microfone	含系统声音和麦克风
+со звуком компьютера	with computer sound	зі звуком комп'ютера	con el sonido del equipo	mit PC-Ton	com o som do computador	含系统声音
+с микрофоном	with microphone	з мікрофоном	con micrófono	mit Mikrofon	com microfone	含麦克风
+без звука	no sound	без звуку	sin sonido	ohne Ton	sem som	无声音
+Запись экрана началась	Screen recording started	Запис екрана почався	Grabación iniciada	Bildschirmaufnahme gestartet	Gravação da tela iniciada	屏幕录制已开始
+{0} · стоп: Ctrl+Alt+R или кнопка на «Главной»	{0} · stop: Ctrl+Alt+R or the button on Home	{0} · стоп: Ctrl+Alt+R або кнопка на «Головній»	{0} · detener: Ctrl+Alt+R o el botón en Inicio	{0} · Stopp: Strg+Alt+R oder Taste auf „Start“	{0} · parar: Ctrl+Alt+R ou o botão em Início	{0} · 停止：Ctrl+Alt+R 或主页上的按钮
+Не удалось открыть чат: 	Couldn't open the chat: 	Не вдалося відкрити чат: 	No se pudo abrir el chat: 	Chat konnte nicht geöffnet werden: 	Não foi possível abrir o chat: 	无法打开聊天：
+Хочет использовать «{0}». Разрешить?	Wants to use “{0}”. Allow?	Хоче використати «{0}». Дозволити?	Quiere usar «{0}». ¿Permitir?	Möchte „{0}“ verwenden. Erlauben?	Quer usar “{0}”. Permitir?	想要使用“{0}”。允许吗？
+ещё {0} в очереди	{0} more waiting	ще {0} у черзі	{0} más en cola	noch {0} in der Warteschlange	mais {0} na fila	还有 {0} 个在排队
+Claude Code закончил	Claude Code is done	Claude Code завершив	Claude Code terminó	Claude Code ist fertig	Claude Code terminou	Claude Code 已完成
+готово	done	готово	listo	fertig	pronto	完成
+Последний ответ:	Last reply:	Остання відповідь:	Última respuesta:	Letzte Antwort:	Última resposta:	最后回复：
+Скопировано	Copied	Скопійовано	Copiado	Kopiert	Copiado	已复制
+Отключить	Disconnect	Відключити	Desconectar	Trennen	Desconectar	断开
+Подключить	Connect	Підключити	Conectar	Verbinden	Conectar	连接
+Подключено. Запросы разрешений Claude Code появятся на острове — отвечайте прямо здесь. Если остров закрыт, Claude Code спросит в терминале, как обычно.	Connected. Claude Code permission requests will appear on the island — answer right here. If the island is closed, Claude Code asks in the terminal as usual.	Підключено. Запити дозволів Claude Code з'являтимуться на острові — відповідайте прямо тут. Якщо острів закрито, Claude Code спитає в терміналі, як завжди.	Conectado. Las solicitudes de permiso de Claude Code aparecerán en la isla: responde aquí mismo. Si la isla está cerrada, Claude Code preguntará en la terminal como siempre.	Verbunden. Berechtigungsanfragen von Claude Code erscheinen auf der Insel – antworte direkt hier. Ist die Insel geschlossen, fragt Claude Code wie gewohnt im Terminal.	Conectado. Os pedidos de permissão do Claude Code aparecerão na ilha — responda aqui mesmo. Se a ilha estiver fechada, o Claude Code pergunta no terminal como sempre.	已连接。Claude Code 的权限请求会显示在灵动岛上，直接在这里回复即可。灵动岛关闭时，Claude Code 会像往常一样在终端中询问。
+Хуки установлены, но порт 47811 занят — остров не может их принять.	Hooks are installed, but port 47811 is busy — the island can't receive them.	Хуки встановлено, але порт 47811 зайнятий — острів не може їх прийняти.	Los hooks están instalados, pero el puerto 47811 está ocupado: la isla no puede recibirlos.	Hooks sind installiert, aber Port 47811 ist belegt – die Insel kann sie nicht empfangen.	Os hooks estão instalados, mas a porta 47811 está ocupada — a ilha não pode recebê-los.	钩子已安装，但端口 47811 被占用，灵动岛无法接收。
+Остров сможет показывать запросы разрешений и «готово» от Claude Code и отвечать на них без терминала. Добавит хуки в ~/.claude/settings.json (резервная копия сохранится рядом).	The island can show Claude Code permission requests and “done” messages and answer them without the terminal. Adds hooks to ~/.claude/settings.json (a backup is kept next to it).	Острів зможе показувати запити дозволів і «готово» від Claude Code та відповідати на них без термінала. Додасть хуки в ~/.claude/settings.json (резервна копія збережеться поруч).	La isla podrá mostrar las solicitudes de permiso y los avisos de «listo» de Claude Code y responderlos sin la terminal. Añade hooks a ~/.claude/settings.json (se guarda una copia de seguridad al lado).	Die Insel kann Berechtigungsanfragen und „fertig“-Meldungen von Claude Code anzeigen und ohne Terminal beantworten. Fügt Hooks zu ~/.claude/settings.json hinzu (eine Sicherung bleibt daneben).	A ilha poderá mostrar pedidos de permissão e avisos de “pronto” do Claude Code e respondê-los sem o terminal. Adiciona hooks a ~/.claude/settings.json (um backup fica ao lado).	灵动岛可以显示 Claude Code 的权限请求和“完成”通知，无需终端即可回复。会向 ~/.claude/settings.json 添加钩子（旁边会保留备份）。
+Не получилось: 	Failed: 	Не вийшло: 	Error: 	Fehler: 	Falhou: 	失败：
+Скриншот области	Screenshot of a region	Знімок області	Captura de una región	Screenshot eines Bereichs	Captura de uma região	区域截图
+Скриншот всего экрана	Screenshot of the whole screen	Знімок усього екрана	Captura de toda la pantalla	Screenshot des ganzen Bildschirms	Captura da tela inteira	全屏截图
+QR-код с экрана	QR code from screen	QR-код з екрана	Código QR de la pantalla	QR-Code vom Bildschirm	Código QR da tela	识别屏幕二维码
+Остановить запись экрана	Stop screen recording	Зупинити запис екрана	Detener la grabación	Bildschirmaufnahme beenden	Parar gravação da tela	停止屏幕录制
+Чистый текст в буфере	Clean the clipboard text	Чистий текст у буфері	Limpiar el texto del portapapeles	Text in der Zwischenablage bereinigen	Limpar texto da área de transferência	清理剪贴板文字
+Сменить тему	Switch theme	Змінити тему	Cambiar tema	Design wechseln	Trocar tema	切换主题
+Спрятать остров	Hide the island	Сховати острів	Ocultar la isla	Insel ausblenden	Ocultar a ilha	隐藏灵动岛
+Настройки	Settings	Налаштування	Ajustes	Einstellungen	Configurações	设置
+Погода	Weather	Погода	Tiempo	Wetter	Clima	天气
+Музыка	Music	Музика	Música	Musik	Música	音乐
+Чат с ИИ	AI chat	Чат з ШІ	Chat con IA	KI-Chat	Chat com IA	AI 聊天
+Буфер обмена	Clipboard	Буфер обміну	Portapapeles	Zwischenablage	Área de transferência	剪贴板
+Заметки	Notes	Нотатки	Notas	Notizen	Notas	笔记
+Календарь	Calendar	Календар	Calendario	Kalender	Calendário	日历
+Система	System	Система	Sistema	System	Sistema	系统
+Заблокировать компьютер	Lock the computer	Заблокувати комп'ютер	Bloquear el equipo	Computer sperren	Bloquear o computador	锁定电脑
+Выключить «Не беспокоить»	Turn off Do Not Disturb	Вимкнути «Не турбувати»	Desactivar No molestar	„Nicht stören“ ausschalten	Desativar Não perturbe	关闭勿扰
+Не беспокоить на 1 час	Do Not Disturb for 1 hour	Не турбувати 1 годину	No molestar durante 1 hora	„Nicht stören“ für 1 Stunde	Não perturbe por 1 hora	勿扰 1 小时
+Включить микрофон	Unmute microphone	Увімкнути мікрофон	Activar micrófono	Mikrofon einschalten	Ativar microfone	打开麦克风
+Выключить микрофон	Mute microphone	Вимкнути мікрофон	Silenciar micrófono	Mikrofon stummschalten	Silenciar microfone	静音麦克风
+действие	action	дія	acción	Aktion	ação	操作
+Таймер на 5 минут	5-minute timer	Таймер на 5 хвилин	Temporizador de 5 minutos	Timer für 5 Minuten	Temporizador de 5 minutos	5 分钟计时
+таймер 5	timer 5	таймер 5	temporizador 5	timer 5	temporizador 5	计时 5
+Выполнить: {0}	Run: {0}	Виконати: {0}	Ejecutar: {0}	Ausführen: {0}	Executar: {0}	运行：{0}
+Enter — скопировать	Enter — copy	Enter — скопіювати	Enter: copiar	Enter – kopieren	Enter — copiar	回车 — 复制
+Таймер на {0}	Timer for {0}	Таймер на {0}	Temporizador de {0}	Timer für {0}	Temporizador de {0}	计时 {0}
+запустить	start	запустити	iniciar	starten	iniciar	开始
+Напоминание	Reminder	Нагадування	Recordatorio	Erinnerung	Lembrete	提醒
+Напомнить: {0}	Remind: {0}	Нагадати: {0}	Recordar: {0}	Erinnern: {0}	Lembrar: {0}	提醒：{0}
+dd.MM в HH:mm	MMM d, HH:mm	dd.MM о HH:mm	dd/MM HH:mm	dd.MM., HH:mm	dd/MM 'às' HH:mm	M月d日 HH:mm
+Напомню 	I'll remind you on 	Нагадаю 	Te lo recordaré el 	Erinnerung am 	Vou lembrar em 	将于以下时间提醒：
+приложение	app	застосунок	aplicación	App	aplicativo	应用
+Открыть {0}	Open {0}	Відкрити {0}	Abrir {0}	{0} öffnen	Abrir {0}	打开 {0}
+сайт	website	сайт	sitio web	Website	site	网站
+Искать «{0}» в интернете	Search the web for “{0}”	Шукати «{0}» в інтернеті	Buscar «{0}» en internet	„{0}“ im Web suchen	Pesquisar “{0}” na internet	在网上搜索“{0}”
+{0:0.#} ч	{0:0.#} h	{0:0.#} год	{0:0.#} h	{0:0.#} Std.	{0:0.#} h	{0:0.#} 小时
+{0:0.#} мин	{0:0.#} min	{0:0.#} хв	{0:0.#} min	{0:0.#} Min.	{0:0.#} min	{0:0.#} 分钟
+{0:0} с	{0:0} s	{0:0} с	{0:0} s	{0:0} s	{0:0} s	{0:0} 秒
+Нет	None	Немає	Ninguno	Aus	Nenhum	无
+Аврора	Aurora	Аврора	Aurora	Aurora	Aurora	极光
+Закат	Sunset	Захід	Atardecer	Sonnenuntergang	Pôr do sol	日落
+Океан	Ocean	Океан	Océano	Ozean	Oceano	海洋
+Неон	Neon	Неон	Neón	Neon	Neon	霓虹
+Иней	Frost	Іній	Escarcha	Raureif	Geada	霜白
+Загрузка завершена	Download complete	Завантаження завершено	Descarga completa	Download abgeschlossen	Download concluído	下载完成
+ · пауза	 · paused	 · пауза	 · en pausa	 · pausiert	 · pausado	 · 已暂停
+Не беспокоить · {0}:{1:00}	Do Not Disturb · {0}:{1:00}	Не турбувати · {0}:{1:00}	No molestar · {0}:{1:00}	Nicht stören · {0}:{1:00}	Não perturbe · {0}:{1:00}	勿扰 · {0}:{1:00}
+Discord · микрофон выкл	Discord · mic off	Discord · мікрофон вимк.	Discord · micrófono apagado	Discord · Mikro aus	Discord · microfone desligado	Discord · 麦克风已关
+Discord · говорят	Discord · someone's talking	Discord · говорять	Discord · alguien habla	Discord · jemand spricht	Discord · alguém falando	Discord · 有人在说话
+Discord · в канале	Discord · in a channel	Discord · у каналі	Discord · en un canal	Discord · im Kanal	Discord · em um canal	Discord · 在频道中
+{0} · {1}/с	{0} · {1}/s	{0} · {1}/с	{0} · {1}/s	{0} · {1}/s	{0} · {1}/s	{0} · {1}/秒
+ · ещё {0}	 · {0} more	 · ще {0}	 · {0} más	 · noch {0}	 · mais {0}	 · 另有 {0} 个
+Сейчас: {0}	Now: {0}	Зараз: {0}	Ahora: {0}	Jetzt: {0}	Agora: {0}	正在进行：{0}
+{0} · через {1} мин	{0} · in {1} min	{0} · через {1} хв	{0} · en {1} min	{0} · in {1} Min.	{0} · em {1} min	{0} · {1} 分钟后
+Через {0} мин	In {0} min	Через {0} хв	En {0} min	In {0} Min.	Em {0} min	{0} 分钟后
+Начинается	Starting now	Починається	Empieza ahora	Beginnt jetzt	Começando	即将开始
+ВИДЕОКАРТА	GPU	ВІДЕОКАРТА	GPU	GRAFIKKARTE	GPU	显卡
+{0:0.0} / {1:0} ГБ	{0:0.0} / {1:0} GB	{0:0.0} / {1:0} ГБ	{0:0.0} / {1:0} GB	{0:0.0} / {1:0} GB	{0:0.0} / {1:0} GB	{0:0.0} / {1:0} GB
+В канале · кто-то говорит	In a channel · someone's talking	У каналі · хтось говорить	En un canal · alguien habla	Im Kanal · jemand spricht	Em um canal · alguém falando	在频道中 · 有人在说话
+В голосовом канале	In a voice channel	У голосовому каналі	En un canal de voz	Im Sprachkanal	Em um canal de voz	在语音频道中
+Не в голосовом канале	Not in a voice channel	Не в голосовому каналі	No estás en un canal de voz	Nicht im Sprachkanal	Fora de um canal de voz	未在语音频道中
+Микрофон: выкл	Microphone: off	Мікрофон: вимк.	Micrófono: apagado	Mikrofon: aus	Microfone: desligado	麦克风：关
+Микрофон: вкл	Microphone: on	Мікрофон: увімк.	Micrófono: encendido	Mikrofon: an	Microfone: ligado	麦克风：开
+Discord не запущен	Discord isn't running	Discord не запущено	Discord no está abierto	Discord läuft nicht	Discord não está aberto	Discord 未运行
+Звук Discord: выкл	Discord sound: off	Звук Discord: вимк.	Sonido de Discord: apagado	Discord-Ton: aus	Som do Discord: desligado	Discord 声音：关
+Звук Discord: вкл	Discord sound: on	Звук Discord: увімк.	Sonido de Discord: encendido	Discord-Ton: an	Som do Discord: ligado	Discord 声音：开
+До {0:HH:mm} · баннеры Windows скрыты	Until {0:HH:mm} · Windows banners hidden	До {0:HH:mm} · банери Windows приховано	Hasta las {0:HH:mm} · avisos de Windows ocultos	Bis {0:HH:mm} · Windows-Banner ausgeblendet	Até {0:HH:mm} · avisos do Windows ocultos	至 {0:HH:mm} · 已隐藏 Windows 通知横幅
+Выключено	Off	Вимкнено	Desactivado	Aus	Desativado	已关闭
+Никто не использует	Not in use	Ніхто не використовує	Nadie los está usando	Wird nicht verwendet	Ninguém está usando	未被使用
+Проверяю…	Checking…	Перевіряю…	Comprobando…	Prüfe…	Verificando…	正在检查…
+Logitech G435 не передаёт заряд компьютеру — даже G HUB его не показывает. Здесь появятся устройства, которые умеют сообщать заряд.	The Logitech G435 doesn't report its battery to the PC — not even G HUB shows it. Devices that report their battery will appear here.	Logitech G435 не передає заряд комп'ютеру — навіть G HUB його не показує. Тут з'являться пристрої, які вміють повідомляти заряд.	El Logitech G435 no informa de su batería al PC: ni siquiera G HUB la muestra. Aquí aparecerán los dispositivos que sí la informan.	Das Logitech G435 meldet seinen Akkustand nicht an den PC – nicht einmal G HUB zeigt ihn. Geräte, die ihren Akku melden, erscheinen hier.	O Logitech G435 não informa a bateria ao PC — nem o G HUB mostra. Os dispositivos que informam a bateria aparecerão aqui.	Logitech G435 不向电脑报告电量，连 G HUB 也无法显示。能报告电量的设备会显示在这里。
+Нет устройств, которые сообщают заряд.	No devices report their battery.	Немає пристроїв, які повідомляють заряд.	Ningún dispositivo informa de su batería.	Keine Geräte melden ihren Akkustand.	Nenhum dispositivo informa a bateria.	没有可报告电量的设备。
+Микрофон выключен	Microphone muted	Мікрофон вимкнено	Micrófono silenciado	Mikrofon stumm	Microfone silenciado	麦克风已静音
+Микрофон включён	Microphone on	Мікрофон увімкнено	Micrófono activado	Mikrofon an	Microfone ativado	麦克风已打开
+Без названия	Untitled	Без назви	Sin título	Ohne Titel	Sem título	未命名
+Ничего не играет	Nothing playing	Нічого не грає	No se reproduce nada	Nichts wird abgespielt	Nada tocando	未在播放
+Включите музыку в любом плеере	Play music in any player	Увімкніть музику в будь-якому плеєрі	Reproduce música en cualquier reproductor	Spiel Musik in einem beliebigen Player ab	Toque música em qualquer player	在任意播放器中播放音乐
+Ищу слова…	Looking for lyrics…	Шукаю слова…	Buscando la letra…	Suche Songtext…	Procurando a letra…	正在查找歌词…
+Здесь появятся слова песни	Lyrics will appear here	Тут з'являться слова пісні	Aquí aparecerá la letra	Hier erscheint der Songtext	A letra aparecerá aqui	歌词会显示在这里
+Общая · {0}%	System · {0}%	Загальна · {0}%	General · {0}%	System · {0}%	Geral · {0}%	系统 · {0}%
+Общая	System	Загальна	General	System	Geral	系统
+Слова для этой песни не найдены	No lyrics found for this song	Слова для цієї пісні не знайдено	No se encontró la letra de esta canción	Kein Songtext für diesen Titel gefunden	Letra não encontrada para esta música	未找到这首歌的歌词
+Как в Windows	Same as Windows	Як у Windows	Como Windows	Wie Windows	Igual ao Windows	跟随 Windows
+Автозапуск не изменён	Autostart unchanged	Автозапуск не змінено	No se cambió el inicio automático	Autostart nicht geändert	Inicialização automática não alterada	未更改开机启动
+Полка пуста	The shelf is empty	Полиця порожня	La estantería está vacía	Das Regal ist leer	A prateleira está vazia	暂存架为空
+⠿  Потяните отсюда, чтобы забрать все {0}	⠿  Drag from here to take all {0}	⠿  Потягніть звідси, щоб забрати всі {0}	⠿  Arrastra desde aquí para llevarte los {0}	⠿  Von hier ziehen, um alle {0} mitzunehmen	⠿  Arraste daqui para levar todos os {0}	⠿  从这里拖动可取走全部 {0} 个
+папка	folder	папка	carpeta	Ordner	pasta	文件夹
+Показать в папке	Show in folder	Показати в папці	Mostrar en la carpeta	Im Ordner anzeigen	Mostrar na pasta	在文件夹中显示
+Убрать с полки (файл останется)	Remove from the shelf (the file stays)	Прибрати з полиці (файл залишиться)	Quitar de la estantería (el archivo se queda)	Aus dem Regal entfernen (die Datei bleibt)	Remover da prateleira (o arquivo continua)	从暂存架移除（文件保留）

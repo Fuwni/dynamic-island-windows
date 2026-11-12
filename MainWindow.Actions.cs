@@ -30,14 +30,14 @@ public partial class MainWindow
 
     public static readonly (string Id, string Glyph, string Label)[] AllActions =
     [
-        ("region", "", "Область"),
-        ("full", "", "Весь экран"),
-        ("ocr", "", "Текст с экрана"),
-        ("qr", "", "QR-код"),
-        ("picker", "", "Пипетка"),
-        ("cleantext", "", "Чистый текст"),
-        ("record", "", "Запись экрана"),
-        ("command", "", "Команда"),
+        ("region", "", L.T("Область")),
+        ("full", "", L.T("Весь экран")),
+        ("ocr", "", L.T("Текст с экрана")),
+        ("qr", "", L.T("QR-код")),
+        ("picker", "", L.T("Пипетка")),
+        ("cleantext", "", L.T("Чистый текст")),
+        ("record", "", L.T("Запись экрана")),
+        ("command", "", L.T("Команда")),
     ];
 
     private readonly ScreenRecording _recording = new();
@@ -80,7 +80,7 @@ public partial class MainWindow
             {
                 Style = (Style)FindResource(WideActions.Contains(id) ? "WideAction" : "RoundAction"),
                 Tag = rec ? "\uE71A" : glyph,
-                Content = rec ? "Стоп" : label,
+                Content = rec ? L.T("Стоп") : label,
                 Width = WideActions.Contains(id) ? wideWidth : roundWidth,
             };
             if (WideActions.Contains(id)) b.Background = ChipBrush(id);
@@ -148,7 +148,7 @@ public partial class MainWindow
         catch (Exception ex)
         {
             Log.Write($"action {id}: {ex}");
-            ShowToast("", "Не получилось", ex.Message);
+            ShowToast("", L.T("Не получилось"), ex.Message);
         }
         finally { _busy = false; }
     }
@@ -195,7 +195,7 @@ public partial class MainWindow
         var text = await CaptureService.RecognizeTextAsync(img);
         if (text.Length == 0)
         {
-            ShowToast("", "Текст не найден", "Попробуйте выделить крупнее");
+            ShowToast("", L.T("Текст не найден"), L.T("Попробуйте выделить крупнее"));
             return;
         }
         Clipboard.SetText(text);
@@ -214,12 +214,12 @@ public partial class MainWindow
         var text = CaptureService.DecodeQr(img);
         if (text == null)
         {
-            ShowToast("", "QR-код не найден", "Выделите код целиком");
+            ShowToast("", L.T("QR-код не найден"), L.T("Выделите код целиком"));
             return;
         }
         Clipboard.SetText(text);
         bool link = Services.SafeShell.IsWebUrl(text);
-        ShowToast("", link ? "Ссылка из QR — нажмите, чтобы открыть" : "QR-код скопирован", text,
+        ShowToast("", link ? L.T("Ссылка из QR — нажмите, чтобы открыть") : L.T("QR-код скопирован"), text,
             link ? () => Services.SafeShell.OpenUrl(text) : null, ms: 4500);
     }
 
@@ -230,19 +230,19 @@ public partial class MainWindow
         if (c is not Color color) return;
         var hex = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
         Clipboard.SetText(hex);
-        ShowToast("", $"{hex} скопирован", $"rgb({color.R}, {color.G}, {color.B})", null, new SolidColorBrush(color));
+        ShowToast("", L.F("{0} скопирован", hex), $"rgb({color.R}, {color.G}, {color.B})", null, new SolidColorBrush(color));
     }
 
     private void CleanClipboard()
     {
         if (!Clipboard.ContainsText())
         {
-            ShowToast("", "В буфере нет текста", null);
+            ShowToast("", L.T("В буфере нет текста"), null);
             return;
         }
         var clean = CaptureService.CleanText(Clipboard.GetText());
         Clipboard.SetText(clean); // plain text only: formatting, links and styles are gone
-        ShowToast("", "Текст очищен", "Без форматирования, лишних пробелов и невидимых символов");
+        ShowToast("", L.T("Текст очищен"), L.T("Без форматирования, лишних пробелов и невидимых символов"));
     }
 
     private void RunCommand()
@@ -266,9 +266,9 @@ public partial class MainWindow
                 UseShellExecute = false,
                 WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             });
-            ShowToast("", "Команда запущена", cmd);
+            ShowToast("", L.T("Команда запущена"), cmd);
         }
-        catch (Exception e) { ShowToast("", "Не удалось запустить", e.Message); }
+        catch (Exception e) { ShowToast("", L.T("Не удалось запустить"), e.Message); }
     }
 
     // ------------------------------------------------------------------ recording
@@ -281,12 +281,12 @@ public partial class MainWindow
             UpdateEyesVisibility();
             if (_mode == Mode.Compact) MorphTo(TargetSize(Mode.Compact));
             if (path != null)
-                ShowToast("", "Запись сохранена", System.IO.Path.GetFileName(path),
+                ShowToast("", L.T("Запись сохранена"), System.IO.Path.GetFileName(path),
                     () => Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true }), ms: 5000);
             else
             {
                 Log.Write("recording failed: " + error);
-                ShowToast("", "Запись не удалась", error);
+                ShowToast("", L.T("Запись не удалась"), error);
             }
         });
     }
@@ -305,12 +305,12 @@ public partial class MainWindow
         MorphTo(TargetSize(Mode.Compact));
         var what = (_settings.RecordSystemAudio, _settings.RecordMicrophone) switch
         {
-            (true, true) => "со звуком и микрофоном",
-            (true, false) => "со звуком компьютера",
-            (false, true) => "с микрофоном",
-            _ => "без звука",
+            (true, true) => L.T("со звуком и микрофоном"),
+            (true, false) => L.T("со звуком компьютера"),
+            (false, true) => L.T("с микрофоном"),
+            _ => L.T("без звука"),
         };
-        ShowToast("", "Запись экрана началась", $"{what} · стоп: Ctrl+Alt+R или кнопка на «Главной»",
+        ShowToast("", L.T("Запись экрана началась"), L.F("{0} · стоп: Ctrl+Alt+R или кнопка на «Главной»", what),
             null, (Brush)FindResource("Danger"), ms: 2200);
     }
 }

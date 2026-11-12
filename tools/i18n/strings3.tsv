@@ -1,0 +1,106 @@
+ru	en	uk	es	de	pt	zh
+Спрятать (смахнуть вверх)	Hide (swipe up)	Сховати (змахнути вгору)	Ocultar (desliza hacia arriba)	Ausblenden (nach oben wischen)	Ocultar (deslize para cima)	隐藏（向上滑动）
+В терминале	In terminal	У терміналі	En la terminal	Im Terminal	No terminal	在终端中
+Запретить	Deny	Заборонити	Denegar	Ablehnen	Negar	拒绝
+Разрешить	Allow	Дозволити	Permitir	Erlauben	Permitir	允许
+Приложение, 2+2, таймер 10, напомни…, > команда	App, 2+2, timer 10, remind…, > command	Застосунок, 2+2, таймер 10, нагадай…, > команда	App, 2+2, temporizador 10, recuérdame…, > comando	App, 2+2, timer 10, erinnere…, > Befehl	App, 2+2, temporizador 10, lembre…, > comando	应用、2+2、计时 10、提醒…、> 命令
+Поделиться, сжать в ZIP, конвертировать картинку	Share, ZIP it, convert an image	Поділитися, стиснути в ZIP, конвертувати зображення	Compartir, comprimir en ZIP, convertir una imagen	Teilen, als ZIP packen, Bild konvertieren	Compartilhar, compactar em ZIP, converter imagem	分享、压缩为 ZIP、转换图片
+Главная	Home	Головна	Inicio	Start	Início	主页
+Чат	Chat	Чат	Chat	Chat	Chat	聊天
+Таймер	Timer	Таймер	Temporizador	Timer	Temporizador	计时器
+Буфер	Clipboard	Буфер	Portapapeles	Zwischenablage	Transferência	剪贴板
+Нажми на меня	Click me	Натисни на мене	Haz clic en mí	Klick mich	Clique em mim	点我
+Спрятать (или смахните вверх)	Hide (or swipe up)	Сховати (або змахніть угору)	Ocultar (o desliza hacia arriba)	Ausblenden (oder nach oben wischen)	Ocultar (ou deslize para cima)	隐藏（或向上滑动）
+Город	City	Місто	Ciudad	Stadt	Cidade	城市
+Обновить	Refresh	Оновити	Actualizar	Aktualisieren	Atualizar	刷新
+СЕЙЧАС	NOW	ЗАРАЗ	AHORA	JETZT	AGORA	当前
+ВЕТЕР	WIND	ВІТЕР	VIENTO	WIND	VENTO	风
+ВЛАЖНОСТЬ	HUMIDITY	ВОЛОГІСТЬ	HUMEDAD	LUFTFEUCHTE	UMIDADE	湿度
+ДАВЛЕНИЕ	PRESSURE	ТИСК	PRESIÓN	LUFTDRUCK	PRESSÃO	气压
+мм рт. ст.	mmHg	мм рт. ст.	mmHg	mmHg	mmHg	毫米汞柱
+СОЛНЦЕ	SUN	СОНЦЕ	SOL	SONNE	SOL	日出日落
+УФ-ИНДЕКС	UV INDEX	УФ-ІНДЕКС	ÍNDICE UV	UV-INDEX	ÍNDICE UV	紫外线指数
+ОСАДКИ	PRECIPITATION	ОПАДИ	PRECIPITACIÓN	NIEDERSCHLAG	PRECIPITAÇÃO	降水
+ПО ЧАСАМ	HOURLY	ПОГОДИННО	POR HORAS	STÜNDLICH	POR HORA	逐小时
+Открыть в браузере	Open in browser	Відкрити в браузері	Abrir en el navegador	Im Browser öffnen	Abrir no navegador	在浏览器中打开
+Загружаю чат…	Loading chat…	Завантажую чат…	Cargando el chat…	Lade Chat…	Carregando o chat…	正在加载聊天…
+Помодоро	Pomodoro	Помодоро	Pomodoro	Pomodoro	Pomodoro	番茄钟
+Секундомер	Stopwatch	Секундомір	Cronómetro	Stoppuhr	Cronômetro	秒表
+мин	min	хв	min	Min.	min	分钟
+«Не беспокоить» во время работы	Do Not Disturb while focusing	«Не турбувати» під час роботи	No molestar mientras trabajas	„Nicht stören“ während der Arbeit	Não perturbe durante o foco	专注时开启勿扰
+Сброс	Reset	Скинути	Restablecer	Zurücksetzen	Redefinir	重置
+История	History	Історія	Historial	Verlauf	Histórico	历史
+Полка	Shelf	Полиця	Estantería	Regal	Prateleira	暂存架
+Текст	Text	Текст	Texto	Text	Texto	文字
+Очистить	Clear	Очистити	Borrar	Leeren	Limpar	清空
+БЛИЖАЙШЕЕ	UP NEXT	НАЙБЛИЖЧЕ	PRÓXIMO	ALS NÄCHSTES	PRÓXIMOS	即将到来
+НАПОМНИТЬ	REMIND ME	НАГАДАТИ	RECORDAR	ERINNERN	LEMBRAR	提醒我
+Добавить	Add	Додати	Añadir	Hinzufügen	Adicionar	添加
+Время: 18:30, завтра 9:00, через 20 мин, 15.11 14:00	Time: 18:30, tomorrow 9:00, in 20 min, 15.11 14:00	Час: 18:30, завтра 9:00, через 20 хв, 15.11 14:00	Hora: 18:30, mañana 9:00, en 20 min, 15.11 14:00	Zeit: 18:30, morgen 9:00, in 20 min, 15.11 14:00	Horário: 18:30, amanhã 9:00, em 20 min, 15.11 14:00	时间：18:30、明天 9:00、20分钟后、15.11 14:00
+GOOGLE / OUTLOOK / ЛЮБОЙ КАЛЕНДАРЬ (ICS)	GOOGLE / OUTLOOK / ANY CALENDAR (ICS)	GOOGLE / OUTLOOK / БУДЬ-ЯКИЙ КАЛЕНДАР (ICS)	GOOGLE / OUTLOOK / CUALQUIER CALENDARIO (ICS)	GOOGLE / OUTLOOK / BELIEBIGER KALENDER (ICS)	GOOGLE / OUTLOOK / QUALQUER CALENDÁRIO (ICS)	GOOGLE / OUTLOOK / 任意日历 (ICS)
+ПРОЦЕССОР	CPU	ПРОЦЕСОР	CPU	PROZESSOR	CPU	处理器
+ПАМЯТЬ	MEMORY	ПАМ'ЯТЬ	MEMORIA	ARBEITSSPEICHER	MEMÓRIA	内存
+Не беспокоить	Do Not Disturb	Не турбувати	No molestar	Nicht stören	Não perturbe	勿扰
+30 мин	30 min	30 хв	30 min	30 Min.	30 min	30 分钟
+2 ч	2 h	2 год	2 h	2 Std.	2 h	2 小时
+Выключить	Turn off	Вимкнути	Desactivar	Ausschalten	Desativar	关闭
+МИКРОФОН И КАМЕРА СЕЙЧАС	MICROPHONE AND CAMERA NOW	МІКРОФОН І КАМЕРА ЗАРАЗ	MICRÓFONO Y CÁMARA AHORA	MIKROFON UND KAMERA JETZT	MICROFONE E CÂMERA AGORA	当前麦克风和摄像头
+ЗАРЯД УСТРОЙСТВ	DEVICE BATTERY	ЗАРЯД ПРИСТРОЇВ	BATERÍA DE DISPOSITIVOS	AKKUSTAND DER GERÄTE	BATERIA DOS DISPOSITIVOS	设备电量
+Выйти	Quit	Вийти	Salir	Beenden	Sair	退出
+Внешний вид	Appearance	Вигляд	Apariencia	Aussehen	Aparência	外观
+СТИЛЬ	STYLE	СТИЛЬ	ESTILO	STIL	ESTILO	样式
+У края	Docked	Біля краю	Anclada	Am Rand	Na borda	贴边
+Вырастает из края экрана	Grows out of the screen edge	Виростає з краю екрана	Sale del borde de la pantalla	Wächst aus dem Bildschirmrand	Surge da borda da tela	从屏幕边缘长出
+Плавающий	Floating	Плаваючий	Flotante	Schwebend	Flutuante	悬浮
+Пилюля чуть ниже края	A pill just below the edge	Пігулка трохи нижче краю	Una píldora justo debajo del borde	Eine Pille knapp unter dem Rand	Uma pílula logo abaixo da borda	边缘下方的胶囊
+Тёмная тема	Dark theme	Темна тема	Tema oscuro	Dunkles Design	Tema escuro	深色主题
+Матовое стекло	Frosted glass	Матове скло	Vidrio esmerilado	Milchglas	Vidro fosco	磨砂玻璃
+Тон стекла	Glass tint	Тон скла	Tono del vidrio	Glastönung	Tom do vidro	玻璃色调
+Прозрачный низ	See-through bottom	Прозорий низ	Parte inferior transparente	Transparenter unterer Teil	Parte de baixo transparente	底部透明
+ПЕРЕЛИВАНИЕ В ПОКОЕ	IDLE GLOW	ПЕРЕЛИВИ В СПОКОЇ	BRILLO EN REPOSO	LEUCHTEN IM RUHEZUSTAND	BRILHO EM REPOUSO	待机光效
+Пружинка	Spring bounce	Пружинка	Rebote	Federeffekt	Efeito mola	弹性动画
+Скорость анимации	Animation speed	Швидкість анімації	Velocidad de animación	Animationstempo	Velocidade da animação	动画速度
+Обычная	Normal	Звичайна	Normal	Normal	Normal	正常
+Быстрая	Fast	Швидка	Rápida	Schnell	Rápida	快速
+Иконки страниц	Page icons	Іконки сторінок	Iconos de página	Seitensymbole	Ícones das páginas	页面图标
+При наведении	On hover	При наведенні	Al pasar el ratón	Beim Überfahren	Ao passar o mouse	悬停时
+Всегда	Always	Завжди	Siempre	Immer	Sempre	始终
+Живой отклик	Live response	Живий відгук	Respuesta viva	Lebendige Reaktion	Resposta viva	灵动反馈
+Живые волны	Liquid waves	Живі хвилі	Ondas vivas	Lebendige Wellen	Ondas vivas	液态波浪
+ЦВЕТ ОСТРОВА	ISLAND COLOR	КОЛІР ОСТРОВА	COLOR DE LA ISLA	INSELFARBE	COR DA ILHA	灵动岛颜色
+Применить	Apply	Застосувати	Aplicar	Anwenden	Aplicar	应用
+Персонаж	Character	Персонаж	Personaje	Figur	Personagem	角色
+Нарисовано от руки (покадрово)	Hand-drawn (frame by frame)	Намальовано від руки (покадрово)	Dibujado a mano (fotograma a fotograma)	Handgezeichnet (Bild für Bild)	Desenhado à mão (quadro a quadro)	手绘风格（逐帧）
+Оранжевая подсветка Claude	Claude's orange glow	Помаранчеве підсвічування Claude	Brillo naranja de Claude	Oranges Leuchten von Claude	Brilho laranja do Claude	Claude 橙色光效
+Быстрые действия	Quick actions	Швидкі дії	Acciones rápidas	Schnellaktionen	Ações rápidas	快捷操作
+Кнопки действий	Action buttons	Кнопки дій	Botones de acción	Aktionstasten	Botões de ação	操作按钮
+Поведение	Behavior	Поведінка	Comportamiento	Verhalten	Comportamento	行为
+ЯЗЫК · LANGUAGE	LANGUAGE	МОВА · LANGUAGE	IDIOMA · LANGUAGE	SPRACHE · LANGUAGE	IDIOMA · LANGUAGE	语言 · LANGUAGE
+Раскрывать при наведении	Open on hover	Розкривати при наведенні	Abrir al pasar el ratón	Beim Überfahren öffnen	Abrir ao passar o mouse	悬停时展开
+Прятать в играх и полноэкранном режиме	Hide in games and full screen	Ховати в іграх і повноекранному режимі	Ocultar en juegos y pantalla completa	In Spielen und im Vollbild ausblenden	Ocultar em jogos e tela cheia	在游戏和全屏时隐藏
+В играх показывать CPU / GPU / RAM вместо полного скрытия	In games, show CPU / GPU / RAM instead of hiding completely	В іграх показувати CPU / GPU / RAM замість повного приховування	En juegos, mostrar CPU / GPU / RAM en vez de ocultarse	In Spielen CPU / GPU / RAM anzeigen statt ganz auszublenden	Em jogos, mostrar CPU / GPU / RAM em vez de ocultar	游戏中显示 CPU / GPU / 内存，而不是完全隐藏
+Слова песни прямо в острове (караоке)	Lyrics right in the island (karaoke)	Слова пісні прямо в острові (караоке)	Letra dentro de la isla (karaoke)	Songtext direkt in der Insel (Karaoke)	Letra dentro da ilha (karaokê)	在灵动岛内显示歌词（卡拉 OK）
+Сообщения Telegram, Discord, Viber… на острове	Telegram, Discord, Viber… messages on the island	Повідомлення Telegram, Discord, Viber… на острові	Mensajes de Telegram, Discord, Viber… en la isla	Nachrichten von Telegram, Discord, Viber… auf der Insel	Mensagens do Telegram, Discord, Viber… na ilha	在灵动岛显示 Telegram、Discord、Viber… 消息
+Уведомления всех приложений, не только мессенджеров	Notifications from all apps, not just messengers	Сповіщення всіх застосунків, не лише месенджерів	Notificaciones de todas las apps, no solo de mensajería	Benachrichtigungen aller Apps, nicht nur Messenger	Notificações de todos os apps, não só mensageiros	显示所有应用的通知，而不仅是聊天软件
+Запускать вместе с Windows	Start with Windows	Запускати разом із Windows	Iniciar con Windows	Mit Windows starten	Iniciar com o Windows	开机自动启动
+Вернуть остров в центр	Move the island back to the center	Повернути острів у центр	Volver a centrar la isla	Insel wieder zentrieren	Voltar a ilha para o centro	将灵动岛移回中间
+Действия	Actions	Дії	Acciones	Aktionen	Ações	操作
+Команда для кнопки «Команда»	Command for the “Command” button	Команда для кнопки «Команда»	Comando para el botón «Comando»	Befehl für die Taste „Befehl“	Comando para o botão “Comando”	“命令”按钮执行的命令
+Переводить на язык	Translate into	Перекладати мовою	Traducir al idioma	Übersetzen in	Traduzir para	翻译为
+Запись экрана: звук компьютера	Screen recording: computer sound	Запис екрана: звук комп'ютера	Grabación: sonido del equipo	Bildschirmaufnahme: PC-Ton	Gravação da tela: som do computador	屏幕录制：系统声音
+Запись экрана: микрофон	Screen recording: microphone	Запис екрана: мікрофон	Grabación: micrófono	Bildschirmaufnahme: Mikrofon	Gravação da tela: microfone	屏幕录制：麦克风
+Ctrl+Alt+S — скриншот области · Ctrl+Alt+R — запись · Ctrl+Alt+I — показать/спрятать · Ctrl+Alt+Space — командная строка	Ctrl+Alt+S — region screenshot · Ctrl+Alt+R — record · Ctrl+Alt+I — show/hide · Ctrl+Alt+Space — command bar	Ctrl+Alt+S — знімок області · Ctrl+Alt+R — запис · Ctrl+Alt+I — показати/сховати · Ctrl+Alt+Space — командний рядок	Ctrl+Alt+S: captura de región · Ctrl+Alt+R: grabar · Ctrl+Alt+I: mostrar/ocultar · Ctrl+Alt+Espacio: barra de comandos	Strg+Alt+S – Bereichs-Screenshot · Strg+Alt+R – Aufnahme · Strg+Alt+I – anzeigen/ausblenden · Strg+Alt+Leertaste – Befehlsleiste	Ctrl+Alt+S — captura de região · Ctrl+Alt+R — gravar · Ctrl+Alt+I — mostrar/ocultar · Ctrl+Alt+Espaço — barra de comandos	Ctrl+Alt+S — 区域截图 · Ctrl+Alt+R — 录制 · Ctrl+Alt+I — 显示/隐藏 · Ctrl+Alt+Space — 命令栏
+Скриншот — Dynamic Island	Screenshot — Dynamic Island	Знімок — Dynamic Island	Captura — Dynamic Island	Screenshot — Dynamic Island	Captura — Dynamic Island	截图 — Dynamic Island
+Красный	Red	Червоний	Rojo	Rot	Vermelho	红色
+Жёлтый	Yellow	Жовтий	Amarillo	Gelb	Amarelo	黄色
+Зелёный	Green	Зелений	Verde	Grün	Verde	绿色
+Синий	Blue	Синій	Azul	Blau	Azul	蓝色
+Белый	White	Білий	Blanco	Weiß	Branco	白色
+Ручка	Pen	Ручка	Bolígrafo	Stift	Caneta	画笔
+Маркер	Highlighter	Маркер	Rotulador	Textmarker	Marca-texto	荧光笔
+Ластик	Eraser	Гумка	Borrador	Radierer	Borracha	橡皮擦
+Отменить (Ctrl+Z)	Undo (Ctrl+Z)	Скасувати (Ctrl+Z)	Deshacer (Ctrl+Z)	Rückgängig (Strg+Z)	Desfazer (Ctrl+Z)	撤销 (Ctrl+Z)
+Копировать (Ctrl+C)	Copy (Ctrl+C)	Копіювати (Ctrl+C)	Copiar (Ctrl+C)	Kopieren (Strg+C)	Copiar (Ctrl+C)	复制 (Ctrl+C)
+Сохранить (Ctrl+S)	Save (Ctrl+S)	Зберегти (Ctrl+S)	Guardar (Ctrl+S)	Speichern (Strg+S)	Salvar (Ctrl+S)	保存 (Ctrl+S)
+Закрыть (Esc)	Close (Esc)	Закрити (Esc)	Cerrar (Esc)	Schließen (Esc)	Fechar (Esc)	关闭 (Esc)
+Открыть ссылку	Open link	Відкрити посилання	Abrir enlace	Link öffnen	Abrir link	打开链接

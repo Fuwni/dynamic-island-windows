@@ -69,7 +69,7 @@ public static class CaptureService
 
     public static string SavePng(BitmapSource bmp, string? path = null)
     {
-        path ??= Path.Combine(PicturesFolder, $"Скриншот {DateTime.Now:yyyy-MM-dd HH-mm-ss}.png");
+        path ??= Path.Combine(PicturesFolder, L.T("Скриншот") + DateTime.Now.ToString(" yyyy-MM-dd HH-mm-ss") + ".png");
         var enc = new PngBitmapEncoder();
         enc.Frames.Add(BitmapFrame.Create(bmp));
         using var fs = File.Create(path);
@@ -93,7 +93,7 @@ public static class CaptureService
     {
         var engine = WinOcr.OcrEngine.TryCreateFromUserProfileLanguages()
                      ?? WinOcr.OcrEngine.TryCreateFromLanguage(new global::Windows.Globalization.Language("en-US"));
-        if (engine == null) throw new InvalidOperationException("В Windows не установлен язык для распознавания текста");
+        if (engine == null) throw new InvalidOperationException(L.T("В Windows не установлен язык для распознавания текста"));
 
         // small crops are recognised much better when upscaled
         BitmapSource input = bmp;
@@ -145,7 +145,8 @@ public static class CaptureService
         var (result, from) = await TranslateOnceAsync(text, to);
         if (string.Equals(from, to, StringComparison.OrdinalIgnoreCase) || result.Trim() == text.Trim())
         {
-            var other = to.Equals("en", StringComparison.OrdinalIgnoreCase) ? "ru" : "en";
+            // already in the target language: go to English, or to Russian/the UI language when the target is English
+            var other = !to.Equals("en", StringComparison.OrdinalIgnoreCase) ? "en" : Loc.Lang != "en" ? Loc.Lang : "ru";
             (result, from) = await TranslateOnceAsync(text, other);
             return (result, from, other);
         }

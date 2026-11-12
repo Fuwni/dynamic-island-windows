@@ -119,7 +119,7 @@ public partial class MainWindow
         catch (Exception ex)
         {
             _chat = null;
-            ChatPlaceholder.Text = "Не удалось открыть чат: " + ex.Message;
+            ChatPlaceholder.Text = L.T("Не удалось открыть чат: ") + ex.Message;
         }
         finally { _chatStarting = false; }
     }

@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/icon.png" width="96" alt="Иконка Dynamic Island">
+
 <img src="docs/screenshots/compact-music.png" width="420" alt="Dynamic Island в свёрнутом виде">
 
 # Dynamic Island для Windows
@@ -9,6 +11,8 @@
 заметки, календарь, уведомления и маленький персонаж, который живёт в пилюле, — в одном мягком, пружинистом острове наверху экрана.
 
 [English](README.md) · **Русский**
+
+🎬 **[Видео-обзор за полторы минуты](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/download/v1.2.0/dynamic-island-review-ru.mp4)** · 🌍 7 языков интерфейса
 
 [![Скачать](https://img.shields.io/github/v/release/mykolaichechelnytskyi/dynamic-island-windows?label=%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C&style=for-the-badge&color=30D158)](https://github.com/mykolaichechelnytskyi/dynamic-island-windows/releases/latest)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0A84FF?style=for-the-badge&logo=windows)
@@ -21,7 +25,7 @@
 
 ## Содержание
 
-- [Что нового в 1.1](#что-нового-в-11)
+- [Что нового в 1.2](#что-нового-в-12)
 - [Что умеет](#что-умеет)
 - [Установка за 2 минуты](#установка-за-2-минуты)
 - [Как пользоваться](#как-пользоваться)
@@ -34,7 +38,13 @@
 
 ---
 
-## Что нового в 1.1
+## Что нового в 1.2
+
+- 🌍 **Интерфейс на 7 языках**: английский, русский, украинский, испанский, немецкий, португальский и китайский. Язык берётся из Windows, сменить можно в «Настройки → Поведение». Даты, единицы и быстрые напоминания («завтра 9:00», «через 20 мин», «tomorrow 9:00», «明天 9:00») понимаются на любом языке.
+- 🎨 **Новая иконка**: фиолетовый «сквиркл» с островком, глазками и тёплым свечением.
+- 🧰 Инструменты для промо-роликов и скриншотов прямо из приложения (`--snapshot`, `--brand`, `--promo`, `--review`, `--live-demo`).
+
+### Раньше, в 1.1
 
 Полный список — в **[CHANGELOG.md](CHANGELOG.md)**. Главное:
 

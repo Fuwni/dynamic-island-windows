@@ -21,6 +21,7 @@ public partial class ScreenshotEditor : Window
     public ScreenshotEditor(BitmapSource image)
     {
         InitializeComponent();
+        Loc.TranslateTree(this);
         _image = image;
 
         Picture.Source = image;
@@ -107,14 +108,14 @@ public partial class ScreenshotEditor : Window
 
     private void Copy_Click(object sender, RoutedEventArgs e)
     {
-        try { Clipboard.SetImage(Render()); Flash("Скопировано"); }
-        catch { Flash("Буфер обмена занят"); }
+        try { Clipboard.SetImage(Render()); Flash(L.T("Скопировано")); }
+        catch { Flash(L.T("Буфер обмена занят")); }
     }
 
     private void Save_Click(object sender, RoutedEventArgs e)
     {
         var path = CaptureService.SavePng(Render());
-        Flash("Сохранено");
+        Flash(L.T("Сохранено"));
         try { Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true }); } catch { }
     }
 
@@ -124,34 +125,34 @@ public partial class ScreenshotEditor : Window
 
     public async Task RunOcrAsync()
     {
-        ShowResult("ТЕКСТ", "Распознаю…");
+        ShowResult(L.T("ТЕКСТ"), L.T("Распознаю…"));
         try
         {
             _ocrText = await CaptureService.RecognizeTextAsync(_image);
-            ShowResult("ТЕКСТ", _ocrText.Length > 0 ? _ocrText : "Текст не найден");
+            ShowResult(L.T("ТЕКСТ"), _ocrText.Length > 0 ? _ocrText : L.T("Текст не найден"));
         }
-        catch (Exception ex) { ShowResult("ТЕКСТ", ex.Message); }
+        catch (Exception ex) { ShowResult(L.T("ТЕКСТ"), ex.Message); }
     }
 
     private async void Translate_Click(object sender, RoutedEventArgs e)
     {
         if (string.IsNullOrEmpty(_ocrText)) await RunOcrAsync();
         if (string.IsNullOrEmpty(_ocrText)) return;
-        var to = Settings.Current.TranslateTo;
-        ShowResult("ПЕРЕВОД", "Перевожу…");
+        var to = Settings.Current.TranslateTarget;
+        ShowResult(L.T("ПЕРЕВОД"), L.T("Перевожу…"));
         try
         {
             var (text, from, target) = await CaptureService.TranslateDetailedAsync(_ocrText, to);
-            ShowResult($"ПЕРЕВОД {from.ToUpperInvariant()} → {target.ToUpperInvariant()}", text);
+            ShowResult(L.F("ПЕРЕВОД {0} → {1}", from.ToUpperInvariant(), target.ToUpperInvariant()), text);
         }
-        catch { ShowResult("ПЕРЕВОД", "Нет связи с сервисом перевода"); }
+        catch { ShowResult(L.T("ПЕРЕВОД"), L.T("Нет связи с сервисом перевода")); }
     }
 
     private void Qr_Click(object sender, RoutedEventArgs e)
     {
         var text = CaptureService.DecodeQr(_image);
         _link = Services.SafeShell.IsWebUrl(text) ? text : null;
-        ShowResult("QR-КОД", text ?? "QR-код не найден");
+        ShowResult(L.T("QR-КОД"), text ?? L.T("QR-код не найден"));
     }
 
     private void ShowResult(string title, string text)
@@ -164,7 +165,7 @@ public partial class ScreenshotEditor : Window
 
     private void CopyText_Click(object sender, RoutedEventArgs e)
     {
-        try { Clipboard.SetText(ResultText.Text); Flash("Скопировано"); } catch { }
+        try { Clipboard.SetText(ResultText.Text); Flash(L.T("Скопировано")); } catch { }
     }
 
     private void OpenLink_Click(object sender, RoutedEventArgs e)

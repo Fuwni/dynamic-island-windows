@@ -50,7 +50,7 @@ public partial class MainWindow
 
         if (_hidden) ShowIsland();
         ClaudeProject.Text = _claudeCurrent.Project;
-        ClaudeTitle.Text = $"Хочет использовать «{_claudeCurrent.Tool}». Разрешить?";
+        ClaudeTitle.Text = L.F("Хочет использовать «{0}». Разрешить?", _claudeCurrent.Tool);
         ClaudeDetails.Text = _claudeCurrent.Details;
         ClaudeAskButtons.Visibility = Visibility.Visible;
         ClaudeInfoButtons.Visibility = Visibility.Collapsed;
@@ -59,7 +59,7 @@ public partial class MainWindow
     }
 
     private void UpdateQueueLabel() =>
-        ClaudeQueue.Text = _claudeQueue.Count > 0 ? $"ещё {_claudeQueue.Count} в очереди" : "";
+        ClaudeQueue.Text = _claudeQueue.Count > 0 ? L.F("ещё {0} в очереди", _claudeQueue.Count) : "";
 
     private void Answer(string? behavior)
     {
@@ -76,12 +76,12 @@ public partial class MainWindow
         // the permission prompt itself is already on the island
         if (n.Kind == "permission_prompt" && _claudeCurrent != null) return;
 
-        var title = n.Kind == "stop" ? "Claude Code закончил" : string.IsNullOrWhiteSpace(n.Title) ? "Claude Code" : n.Title;
+        var title = n.Kind == "stop" ? L.T("Claude Code закончил") : string.IsNullOrWhiteSpace(n.Title) ? "Claude Code" : n.Title;
         var project = string.IsNullOrEmpty(n.Project) ? "" : n.Project + " · ";
         var preview = n.Message.Replace('\n', ' ').Trim();
 
         _claudeInfoText = n.Message;
-        ShowToast("✳", title, project + (preview.Length > 0 ? preview : "готово"), () => ShowClaudeMessage(n),
+        ShowToast("✳", title, project + (preview.Length > 0 ? preview : L.T("готово")), () => ShowClaudeMessage(n),
             (System.Windows.Media.Brush)FindResource("ClaudeOrange"), ms: 6000);
     }
 
@@ -90,7 +90,7 @@ public partial class MainWindow
         if (_claudeCurrent != null || string.IsNullOrWhiteSpace(n.Message)) return;
         ClaudeProject.Text = n.Project;
         ClaudeQueue.Text = "";
-        ClaudeTitle.Text = n.Kind == "stop" ? "Последний ответ:" : n.Title;
+        ClaudeTitle.Text = n.Kind == "stop" ? L.T("Последний ответ:") : n.Title;
         ClaudeDetails.Text = n.Message;
         ClaudeAskButtons.Visibility = Visibility.Collapsed;
         ClaudeInfoButtons.Visibility = Visibility.Visible;
@@ -101,7 +101,7 @@ public partial class MainWindow
     {
         try { Clipboard.SetText(_claudeInfoText); } catch { }
         SetMode(Mode.Compact);
-        ShowToast("", "Скопировано", null);
+        ShowToast("", L.T("Скопировано"), null);
     }
 
     private void ClaudeClose_Click(object sender, RoutedEventArgs e) => SetMode(Mode.Compact);
@@ -111,12 +111,12 @@ public partial class MainWindow
     private void RefreshClaudeHooksUi()
     {
         bool installed = ClaudeHooks.IsInstalled;
-        ClaudeHooksButton.Content = installed ? "Отключить" : "Подключить";
+        ClaudeHooksButton.Content = installed ? L.T("Отключить") : L.T("Подключить");
         ClaudeHooksStatus.Text = installed
             ? (_bridge.IsRunning
-                ? "Подключено. Запросы разрешений Claude Code появятся на острове — отвечайте прямо здесь. Если остров закрыт, Claude Code спросит в терминале, как обычно."
-                : "Хуки установлены, но порт 47811 занят — остров не может их принять.")
-            : "Остров сможет показывать запросы разрешений и «готово» от Claude Code и отвечать на них без терминала. Добавит хуки в ~/.claude/settings.json (резервная копия сохранится рядом).";
+                ? L.T("Подключено. Запросы разрешений Claude Code появятся на острове — отвечайте прямо здесь. Если остров закрыт, Claude Code спросит в терминале, как обычно.")
+                : L.T("Хуки установлены, но порт 47811 занят — остров не может их принять."))
+            : L.T("Остров сможет показывать запросы разрешений и «готово» от Claude Code и отвечать на них без терминала. Добавит хуки в ~/.claude/settings.json (резервная копия сохранится рядом).");
     }
 
     private void ClaudeHooks_Click(object sender, RoutedEventArgs e)
@@ -128,7 +128,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            ClaudeHooksStatus.Text = "Не получилось: " + ex.Message;
+            ClaudeHooksStatus.Text = L.T("Не получилось: ") + ex.Message;
             return;
         }
         RefreshClaudeHooksUi();

@@ -48,8 +48,8 @@ public partial class MainWindow
         bool playing = m?.IsPlaying == true;
         bool hasTrack = m != null && (m.Title.Length > 0 || m.Artist.Length > 0);
 
-        TrackTitle.Text = HomeTrack.Text = hasTrack ? (m!.Title.Length > 0 ? m.Title : "Без названия") : "Ничего не играет";
-        TrackArtist.Text = HomeArtist.Text = hasTrack ? m!.Artist : "Включите музыку в любом плеере";
+        TrackTitle.Text = HomeTrack.Text = hasTrack ? (m!.Title.Length > 0 ? m.Title : L.T("Без названия")) : L.T("Ничего не играет");
+        TrackArtist.Text = HomeArtist.Text = hasTrack ? m!.Artist : L.T("Включите музыку в любом плеере");
         TrackSource.Text = hasTrack ? m!.SourceApp : "";
 
         if (m?.Art != null)
@@ -101,7 +101,7 @@ public partial class MainWindow
             _lyricsKey = key;
             _currentLyrics = null;
             _lyricIndex = int.MinValue;
-            ShowLyrics(false, hasTrack ? "Ищу слова…" : "Здесь появятся слова песни");
+            ShowLyrics(false, hasTrack ? L.T("Ищу слова…") : L.T("Здесь появятся слова песни"));
             if (_demoMedia != null) { _currentLyrics = DemoLyrics; ShowLyrics(true, ""); }
             else if (hasTrack) _ = LoadLyricsAsync(m!, key);
             if (_mode == Mode.Expanded && TabMusic.IsChecked == true) RefreshVolume();
@@ -184,7 +184,7 @@ public partial class MainWindow
         _volumeUpdating = false;
         VolumeLabel.Text = perApp && _lastMedia != null
             ? $"{_lastMedia.SourceApp} · {Math.Round(vol * 100)}%"
-            : $"Общая · {Math.Round(vol * 100)}%";
+            : L.F("Общая · {0}%", Math.Round(vol * 100));
     }
 
     private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -193,7 +193,7 @@ public partial class MainWindow
         var app = _lastMedia?.AppId ?? "";
         _audio.SetVolume(app, (float)e.NewValue);
         var (_, perApp) = _audio.GetVolume(app);
-        VolumeLabel.Text = (perApp && _lastMedia != null ? _lastMedia.SourceApp : "Общая") + $" · {Math.Round(e.NewValue * 100)}%";
+        VolumeLabel.Text = (perApp && _lastMedia != null ? _lastMedia.SourceApp : L.T("Общая")) + $" · {Math.Round(e.NewValue * 100)}%";
     }
 
     // ------------------------------------------------------------------ lyrics
@@ -209,7 +209,7 @@ public partial class MainWindow
 
         _currentLyrics = lyrics;
         _lyricIndex = int.MinValue;
-        ShowLyrics(lyrics != null, "Слова для этой песни не найдены");
+        ShowLyrics(lyrics != null, L.T("Слова для этой песни не найдены"));
         UpdateLyricLine();
     }
 

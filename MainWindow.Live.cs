@@ -41,7 +41,7 @@ public partial class MainWindow
             ShowToast("", title, text, () => OpenTab(TabTimer), (Brush)FindResource("Accent"), ms: 6000);
             RenderTimer();
         };
-        _downloads.Completed += path => ShowToast("", "Загрузка завершена", Path.GetFileName(path),
+        _downloads.Completed += path => ShowToast("", L.T("Загрузка завершена"), Path.GetFileName(path),
             () => Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true }),
             (Brush)FindResource("AccentBlue"), ms: 5000);
 
@@ -79,26 +79,26 @@ public partial class MainWindow
             text = _timer.Display;
             ring = _timer.Progress;
             if (_timer.Kind == TimerKind.Pomodoro && !_timer.PomodoroWork) ringBrush = (Brush)FindResource("AccentBlue");
-            if (!_timer.Running) text += " · пауза";
+            if (!_timer.Running) text += L.T(" · пауза");
         }
         else if (FocusMode.IsOn)
         {
             icon = "";
             var left = FocusMode.Until!.Value - DateTime.Now;
-            text = $"Не беспокоить · {(int)left.TotalMinutes}:{left.Seconds:00}";
+            text = L.F("Не беспокоить · {0}:{1:00}", (int)left.TotalMinutes, left.Seconds);
             ringBrush = new SolidColorBrush(Color.FromRgb(0x5E, 0x5C, 0xE6));
         }
         else if (_discordInCall)
         {
             icon = "";
-            text = _audio.MicMuted == true ? "Discord · микрофон выкл" : _discordSpeaking ? "Discord · говорят" : "Discord · в канале";
+            text = _audio.MicMuted == true ? L.T("Discord · микрофон выкл") : _discordSpeaking ? L.T("Discord · говорят") : L.T("Discord · в канале");
             ring = _discordSpeaking ? 1 : 0;
             ringBrush = new SolidColorBrush(Color.FromRgb(0x58, 0x65, 0xF2));
         }
         else if (_downloads.Current is { } d)
         {
             icon = "";
-            text = $"{Shorten(d.Name, 22)} · {DownloadWatcher.FormatBytes(d.BytesPerSecond)}/с" + (d.Count > 1 ? $" · ещё {d.Count - 1}" : "");
+            text = L.F("{0} · {1}/с", Shorten(d.Name, 22), DownloadWatcher.FormatBytes(d.BytesPerSecond)) + (d.Count > 1 ? L.F(" · ещё {0}", d.Count - 1) : "");
             ring = (_tickCount % 8) / 8.0; // spinner: size of the file is unknown
             ringBrush = (Brush)FindResource("AccentBlue");
         }
@@ -106,7 +106,7 @@ public partial class MainWindow
         {
             icon = "";
             var mins = (int)Math.Ceiling((ev.Start - DateTime.Now).TotalMinutes);
-            text = mins <= 0 ? $"Сейчас: {Shorten(ev.Title, 26)}" : $"{Shorten(ev.Title, 22)} · через {mins} мин";
+            text = mins <= 0 ? L.F("Сейчас: {0}", Shorten(ev.Title, 26)) : L.F("{0} · через {1} мин", Shorten(ev.Title, 22), mins);
         }
         else if (_gameMode && _stats.Last is { } s)
         {
@@ -182,6 +182,7 @@ public partial class MainWindow
         _discordInCall = Process.GetProcessesByName("Discord").Length > 0 &&
                          _audio.AppsRecording().Any(a => a.Contains("discord", StringComparison.OrdinalIgnoreCase));
         _discordSpeaking = _discordInCall && _audio.AppState("discord").Peak > 0.03;
+        if (_liveDemo) _discordInCall = _discordSpeaking = _demoDiscord;
 
         CheckCalendar();
 
@@ -232,11 +233,11 @@ public partial class MainWindow
             var key = e.Title + e.Start.Ticks;
             var left = e.Start - now;
             if (!e.IsReminder && left <= TimeSpan.FromMinutes(10) && left > TimeSpan.Zero && _eventNotified.Add(key + "10"))
-                ShowToast("", $"Через {(int)Math.Ceiling(left.TotalMinutes)} мин", e.Title, () => OpenTab(TabCalendar), ms: 6000);
+                ShowToast("", L.F("Через {0} мин", (int)Math.Ceiling(left.TotalMinutes)), e.Title, () => OpenTab(TabCalendar), ms: 6000);
             if (left <= TimeSpan.Zero && left > TimeSpan.FromMinutes(-2) && _eventNotified.Add(key + "0"))
             {
                 PlayChime();
-                ShowToast(e.IsReminder ? "" : "", e.IsReminder ? "Напоминание" : "Начинается", e.Title,
+                ShowToast(e.IsReminder ? "" : "", e.IsReminder ? L.T("Напоминание") : L.T("Начинается"), e.Title,
                     () => OpenTab(TabCalendar), (Brush)FindResource("Warm"), ms: 8000);
             }
         }
@@ -278,32 +279,32 @@ public partial class MainWindow
             CpuBar.ScaleX = s.Cpu / 100;
             GpuText.Text = $"{s.Gpu:0}%";
             GpuBar.ScaleX = s.Gpu / 100;
-            GpuCaption.Text = string.IsNullOrEmpty(s.GpuName) ? "ВИДЕОКАРТА" : s.GpuName.ToUpperInvariant();
-            RamText.Text = $"{s.RamUsedGb:0.0} / {s.RamTotalGb:0} ГБ";
+            GpuCaption.Text = string.IsNullOrEmpty(s.GpuName) ? L.T("ВИДЕОКАРТА") : s.GpuName.ToUpperInvariant();
+            RamText.Text = L.F("{0:0.0} / {1:0} ГБ", s.RamUsedGb, s.RamTotalGb);
             RamBar.ScaleX = s.Ram / 100;
         }
 
-        DiscordStatus.Text = _discordInCall ? (_discordSpeaking ? "В канале · кто-то говорит" : "В голосовом канале") : "Не в голосовом канале";
+        DiscordStatus.Text = _discordInCall ? (_discordSpeaking ? L.T("В канале · кто-то говорит") : L.T("В голосовом канале")) : L.T("Не в голосовом канале");
         DiscordBadge.Opacity = _discordInCall ? 1 : 0.5;
         var mic = _audio.MicMuted;
-        MicMuteButton.Content = mic == true ? "Микрофон: выкл" : "Микрофон: вкл";
+        MicMuteButton.Content = mic == true ? L.T("Микрофон: выкл") : L.T("Микрофон: вкл");
         var discord = _audio.AppState("discord");
-        DiscordMuteButton.Content = !discord.Found ? "Discord не запущен" : discord.Muted ? "Звук Discord: выкл" : "Звук Discord: вкл";
+        DiscordMuteButton.Content = !discord.Found ? L.T("Discord не запущен") : discord.Muted ? L.T("Звук Discord: выкл") : L.T("Звук Discord: вкл");
         DiscordMuteButton.IsEnabled = discord.Found;
 
         FocusStatus.Text = FocusMode.IsOn
-            ? $"До {FocusMode.Until:HH:mm} · баннеры Windows скрыты"
-            : "Выключено";
+            ? L.F("До {0:HH:mm} · баннеры Windows скрыты", FocusMode.Until)
+            : L.T("Выключено");
 
         var parts = new List<string>();
         if (_privacy.Mic.Count > 0) parts.Add("🎙 " + string.Join(", ", _privacy.Mic));
         if (_privacy.Camera.Count > 0) parts.Add("📷 " + string.Join(", ", _privacy.Camera));
-        PrivacyText.Text = parts.Count > 0 ? string.Join("\n", parts) : "Никто не использует";
+        PrivacyText.Text = parts.Count > 0 ? string.Join("\n", parts) : L.T("Никто не использует");
 
         if (full && DateTime.Now - _batteryAt > TimeSpan.FromSeconds(30))
         {
             _batteryAt = DateTime.Now;
-            BatteryText.Text = "Проверяю…";
+            BatteryText.Text = L.T("Проверяю…");
             var check = Task.Run(async () =>
             {
                 var list = await HeadsetBattery.ReadFromGHubAsync();
@@ -316,9 +317,9 @@ public partial class MainWindow
             BatteryText.Text = readings.Count > 0
                 ? string.Join("\n", readings.Select(x => $"{x.Device}: {x.Percent}%{(x.Charging ? " ⚡" : "")}"))
                 : g435
-                    ? "Logitech G435 не передаёт заряд компьютеру — даже G HUB его не показывает. Здесь появятся устройства, которые умеют сообщать заряд."
-                    : "Нет устройств, которые сообщают заряд.";
-            if (_demoMedia != null) BatteryText.Text = "Нет устройств, которые сообщают заряд.";
+                    ? L.T("Logitech G435 не передаёт заряд компьютеру — даже G HUB его не показывает. Здесь появятся устройства, которые умеют сообщать заряд.")
+                    : L.T("Нет устройств, которые сообщают заряд.");
+            if (_demoMedia != null) BatteryText.Text = L.T("Нет устройств, которые сообщают заряд.");
             Remeasure();
         }
     }
@@ -326,7 +327,7 @@ public partial class MainWindow
     private void MicMute_Click(object sender, RoutedEventArgs e)
     {
         _audio.MicMuted = !(_audio.MicMuted ?? false);
-        ShowToastIfCompact(_audio.MicMuted == true ? "" : "", _audio.MicMuted == true ? "Микрофон выключен" : "Микрофон включён");
+        ShowToastIfCompact(_audio.MicMuted == true ? "" : "", _audio.MicMuted == true ? L.T("Микрофон выключен") : L.T("Микрофон включён"));
         _ = RefreshSystemAsync(false);
     }
 

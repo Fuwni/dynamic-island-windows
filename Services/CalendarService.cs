@@ -52,16 +52,23 @@ public sealed partial class CalendarService
         s = s.Trim().ToLowerInvariant();
         var now = DateTime.Now;
 
-        var rel = Regex.Match(s, @"через\s+(\d+)\s*(мин|м|ч|час)");
+        // "через 20 мин", "in 20 min", "en 2 h", "em 20 min", "20分钟后"
+        var rel = Regex.Match(s, @"(?:через|in|en|em|dentro de)\s+(\d+)\s*(мин|м|хв|min|m|ч|час|год|h|hr|hour|std|stunde|hora)");
+        if (!rel.Success) rel = Regex.Match(s, @"(\d+)\s*(分钟|小时)后?");
         if (rel.Success)
         {
             int n = int.Parse(rel.Groups[1].Value);
-            return rel.Groups[2].Value.StartsWith('м') ? now.AddMinutes(n) : now.AddHours(n);
+            var unit = rel.Groups[2].Value;
+            bool minutes = unit.StartsWith('м') || unit.StartsWith('m') || unit == "хв" || unit == "分钟";
+            return minutes ? now.AddMinutes(n) : now.AddHours(n);
         }
 
+        string[] dayAfter = ["послезавтра", "післязавтра", "day after tomorrow", "pasado mañana", "übermorgen", "depois de amanhã", "后天"];
+        string[] tomorrow = ["завтра", "tomorrow", "mañana", "morgen", "amanhã", "明天"];
         var day = now.Date;
-        if (s.Contains("послезавтра")) day = day.AddDays(2);
-        else if (s.Contains("завтра")) day = day.AddDays(1);
+        bool isTomorrow = false;
+        if (dayAfter.Any(s.Contains)) day = day.AddDays(2);
+        else if (tomorrow.Any(s.Contains)) { day = day.AddDays(1); isTomorrow = true; }
 
         var date = Regex.Match(s, @"(\d{1,2})\.(\d{1,2})(?:\.(\d{2,4}))?");
         if (date.Success)
@@ -81,7 +88,7 @@ public sealed partial class CalendarService
         int min = time.Groups[2].Value.Length > 0 ? int.Parse(time.Groups[2].Value) : 0;
         if (h > 23 || min > 59) return null;
         var result = day.AddHours(h).AddMinutes(min);
-        if (!date.Success && !s.Contains("завтра") && result < now) result = result.AddDays(1); // "9:00" later today or tomorrow
+        if (!date.Success && !isTomorrow && result < now) result = result.AddDays(1); // "9:00" later today or tomorrow
         return result;
     }
 
@@ -127,7 +134,7 @@ public sealed partial class CalendarService
     {
         if (!e.TryGetValue("DTSTART", out var ds) || !ParseDate(ds.Params, ds.Value, out var start, out bool allDay)) return;
         if (e.TryGetValue("STATUS", out var st) && st.Value == "CANCELLED") return;
-        var title = e.TryGetValue("SUMMARY", out var sum) ? Unescape(sum.Value) : "Событие";
+        var title = e.TryGetValue("SUMMARY", out var sum) ? Unescape(sum.Value) : L.T("Событие");
 
         if (!e.TryGetValue("RRULE", out var rr))
         {

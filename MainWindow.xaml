@@ -175,7 +175,7 @@
             <StackPanel x:Name="ClaudeAskButtons" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
               <Button Style="{StaticResource GhostPill}" Content="В терминале" Margin="0,0,8,0" Click="ClaudeTerminal_Click"/>
               <Button Style="{StaticResource DangerPill}" Content="Запретить" Margin="0,0,8,0" Click="ClaudeDeny_Click"/>
-              <Button Style="{StaticResource AccentPill}" Content="Разрешить" Click="ClaudeAllow_Click"/>
+              <Button x:Name="ClaudeAllowButton" Style="{StaticResource AccentPill}" Content="Разрешить" Click="ClaudeAllow_Click"/>
             </StackPanel>
             <StackPanel x:Name="ClaudeInfoButtons" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
               <Button Style="{StaticResource Pill}" Content="Копировать" Margin="0,0,8,0" Click="ClaudeCopy_Click"/>
@@ -965,6 +965,12 @@
                 </Border>
                   </StackPanel>
                   <StackPanel Tag="Поведение|&#xE713;" Visibility="Collapsed">
+                <Border Style="{StaticResource Tile}" Margin="0,0,0,10">
+                  <StackPanel>
+                    <TextBlock Style="{StaticResource Caption}" Text="ЯЗЫК · LANGUAGE"/>
+                    <WrapPanel x:Name="LanguageChips" Margin="0,10,0,0"/>
+                  </StackPanel>
+                </Border>
                 <Border Style="{StaticResource Tile}" Margin="0,0,0,10">
                   <StackPanel>
                     <CheckBox x:Name="HoverSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Раскрывать при наведении"/>

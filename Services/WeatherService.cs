@@ -42,7 +42,7 @@ public sealed class WeatherService
 
     private static async Task<Place?> GeocodeAsync(string city)
     {
-        var url = $"https://geocoding-api.open-meteo.com/v1/search?name={Uri.EscapeDataString(city)}&count=1&language=ru&format=json";
+        var url = $"https://geocoding-api.open-meteo.com/v1/search?name={Uri.EscapeDataString(city)}&count=1&language={Loc.Lang}&format=json";
         using var doc = JsonDocument.Parse(await Http.GetStringAsync(url));
         if (!doc.RootElement.TryGetProperty("results", out var results) || results.GetArrayLength() == 0)
             return null;
@@ -114,17 +114,17 @@ public sealed class WeatherService
     // WMO weather codes -> text / glyph (Segoe UI Symbol).
     public static string Describe(int code) => code switch
     {
-        0 => "Ясно",
-        1 => "Малооблачно",
-        2 => "Переменная облачность",
-        3 => "Пасмурно",
-        45 or 48 => "Туман",
-        >= 51 and <= 57 => "Морось",
-        >= 61 and <= 67 => "Дождь",
-        >= 71 and <= 77 => "Снег",
-        >= 80 and <= 82 => "Ливень",
-        85 or 86 => "Снегопад",
-        >= 95 => "Гроза",
+        0 => L.T("Ясно"),
+        1 => L.T("Малооблачно"),
+        2 => L.T("Переменная облачность"),
+        3 => L.T("Пасмурно"),
+        45 or 48 => L.T("Туман"),
+        >= 51 and <= 57 => L.T("Морось"),
+        >= 61 and <= 67 => L.T("Дождь"),
+        >= 71 and <= 77 => L.T("Снег"),
+        >= 80 and <= 82 => L.T("Ливень"),
+        85 or 86 => L.T("Снегопад"),
+        >= 95 => L.T("Гроза"),
         _ => "—",
     };
 
@@ -144,7 +144,7 @@ public sealed class WeatherService
 
     public static string Compass(double degrees)
     {
-        string[] names = ["С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ"];
+        string[] names = [L.T("С"), L.T("СВ"), L.T("В"), L.T("ЮВ"), L.T("Ю"), L.T("ЮЗ"), L.T("З"), L.T("СЗ")];
         return names[(int)Math.Round(((degrees % 360) + 360) % 360 / 45) % 8];
     }
 }

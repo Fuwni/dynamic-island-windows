@@ -160,7 +160,7 @@ public sealed class ClaudeBridge
                     if (evt == "Stop")
                     {
                         var last = json["last_assistant_message"]?.GetValue<string>() ?? "";
-                        Notified?.Invoke(new Notice("stop", "Claude Code закончил", last, project));
+                        Notified?.Invoke(new Notice("stop", L.T("Claude Code закончил"), last, project));
                     }
                     else
                     {

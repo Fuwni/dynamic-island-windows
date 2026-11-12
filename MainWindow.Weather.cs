@@ -27,19 +27,19 @@ public partial class MainWindow
 
     private async Task RefreshWeatherAsync()
     {
-        WeatherStatus.Text = "Обновляю…";
+        WeatherStatus.Text = L.T("Обновляю…");
         try
         {
             var place = await _weather.ResolveAsync(_settings.City);
             if (place == null)
             {
-                WeatherStatus.Text = string.IsNullOrWhiteSpace(_settings.City) ? "Впишите город и нажмите Enter" : "Город не найден";
-                HomeWDesc.Text = "Укажите город";
+                WeatherStatus.Text = string.IsNullOrWhiteSpace(_settings.City) ? L.T("Впишите город и нажмите Enter") : L.T("Город не найден");
+                HomeWDesc.Text = L.T("Укажите город");
                 _weatherRefresh.Interval = TimeSpan.FromMinutes(15);
                 return;
             }
             ApplyWeather(await _weather.GetAsync(place));
-            WeatherStatus.Text = "Обновлено в " + DateTime.Now.ToString("HH:mm");
+            WeatherStatus.Text = L.T("Обновлено в ") + DateTime.Now.ToString("HH:mm");
             _weatherLoaded = true;
             _weatherFailures = 0;
             _weatherRefresh.Interval = TimeSpan.FromMinutes(15);
@@ -52,8 +52,8 @@ public partial class MainWindow
             if (_weatherFailures == 1 || _weatherFailures % 20 == 0) Log.Write("weather: " + ex.Message);
             var retry = TimeSpan.FromSeconds(Math.Min(60, 5 * Math.Pow(2, Math.Min(4, _weatherFailures - 1))));
             _weatherRefresh.Interval = retry;
-            WeatherStatus.Text = $"Нет связи, повторю через {(int)retry.TotalSeconds} с";
-            if (!_weatherLoaded) HomeWDesc.Text = $"{_settings.City} · жду сеть…";
+            WeatherStatus.Text = L.F("Нет связи, повторю через {0} с", (int)retry.TotalSeconds);
+            if (!_weatherLoaded) HomeWDesc.Text = L.F("{0} · жду сеть…", _settings.City);
         }
     }
 
@@ -72,15 +72,15 @@ public partial class MainWindow
 
         NowPlace.Text = w.Place.ToUpperInvariant();
         NowDesc.Text = desc;
-        NowFeels.Text = $"Ощущается {Deg(w.FeelsLike)} · ↑{Deg(w.Max)} ↓{Deg(w.Min)}";
+        NowFeels.Text = L.F("Ощущается {0} · ↑{1} ↓{2}", Deg(w.FeelsLike), Deg(w.Max), Deg(w.Min));
 
-        WindSpeed.Text = $"{w.WindSpeed:0.#} м/с";
+        WindSpeed.Text = L.F("{0:0.#} м/с", w.WindSpeed);
         WindDir.Text = WeatherService.Compass(w.WindFrom);
         WindArrow.Angle = w.WindFrom + 180; // where the wind blows to
 
         HumidityText.Text = $"{Math.Round(w.Humidity)}%";
         HumidityScale.ScaleX = Math.Clamp(w.Humidity / 100, 0, 1);
-        DewText.Text = w.Humidity < 35 ? "Сухо" : w.Humidity < 65 ? "Комфортно" : w.Humidity < 85 ? "Влажно" : "Очень влажно";
+        DewText.Text = w.Humidity < 35 ? L.T("Сухо") : w.Humidity < 65 ? L.T("Комфортно") : w.Humidity < 85 ? L.T("Влажно") : L.T("Очень влажно");
 
         PressureText.Text = Math.Round(w.PressureMm).ToString();
         DrawPressureArc(PressureArc, Math.Clamp((w.PressureMm - 720) / 70, 0.02, 1));
@@ -98,13 +98,13 @@ public partial class MainWindow
         SunsetText.Text = "↓ " + w.Sunset.ToString("HH:mm");
 
         UvText.Text = Math.Round(w.Uv).ToString();
-        UvDesc.Text = w.Uv < 3 ? "Низкий" : w.Uv < 6 ? "Умеренный" : w.Uv < 8 ? "Высокий" : w.Uv < 11 ? "Очень высокий" : "Экстремальный";
+        UvDesc.Text = w.Uv < 3 ? L.T("Низкий") : w.Uv < 6 ? L.T("Умеренный") : w.Uv < 8 ? L.T("Высокий") : w.Uv < 11 ? L.T("Очень высокий") : L.T("Экстремальный");
         Canvas.SetLeft(UvMarker, Math.Clamp(w.Uv / 11, 0, 1) * 122 - 5);
 
-        PrecipText.Text = $"{w.PrecipToday:0.#} мм";
+        PrecipText.Text = L.F("{0:0.#} мм", w.PrecipToday);
         PrecipDesc.Text = w.PrecipNow > 0
-            ? $"Сейчас идёт: {w.PrecipNow:0.#} мм · вероятность {Math.Round(w.PrecipChance)}%"
-            : $"За сегодня · вероятность {Math.Round(w.PrecipChance)}%";
+            ? L.F("Сейчас идёт: {0:0.#} мм · вероятность {1}%", w.PrecipNow, Math.Round(w.PrecipChance))
+            : L.F("За сегодня · вероятность {0}%", Math.Round(w.PrecipChance));
 
         HoursPanel.Children.Clear();
         foreach (var h in w.Hours.Take(4))

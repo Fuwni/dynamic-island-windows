@@ -2,6 +2,30 @@
 
 All notable changes to Dynamic Island for Windows. Русская версия каждого пункта — ниже английской.
 
+## 1.2.0 — 2026-11-12
+
+### Languages
+- The whole interface is translated into **English, Russian, Ukrainian, Spanish, German, Portuguese (Brazil) and Chinese (Simplified)**: pages, settings, notifications, tray menu, weather, timers, the screenshot editor.
+- The language follows Windows by default; change it in **Settings → Behavior → Language** (the app restarts in a second).
+- Dates and numbers use the chosen language; weather place names come in it too.
+- Quick reminders and the command bar understand "tomorrow / in 20 min" in every language ("завтра", "tomorrow", "mañana", "morgen", "amanhã", "明天"…).
+- "Translate" goes to your interface language by default.
+- For contributors: strings live in `tools/i18n/strings*.tsv`; `python tools/i18n/extract.py && python tools/i18n/build.py` refreshes `Assets/lang/*.json` and lists anything untranslated. Adding a language = adding a column.
+
+### Look
+- **New app icon** (window, taskbar and tray), drawn in code so it is sharp at every size.
+
+### For video makers
+- `--brand <folder>` renders the icon at every size and an animated intro / outro.
+- `--promo`, `--review` and `--live-demo` film the island on demo data for promo videos (see `tools/`).
+- `--lang <code>` previews another language without changing your setting.
+
+### По-русски
+- Интерфейс переведён на **английский, русский, украинский, испанский, немецкий, португальский и китайский**. Язык выбирается автоматически по Windows или в «Настройки → Поведение → Язык».
+- Даты, числа и быстрые напоминания работают на любом языке.
+- Новая иконка приложения.
+- Инструменты для съёмки промо-роликов и скриншотов.
+
 ## 1.1.0 — 2026-11-12
 
 ### Characters
