@@ -159,6 +159,7 @@ public partial class MainWindow
         (["запись", "record", "видео"], _recording.IsRecording ? L.T("Остановить запись экрана") : L.T("Запись экрана"), "", () => RunAction("record")),
         (["чистый текст", "очистить текст", "plain"], L.T("Чистый текст в буфере"), "", () => RunAction("cleantext")),
         (["тема", "theme", "светлая", "тёмная", "темная"], L.T("Сменить тему"), "", ToggleTheme),
+        (["выровнять", "центр", "align", "center"], L.T("Выровнять по центру"), "", AlignIsland),
         (["спрятать", "скрыть", "hide"], L.T("Спрятать остров"), "", () => HideIsland(animate: true)),
         (["настройки", "settings"], L.T("Настройки"), "", () => OpenTab(TabSettings)),
         (["погода", "weather"], L.T("Погода"), "", () => OpenTab(TabWeather)),

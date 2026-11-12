@@ -46,6 +46,7 @@
       <Border.ContextMenu>
         <ContextMenu x:Name="IslandMenu">
           <MenuItem Header="Спрятать (смахнуть вверх)" Click="HideIsland_Click"/>
+          <MenuItem Header="Выровнять по центру" Click="ResetPosition_Click"/>
           <MenuItem Header="Сменить тему" InputGestureText="Ctrl+Alt+T" Click="ToggleTheme_Click"/>
           <MenuItem Header="Настройки" Click="OpenSettings_Click"/>
           <Separator/>
@@ -979,7 +980,7 @@
                         </DataTemplate>
                       </ComboBox.ItemTemplate>
                     </ComboBox>
-                    <StackPanel VerticalAlignment="Center">
+                    <StackPanel VerticalAlignment="Top" Margin="0,1,0,0">
                       <TextBlock Text="Язык интерфейса" FontSize="13"/>
                       <TextBlock x:Name="LanguageSub" Text="Language" Style="{StaticResource Muted}" Margin="0,2,0,0"/>
                     </StackPanel>
@@ -994,8 +995,13 @@
                     <CheckBox x:Name="NotifySwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Сообщения Telegram, Discord, Viber… на острове"/>
                     <CheckBox x:Name="NotifyAllSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Уведомления всех приложений, не только мессенджеров"/>
                     <CheckBox x:Name="AutostartSwitch" Style="{StaticResource Switch}" Click="Autostart_Click" Content="Запускать вместе с Windows"/>
-                    <Button Style="{StaticResource GhostPill}" Content="Вернуть остров в центр" HorizontalAlignment="Left"
-                            Margin="0,10,0,0" Click="ResetPosition_Click"/>
+                    <Button Style="{StaticResource AccentPill}" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="14,7"
+                            Click="ResetPosition_Click" ToolTip="Поставить остров ровно по центру вверху экрана">
+                      <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE8E3;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="Выровнять по центру" VerticalAlignment="Center"/>
+                      </StackPanel>
+                    </Button>
                   </StackPanel>
                 </Border>
                   </StackPanel>

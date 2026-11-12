@@ -382,5 +382,7 @@
  "Копировать (Ctrl+C)": "Copiar (Ctrl+C)",
  "Сохранить (Ctrl+S)": "Guardar (Ctrl+S)",
  "Закрыть (Esc)": "Cerrar (Esc)",
- "Открыть ссылку": "Abrir enlace"
+ "Открыть ссылку": "Abrir enlace",
+ "Выровнять по центру": "Centrar",
+ "Поставить остров ровно по центру вверху экрана": "Colocar la isla justo en el centro superior de la pantalla"
 }

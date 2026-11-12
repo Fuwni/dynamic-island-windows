@@ -756,33 +756,54 @@
       </Setter>
     </Style>
 
+    <!-- The list unfolds inside the island itself: a separate pop-up window would slip under the
+         always-on-top island a moment after opening. -->
     <Style x:Key="SoftCombo" TargetType="ComboBox">
       <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
       <Setter Property="FontSize" Value="13"/>
-      <Setter Property="Height" Value="36"/>
       <Setter Property="ItemContainerStyle" Value="{StaticResource SoftComboItem}"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="ComboBox">
             <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="36"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
               <ToggleButton Style="{StaticResource SoftComboToggle}"
                             IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
               <ContentPresenter Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                 IsHitTestVisible="False" VerticalAlignment="Center" Margin="14,0,34,0"/>
-              <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" VerticalOffset="-4" HorizontalOffset="-10"
-                     AllowsTransparency="True" PopupAnimation="Fade" Focusable="False">
-                <Border Margin="10,0,10,14" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
-                        Background="{DynamicResource IslandBg}" BorderBrush="{DynamicResource TileStroke}" BorderThickness="1"
-                        CornerRadius="14" Padding="0,5">
-                  <Border.Effect>
-                    <DropShadowEffect BlurRadius="22" ShadowDepth="6" Direction="270" Opacity="0.45"/>
-                  </Border.Effect>
-                  <ScrollViewer MaxHeight="320" VerticalScrollBarVisibility="Auto">
-                    <ItemsPresenter/>
-                  </ScrollViewer>
-                </Border>
-              </Popup>
+              <Border x:Name="Menu" Grid.Row="1" Visibility="Collapsed" Margin="0,6,0,0" Opacity="0"
+                      Background="{DynamicResource IslandBg}" BorderBrush="{DynamicResource TileStroke}" BorderThickness="1"
+                      CornerRadius="14" Padding="0,5" RenderTransformOrigin="0.5,0">
+                <Border.RenderTransform><ScaleTransform x:Name="MenuScale" ScaleY="0.92"/></Border.RenderTransform>
+                <ScrollViewer MaxHeight="330" VerticalScrollBarVisibility="Auto">
+                  <ItemsPresenter/>
+                </ScrollViewer>
+              </Border>
             </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsDropDownOpen" Value="True">
+                <Setter TargetName="Menu" Property="Visibility" Value="Visible"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Menu" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.18"/>
+                      <DoubleAnimation Storyboard.TargetName="MenuScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.28" EasingFunction="{StaticResource EaseOut}"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="Menu" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.01"/>
+                      <DoubleAnimation Storyboard.TargetName="MenuScale" Storyboard.TargetProperty="ScaleY" To="0.92" Duration="0:0:0.01"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
       </Setter>

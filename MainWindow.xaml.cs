@@ -258,13 +258,26 @@ public partial class MainWindow : Window
         _settings.Save();
     }
 
-    private void ResetPosition_Click(object sender, RoutedEventArgs e)
+    private void ResetPosition_Click(object sender, RoutedEventArgs e) => AlignIsland();
+
+    /// <summary>Float the island back to the exact top centre of the screen it is on.</summary>
+    private void AlignIsland()
     {
-        _settings.CenterX = null;
-        _settings.Top = null;
+        if (_hidden) ShowIsland();
+        var screen = Forms.Screen.FromPoint(new System.Drawing.Point((int)(Left + Width / 2), (int)(Top + 20)));
+        var dpi = VisualTreeHelper.GetDpi(this);
+        double cx = (screen.Bounds.Left + screen.Bounds.Width / 2.0) / dpi.DpiScaleX;
+        double top = screen.Bounds.Top / dpi.DpiScaleY;
+        _settings.CenterX = screen.Primary ? null : cx;
+        _settings.Top = screen.Primary ? null : top;
         _settings.Save();
-        PlaceWindow();
-        Kick(4);
+        _px.Snap(Left);
+        _py.Snap(Top);
+        _px.Target = cx - Width / 2;
+        _py.Target = _settings.Docked ? MonitorTop() : top;
+        _posActive = true;
+        StartRendering();
+        Kick(3);
     }
 
     // ================================================================ frame loop
@@ -1011,6 +1024,7 @@ public partial class MainWindow : Window
         };
         _tray.ContextMenuStrip.Items.Add(L.T("Показать / спрятать  (Ctrl+Alt+I)"), null, (_, _) => ToggleHidden());
         _tray.ContextMenuStrip.Items.Add(L.T("Скриншот области  (Ctrl+Alt+S)"), null, (_, _) => RunAction("region"));
+        _tray.ContextMenuStrip.Items.Add(L.T("Выровнять по центру"), null, (_, _) => AlignIsland());
         _tray.ContextMenuStrip.Items.Add(L.T("Сменить тему  (Ctrl+Alt+T)"), null, (_, _) => ToggleTheme());
         _tray.ContextMenuStrip.Items.Add(L.T("Настройки"), null, (_, _) => OpenTab(TabSettings));
         _tray.ContextMenuStrip.Items.Add(new Forms.ToolStripSeparator());
