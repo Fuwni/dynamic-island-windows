@@ -262,17 +262,11 @@ public partial class MainWindow
 
     // ================================================================ notes
 
+    /// <summary>Enter saves the note, Shift+Enter starts a new line (pasted text keeps all its lines).</summary>
     private void NewNoteBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key != Key.Enter) return;
-        if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
-        {
-            int i = NewNoteBox.CaretIndex;
-            NewNoteBox.Text = NewNoteBox.Text.Insert(i, Environment.NewLine);
-            NewNoteBox.CaretIndex = i + Environment.NewLine.Length;
-            e.Handled = true;
-            return;
-        }
+        if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) return;   // the box adds the line break itself
         var text = NewNoteBox.Text.Trim();
         e.Handled = true;
         if (text.Length == 0) return;
@@ -281,6 +275,13 @@ public partial class MainWindow
         NewNoteBox.Clear();
         RenderNotes();
     }
+
+    private void NewNoteBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        if (_mode == Mode.Expanded && TabNotes.IsChecked == true) Remeasure();   // the box grows: so does the island
+    }
+
+    private readonly HashSet<Note> _openNotes = [];
 
     private void RenderNotes()
     {
@@ -291,21 +292,34 @@ public partial class MainWindow
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             var body = new StackPanel();
-            body.Children.Add(new TextBlock { Text = n.Text, TextWrapping = TextWrapping.Wrap, FontSize = 13, MaxHeight = 80, TextTrimming = TextTrimming.CharacterEllipsis });
+            bool open = _openNotes.Contains(n);
+            var text = new TextBlock { Text = n.Text, TextWrapping = TextWrapping.Wrap, FontSize = 13, TextTrimming = TextTrimming.CharacterEllipsis };
+            if (!open) text.MaxHeight = 80;
+            body.Children.Add(text);
             body.Children.Add(new TextBlock { Text = n.Created.ToString("d MMMM, HH:mm"), Style = (Style)FindResource("Muted"), FontSize = 10.5, Margin = new Thickness(0, 4, 0, 0) });
             row.Children.Add(body);
 
-            var del = new Button { Style = (Style)FindResource("IconButton"), Content = "", Width = 28, Height = 28, FontSize = 12, ToolTip = L.T("Удалить"), VerticalAlignment = VerticalAlignment.Top };
             var note = n;
-            del.Click += (_, _) => { NotesStore.Notes.Remove(note); NotesStore.Save(); RenderNotes(); };
-            Grid.SetColumn(del, 1);
-            row.Children.Add(del);
-
-            var tile = new Border { Style = (Style)FindResource("Tile"), Padding = new Thickness(12, 9, 6, 9), Margin = new Thickness(0, 0, 0, 6), Cursor = Cursors.Hand, Child = row };
-            body.MouseLeftButtonUp += (_, _) =>
+            var buttons = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Top };
+            var copy = new Button { Style = (Style)FindResource("IconButton"), Content = "", Width = 28, Height = 28, FontSize = 12, ToolTip = L.T("Скопировать") };
+            copy.Click += (_, _) =>
             {
                 try { Clipboard.SetText(note.Text); } catch { }
                 ShowToast("", L.T("Заметка скопирована"), null);
+            };
+            var del = new Button { Style = (Style)FindResource("IconButton"), Content = "", Width = 28, Height = 28, FontSize = 12, ToolTip = L.T("Удалить") };
+            del.Click += (_, _) => { NotesStore.Notes.Remove(note); _openNotes.Remove(note); NotesStore.Save(); RenderNotes(); };
+            buttons.Children.Add(copy);
+            buttons.Children.Add(del);
+            Grid.SetColumn(buttons, 1);
+            row.Children.Add(buttons);
+
+            var tile = new Border { Style = (Style)FindResource("Tile"), Padding = new Thickness(12, 9, 6, 9), Margin = new Thickness(0, 0, 0, 6), Cursor = Cursors.Hand, Child = row };
+            // a click opens a long note in full (and folds it again)
+            body.MouseLeftButtonUp += (_, _) =>
+            {
+                if (!_openNotes.Remove(note)) _openNotes.Add(note);
+                RenderNotes();
             };
             NotesList.Children.Add(tile);
         }

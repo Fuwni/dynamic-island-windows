@@ -633,6 +633,7 @@
                   </ComboBox.ItemTemplate>
                 </ComboBox>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                  <Button x:Name="ChatSizeButton" Style="{StaticResource IconButton}" Width="30" Height="30" FontSize="12" Content="&#xE740;" ToolTip="Больше места (для входа и капчи)" Click="ChatSize_Click"/>
                   <Button Style="{StaticResource IconButton}" Width="30" Height="30" FontSize="12" Content="&#xE72C;" ToolTip="Обновить" Click="ChatReload_Click"/>
                   <Button Style="{StaticResource IconButton}" Width="30" Height="30" FontSize="12" Content="&#xE8A7;" ToolTip="Открыть в браузере" Click="ChatOpenExternal_Click"/>
                 </StackPanel>
@@ -735,8 +736,10 @@
 
             <!-- ======== NOTES ======== -->
             <StackPanel x:Name="NotesPage" Width="580" Visibility="Collapsed">
-              <TextBox x:Name="NewNoteBox" Style="{StaticResource SoftBox}" MinHeight="36" AcceptsReturn="False"
-                       TextWrapping="Wrap" KeyDown="NewNoteBox_KeyDown"/>
+              <!-- multi-line text must be accepted, or a pasted text keeps only its first line -->
+              <TextBox x:Name="NewNoteBox" Style="{StaticResource SoftBox}" MinHeight="36" MaxHeight="150" AcceptsReturn="True"
+                       TextWrapping="Wrap" VerticalScrollBarVisibility="Hidden" PreviewKeyDown="NewNoteBox_KeyDown"
+                       TextChanged="NewNoteBox_TextChanged" MaxLength="100000"/>
               <ScrollViewer MaxHeight="340" VerticalScrollBarVisibility="Hidden">
                 <StackPanel x:Name="NotesList"/>
               </ScrollViewer>
@@ -987,6 +990,13 @@
                 <Border Style="{StaticResource Tile}" Margin="0,0,0,10">
                   <StackPanel>
                     <CheckBox x:Name="DarkSwitch" Style="{StaticResource Switch}" Click="DarkSwitch_Click" Content="Тёмная тема"/>
+                    <DockPanel Margin="0,0,0,8">
+                      <TextBlock DockPanel.Dock="Left" Text="Размер острова" VerticalAlignment="Center" Margin="0,0,12,0" FontSize="13"/>
+                      <TextBlock x:Name="ScaleValue" DockPanel.Dock="Right" Style="{StaticResource Muted}" VerticalAlignment="Center" MinWidth="40"
+                                 TextAlignment="Right" Margin="10,0,0,0"/>
+                      <Slider x:Name="ScaleSlider" Style="{StaticResource SoftSlider}" Minimum="80" Maximum="130" TickFrequency="5"
+                              IsSnapToTickEnabled="True" VerticalAlignment="Center" ValueChanged="ScaleSlider_ValueChanged"/>
+                    </DockPanel>
                     <CheckBox x:Name="GlassSwitch" Style="{StaticResource Switch}" Click="Glass_Click" Content="Матовое стекло"/>
                     <DockPanel x:Name="TintRow" Margin="0,4,0,4">
                       <TextBlock Text="Тон стекла" FontSize="12.5" VerticalAlignment="Center"/>
@@ -1117,6 +1127,19 @@
                 <Border Style="{StaticResource Tile}" Margin="0,0,0,10">
                   <StackPanel>
                     <CheckBox x:Name="HoverSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Раскрывать при наведении"/>
+                    <TextBlock Text="Прятать остров поверх программ" FontSize="13" Margin="0,6,0,6"/>
+                    <WrapPanel x:Name="HideAppChips"/>
+                    <TextBlock x:Name="HideAppsEmpty" Style="{StaticResource Muted}" Text="Например, игры без полного экрана или программы для созвонов" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                    <DockPanel Margin="0,0,0,10">
+                      <Button DockPanel.Dock="Right" Style="{StaticResource GhostPill}" Padding="12,6" Margin="8,0,0,0" Content="Добавить" Click="HideAppAdd_Click"/>
+                      <ComboBox x:Name="HideAppPicker" Style="{StaticResource SoftCombo}"/>
+                    </DockPanel>
+                    <CheckBox x:Name="LockSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Закрепить на месте (не перетаскивать)"/>
+                    <CheckBox x:Name="CapsSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Показывать Caps Lock"/>
+                    <CheckBox x:Name="LayoutSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Показывать смену раскладки"/>
+                    <CheckBox x:Name="CaptureSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Скрывать остров на скриншотах и демонстрации экрана"/>
+                    <TextBlock Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,-4,0,8"
+                               Text="Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным"/>
                     <CheckBox x:Name="FullscreenSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Прятать в играх и полноэкранном режиме"/>
                     <DockPanel Margin="0,0,0,10">
                       <ComboBox x:Name="OpenHotkeyBox" DockPanel.Dock="Right" Style="{StaticResource SoftCombo}" Width="200"

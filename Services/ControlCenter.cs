@@ -130,6 +130,40 @@ public static class ControlCenter
     public static Task DisconnectVpnAsync(string name) => Task.Run(() => Rasdial($"\"{name}\" /disconnect"));
 
     /// <summary>Windows' own VPN page (for adding a profile or for third-party VPN apps).</summary>
+    // VPN apps that don't create a Windows VPN profile (proxy / TUN clients): the tile opens them instead
+    private static readonly string[] VpnApps =
+        ["Happ", "Hiddify", "v2rayN", "AmneziaVPN", "Amnezia", "Outline", "WireGuard", "NekoRay", "Nekobox", "Throne",
+         "Clash Verge", "Karing", "Streisand", "Proton VPN", "Windscribe", "Mullvad VPN", "Cloudflare WARP"];
+    private static (string Name, string Path)? _vpnApp;
+    private static DateTime _vpnAppAt;
+
+    /// <summary>An installed VPN client found by its Start-menu shortcut (re-checked every minute).</summary>
+    public static (string Name, string Path)? VpnApp()
+    {
+        if (DateTime.UtcNow - _vpnAppAt < TimeSpan.FromMinutes(1)) return _vpnApp;
+        _vpnAppAt = DateTime.UtcNow;
+        _vpnApp = null;
+        try
+        {
+            var roots = new[] { Environment.GetFolderPath(Environment.SpecialFolder.Programs),
+                                Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms),
+                                Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) };
+            var links = roots.Where(Directory.Exists)
+                .SelectMany(r => { try { return Directory.EnumerateFiles(r, "*.lnk", SearchOption.AllDirectories); } catch { return []; } })
+                .ToList();
+            foreach (var app in VpnApps)
+            {
+                var hit = links.FirstOrDefault(l => Path.GetFileNameWithoutExtension(l).StartsWith(app, StringComparison.OrdinalIgnoreCase)
+                                                    && !Path.GetFileNameWithoutExtension(l).Contains("uninstall", StringComparison.OrdinalIgnoreCase));
+                if (hit != null) { _vpnApp = (app, hit); break; }
+            }
+        }
+        catch { }
+        return _vpnApp;
+    }
+
+    public static void OpenVpnApp(string path) => Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+
     public static void OpenVpnSettings() => Process.Start(new ProcessStartInfo("ms-settings:network-vpn") { UseShellExecute = true });
 
     // ------------------------------------------------------------------ power

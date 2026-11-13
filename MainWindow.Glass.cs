@@ -102,18 +102,20 @@ public partial class MainWindow
     /// With frosted glass on, the island is left out of every screen capture - otherwise it would photograph
     /// itself and the glass turns opaque. With glass off it shows up in screenshots and recordings again.
     /// </summary>
+    [System.Runtime.InteropServices.DllImport("user32.dll")] private static extern bool GetWindowDisplayAffinity(IntPtr hwnd, out uint affinity);
+
     private void ApplyCaptureExclusion()
     {
-        if (_hwnd == IntPtr.Zero || _excluded == _settings.Glass) return;
-        _excluded = _settings.Glass;
-        if (!Native.SetWindowDisplayAffinity(_hwnd, _settings.Glass ? Native.WDA_EXCLUDEFROMCAPTURE : 0))
+        if (_hwnd == IntPtr.Zero || _excluded == _settings.HideFromCapture) return;
+        _excluded = _settings.HideFromCapture;
+        if (!Native.SetWindowDisplayAffinity(_hwnd, _excluded == true ? Native.WDA_EXCLUDEFROMCAPTURE : 0))
             Log.Write("display affinity: not supported");
     }
 
     /// <summary>Snapshot of the screen behind the island (our own window isn't in it), blurred by the Image's effect.</summary>
     private void CaptureFrost()
     {
-        if (!_settings.Glass || Lite || _hidden || _fullscreenHidden || !IsLoaded || !Island.IsVisible) { if (Lite) FrostHost.Opacity = 0; SetFrostCovers(false); return; }
+        if (!_settings.Glass || Lite || _excluded != true || _hidden || _fullscreenHidden || !IsLoaded || !Island.IsVisible) { if (Lite || _excluded != true) FrostHost.Opacity = 0; SetFrostCovers(false); return; }
         if (_dragging || _posActive) { FrostHost.Opacity = 0; SetFrostCovers(false); return; }
         // grabbing the screen makes Windows finish composing first: never while the size is changing
         if (_rendering && !(_w.IsSettled && _h.IsSettled)) return;
@@ -126,7 +128,8 @@ public partial class MainWindow
             double half = Island.ActualWidth / 2 + FrostMargin, height = Island.ActualHeight + FrostMargin;
             var top = Island.PointToScreen(new Point(Island.ActualWidth / 2, 0));
             double dpi = Dpi;
-            var rect = new Drawing.Rectangle((int)(top.X - half * dpi), (int)top.Y, (int)(half * 2 * dpi), (int)(height * dpi));
+            double k = dpi * UiScale;
+            var rect = new Drawing.Rectangle((int)(top.X - half * k), (int)top.Y, (int)(half * 2 * k), (int)(height * k));
             int w = Math.Max(1, rect.Width / 4), h = Math.Max(1, rect.Height / 4);
             var px = CaptureService.CaptureSmall(rect, w, h, _frostPixels);
             if (px == null) return;

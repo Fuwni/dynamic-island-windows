@@ -46,6 +46,18 @@ public sealed class Settings
     public bool HandDrawn { get; set; }
     /// <summary>Frosted glass: the desktop behind the island, blurred, under a tint.</summary>
     public bool Glass { get; set; } = true;
+    public bool ShowCapsLock { get; set; } = true;
+    /// <summary>The chat page in its large size (sign-in pages and captchas fit).</summary>
+    public bool ChatLarge { get; set; }
+    /// <summary>Keep the island out of screenshots, recordings and screen sharing (Zoom, Discord, OBS).</summary>
+    public bool HideFromCapture { get; set; } = true;
+    public bool ShowKeyboardLayout { get; set; } = true;
+    /// <summary>The island stays where it is: no dragging, no swipe-away.</summary>
+    public bool LockPosition { get; set; }
+    /// <summary>Size of the island, 80…130 %.</summary>
+    public int IslandScale { get; set; } = 100;
+    /// <summary>Programs (exe names without .exe) in front of which the island hides.</summary>
+    public List<string> HideInApps { get; set; } = [];
     /// <summary>Shortcut that opens / folds the island: "Ctrl+Alt+O", "Ctrl+Alt+A", "Alt+Q", "Ctrl+Shift+Space" or "" (off).</summary>
     public string OpenHotkey { get; set; } = "Ctrl+Alt+O";
     /// <summary>Tracks liked with the heart on the music page ("Artist — Title"), newest first.</summary>

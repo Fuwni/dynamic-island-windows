@@ -191,6 +191,13 @@ public partial class MainWindow
         CleanDesktopSwitch.IsChecked = _settings.CleanDesktop;
         HandDrawnSwitch.IsChecked = _settings.HandDrawn;
         GameStatsSwitch.IsChecked = _settings.GameStats;
+        LockSwitch.IsChecked = _settings.LockPosition;
+        FillHideAppPicker();
+        CapsSwitch.IsChecked = _settings.ShowCapsLock;
+        LayoutSwitch.IsChecked = _settings.ShowKeyboardLayout;
+        CaptureSwitch.IsChecked = _settings.HideFromCapture;
+        ScaleSlider.Value = Math.Clamp(_settings.IslandScale, 80, 130);
+        ScaleValue.Text = $"{_settings.IslandScale}%";
         LiteSwitch.IsChecked = Lite;
         if (OpenHotkeyBox.Items.Count == 0)
         {
@@ -290,9 +297,22 @@ public partial class MainWindow
 
     private void Behavior_Click(object sender, RoutedEventArgs e)
     {
+        // "hide in fullscreen" and "FPS in games" exclude each other: turning one on turns the other off
+        if (sender == FullscreenSwitch && FullscreenSwitch.IsChecked == true) GameStatsSwitch.IsChecked = false;
+        if (sender == GameStatsSwitch && GameStatsSwitch.IsChecked == true) FullscreenSwitch.IsChecked = false;
         _settings.ExpandOnHover = HoverSwitch.IsChecked == true;
         _settings.HideInFullscreen = FullscreenSwitch.IsChecked == true;
         _settings.GameStats = GameStatsSwitch.IsChecked == true;
+        _settings.LockPosition = LockSwitch.IsChecked == true;
+        _settings.ShowCapsLock = CapsSwitch.IsChecked == true;
+        _settings.ShowKeyboardLayout = LayoutSwitch.IsChecked == true;
+        if (_settings.HideFromCapture != (CaptureSwitch.IsChecked == true))
+        {
+            _settings.HideFromCapture = CaptureSwitch.IsChecked == true;
+            ApplyCaptureExclusion();
+            CaptureFrost();
+            UpdateGlassFill();
+        }
         _settings.Karaoke = KaraokeSwitch.IsChecked == true;
         _settings.MirrorNotifications = NotifySwitch.IsChecked == true;
         _settings.MirrorAllApps = NotifyAllSwitch.IsChecked == true;
@@ -325,6 +345,15 @@ public partial class MainWindow
         LiquidValue.Text = $"{_settings.LiquidStrength}%";
         _settings.Save();
         Kick(4);   // a wave to show the new strength
+    }
+
+    private void ScaleSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_settingsLoading || !IsLoaded) return;
+        _settings.IslandScale = (int)Math.Round(ScaleSlider.Value);
+        ScaleValue.Text = $"{_settings.IslandScale}%";
+        _settings.Save();
+        ApplyIslandScale();
     }
 
     private void Lite_Click(object sender, RoutedEventArgs e)

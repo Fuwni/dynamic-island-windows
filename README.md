@@ -30,7 +30,7 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 ## Contents
 
-- [What's new in 1.5](#whats-new-in-15)
+- [What's new in 1.6](#whats-new-in-16)
 - [Features](#features)
 - [Install (2 minutes, no admin rights)](#install)
 - [How to use it](#how-to-use-it)
@@ -43,7 +43,15 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 ---
 
-## What's new in 1.5
+## What's new in 1.6
+
+- 📏 **Island size** from 80 to 130 %, and **lock in place** so it can't be dragged.
+- 🙈 **Hide over chosen apps** (a windowed game, a call app) and a switch to **show or hide the island in screenshots** and screen sharing.
+- ⌨️ **Caps Lock and keyboard layout** notices on the island.
+- 📝 **Notes** keep long pasted texts in full; Shift+Enter for a new line.
+- 💬 **Larger chat** so sign-in captchas fit. 🛡️ The **VPN tile** opens your VPN app (Happ, Hiddify, v2rayN, Amnezia…).
+
+### Earlier, in 1.5
 
 - 🪶 **Smoother**: steady 60 fps animations, a drag that follows the mouse, light graphics for weak PCs.
 - 🎵 **Music**: a wave that moves with the sound, repeat for any player, ♥ favourites, Yandex Music.

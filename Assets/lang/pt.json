@@ -496,5 +496,20 @@
  "Песок": "Areia",
  "Мята": "Hortelã",
  "Небо": "Céu",
- "Сила волн": "Intensidade das ondas"
+ "Сила волн": "Intensidade das ondas",
+ "Обычный размер": "Tamanho normal",
+ "Больше места (для входа и капчи)": "Mais espaço (para login e captcha)",
+ "Открываю {0}": "Abrindo {0}",
+ "Убрать": "Remover",
+ "Caps Lock включён": "Caps Lock ativado",
+ "Caps Lock выключен": "Caps Lock desativado",
+ "Скопировать": "Copiar",
+ "Размер острова": "Tamanho da ilha",
+ "Прятать остров поверх программ": "Ocultar a ilha sobre estes apps",
+ "Например, игры без полного экрана или программы для созвонов": "Por exemplo, jogos em janela ou apps de videochamada",
+ "Закрепить на месте (не перетаскивать)": "Fixar no lugar (sem arrastar)",
+ "Показывать Caps Lock": "Mostrar Caps Lock",
+ "Показывать смену раскладки": "Mostrar troca de layout do teclado",
+ "Скрывать остров на скриншотах и демонстрации экрана": "Ocultar a ilha em capturas e no compartilhamento de tela",
+ "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным": "Se desligar, a ilha aparece em capturas, gravações e no Zoom/Discord, mas o efeito de vidro fica sólido"
 }

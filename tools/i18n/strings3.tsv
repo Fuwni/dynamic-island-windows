@@ -220,3 +220,18 @@ hooks.json не является JSON-объектом	hooks.json is not a JSON 
 Мята	Mint	М’ята	Menta	Minze	Hortelã	薄荷
 Небо	Sky	Небо	Cielo	Himmel	Céu	天空
 Сила волн	Wave strength	Сила хвиль	Intensidad de las ondas	Wellenstärke	Intensidade das ondas	波浪强度
+Обычный размер	Normal size	Звичайний розмір	Tamaño normal	Normale Größe	Tamanho normal	正常大小
+Больше места (для входа и капчи)	More room (for sign-in and captcha)	Більше місця (для входу й капчі)	Más espacio (para iniciar sesión y captcha)	Mehr Platz (für Anmeldung und Captcha)	Mais espaço (para login e captcha)	更大空间（用于登录和验证码）
+Открываю {0}	Opening {0}	Відкриваю {0}	Abriendo {0}	Öffne {0}	Abrindo {0}	正在打开 {0}
+Убрать	Remove	Прибрати	Quitar	Entfernen	Remover	移除
+Caps Lock включён	Caps Lock on	Caps Lock увімкнено	Bloq Mayús activado	Feststelltaste an	Caps Lock ativado	大写锁定已开启
+Caps Lock выключен	Caps Lock off	Caps Lock вимкнено	Bloq Mayús desactivado	Feststelltaste aus	Caps Lock desativado	大写锁定已关闭
+Скопировать	Copy	Скопіювати	Copiar	Kopieren	Copiar	复制
+Размер острова	Island size	Розмір острова	Tamaño de la isla	Inselgröße	Tamanho da ilha	灵动岛大小
+Прятать остров поверх программ	Hide the island over these apps	Ховати острів поверх програм	Ocultar la isla sobre estas apps	Insel über diesen Apps ausblenden	Ocultar a ilha sobre estes apps	在这些程序上方隐藏灵动岛
+Например, игры без полного экрана или программы для созвонов	For example, games in windowed mode or video-call apps	Наприклад, ігри не на весь екран або програми для дзвінків	Por ejemplo, juegos en ventana o apps de videollamadas	Zum Beispiel Spiele im Fenstermodus oder Videocall-Apps	Por exemplo, jogos em janela ou apps de videochamada	例如窗口模式的游戏或视频通话程序
+Закрепить на месте (не перетаскивать)	Lock in place (no dragging)	Закріпити на місці (не перетягувати)	Fijar en su sitio (sin arrastrar)	Fixieren (nicht verschieben)	Fixar no lugar (sem arrastar)	固定位置（禁止拖动）
+Показывать Caps Lock	Show Caps Lock	Показувати Caps Lock	Mostrar Bloq Mayús	Feststelltaste anzeigen	Mostrar Caps Lock	显示大写锁定
+Показывать смену раскладки	Show keyboard layout changes	Показувати зміну розкладки	Mostrar cambio de distribución de teclado	Tastaturlayout-Wechsel anzeigen	Mostrar troca de layout do teclado	显示键盘布局切换
+Скрывать остров на скриншотах и демонстрации экрана	Hide the island in screenshots and screen sharing	Ховати острів на скріншотах і демонстрації екрана	Ocultar la isla en capturas y al compartir pantalla	Insel in Screenshots und bei Bildschirmfreigabe ausblenden	Ocultar a ilha em capturas e no compartilhamento de tela	在截图和屏幕共享中隐藏灵动岛
+Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным	When off, the island shows up in screenshots, recordings and Zoom/Discord, but the glass effect turns solid	Якщо вимкнути, острів буде видно на скріншотах, записі та в Zoom/Discord, але ефект скла стане суцільним	Si lo desactivas, la isla aparecerá en capturas, grabaciones y en Zoom/Discord, pero el efecto cristal será sólido	Wenn aus, ist die Insel in Screenshots, Aufnahmen und Zoom/Discord sichtbar, aber der Glaseffekt wird deckend	Se desligar, a ilha aparece em capturas, gravações e no Zoom/Discord, mas o efeito de vidro fica sólido	关闭后，灵动岛会出现在截图、录屏和 Zoom/Discord 中，但玻璃效果会变为不透明

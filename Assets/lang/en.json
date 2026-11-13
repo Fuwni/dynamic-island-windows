@@ -496,5 +496,20 @@
  "Песок": "Sand",
  "Мята": "Mint",
  "Небо": "Sky",
- "Сила волн": "Wave strength"
+ "Сила волн": "Wave strength",
+ "Обычный размер": "Normal size",
+ "Больше места (для входа и капчи)": "More room (for sign-in and captcha)",
+ "Открываю {0}": "Opening {0}",
+ "Убрать": "Remove",
+ "Caps Lock включён": "Caps Lock on",
+ "Caps Lock выключен": "Caps Lock off",
+ "Скопировать": "Copy",
+ "Размер острова": "Island size",
+ "Прятать остров поверх программ": "Hide the island over these apps",
+ "Например, игры без полного экрана или программы для созвонов": "For example, games in windowed mode or video-call apps",
+ "Закрепить на месте (не перетаскивать)": "Lock in place (no dragging)",
+ "Показывать Caps Lock": "Show Caps Lock",
+ "Показывать смену раскладки": "Show keyboard layout changes",
+ "Скрывать остров на скриншотах и демонстрации экрана": "Hide the island in screenshots and screen sharing",
+ "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным": "When off, the island shows up in screenshots, recordings and Zoom/Discord, but the glass effect turns solid"
 }

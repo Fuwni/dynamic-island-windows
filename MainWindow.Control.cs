@@ -157,7 +157,9 @@ public partial class MainWindow
         var air = await ControlCenter.AirplaneAsync();
         Paint("air", air, air == true ? L.T("вкл.") : L.T("выкл."));
         var vpn = await Task.Run(ControlCenter.ConnectedVpn);
-        Paint("vpn", vpn != null, vpn ?? (ControlCenter.VpnProfiles().Count == 0 ? L.T("настроить") : L.T("выкл.")));
+        string vpnIdle = ControlCenter.VpnProfiles().Count > 0 ? L.T("выкл.")
+                       : await Task.Run(ControlCenter.VpnApp) is { } app ? app.Name : L.T("настроить");
+        Paint("vpn", vpn != null, vpn ?? vpnIdle);
         Paint("clean", _settings.CleanDesktop, _settings.CleanDesktop ? L.T("вкл.") : L.T("выкл."));
 
         var battery = ControlCenter.Battery();
@@ -177,7 +179,17 @@ public partial class MainWindow
     private async Task ToggleVpn()
     {
         var profiles = ControlCenter.VpnProfiles();
-        if (profiles.Count == 0) { ControlCenter.OpenVpnSettings(); return; }
+        if (profiles.Count == 0)
+        {
+            // no Windows VPN profile: open the user's VPN app (Happ, Hiddify, v2rayN, Amnezia…) if there is one
+            if (await Task.Run(ControlCenter.VpnApp) is { } app)
+            {
+                try { ControlCenter.OpenVpnApp(app.Path); ShowToast("\uE72E", L.F("Открываю {0}", app.Name), null); return; }
+                catch { }
+            }
+            ControlCenter.OpenVpnSettings();
+            return;
+        }
         var connected = await Task.Run(ControlCenter.ConnectedVpn);
         if (connected != null)
         {

@@ -2,6 +2,29 @@
 
 All notable changes to Atoll (formerly "Dynamic Island for Windows"). Русская версия каждого пункта — ниже английской.
 
+## 1.6.0 — 2026-11-14
+
+### Island
+- **Island size** (Settings → Appearance): 80–130 %. The whole island, its shadow and window scale together.
+- **Lock in place** (Settings → Behavior): the island can't be dragged or swiped away by accident.
+- **Hide over chosen apps**: pick programs (a windowed game, a video-call app…) and the island hides while they are in front, like over a full-screen game.
+- **Show in screenshots or not**: a switch to keep the island out of screenshots, recordings and screen sharing (on by default, as before) or let it show. With it shown, the frosted glass turns solid, otherwise the island would photograph itself.
+- **Caps Lock and keyboard layout**: a short notice on the island when Caps Lock turns on or off and when the input language changes (each can be turned off).
+- "Hide in games and fullscreen" and "Show FPS in games" now exclude each other: turning one on turns the other off.
+
+### Tools
+- **Notes**: pasting a long, multi-line text keeps all of it (before, only the first line was kept). Enter saves, Shift+Enter starts a new line; a click opens a long note in full; copy and delete buttons on each note.
+- **Larger chat**: a button in the chat header gives sign-in pages more room, so captchas (Qwen, Grok…) are no longer cut off by the island's edge.
+- **VPN tile**: without a Windows VPN profile it opens your VPN app instead (Happ, Hiddify, v2rayN, AmneziaVPN, Outline, WireGuard, NekoRay and others), found by its Start-menu shortcut.
+
+### По-русски
+- Размер острова (80–130 %), «Закрепить на месте», скрытие острова поверх выбранных программ, переключатель «Скрывать на скриншотах и демонстрации экрана».
+- Уведомления о Caps Lock и смене раскладки.
+- «Прятать в играх» и «FPS в играх» теперь взаимоисключающие.
+- Заметки: длинный текст вставляется целиком, Shift+Enter — новая строка, кнопки «Скопировать» и «Удалить».
+- Кнопка «Больше места» в чате — капча Qwen и других больше не обрезается.
+- Плитка VPN открывает ваше VPN-приложение (Happ, Hiddify, v2rayN, Amnezia…), если VPN-профиля Windows нет.
+
 ## 1.5.1 — 2026-11-14
 
 - Opening the island no longer shows the window behind it through the island for half a second. With frosted glass on, the island is see-through over a blurred picture of the screen. That picture was still small while the island opened, so a web page or chat text showed through sharply. Now the island stays solid until a fresh picture covers it; the same applies while dragging.

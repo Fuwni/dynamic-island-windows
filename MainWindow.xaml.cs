@@ -103,6 +103,7 @@ public partial class MainWindow : Window
         InitControlCenter();
         InitApps();
         ApplyPhoto();
+        ApplyIslandScale();
         InitClaude();
         InitRecording();
         InitExtras();
@@ -164,6 +165,56 @@ public partial class MainWindow : Window
                     Log.Write("glass: folded again: " + State());
                     await Task.Delay(5000);
                     Log.Write("glass: folded, 6 s later: " + State());
+                    Application.Current.Shutdown();
+                    return;
+                }
+                if (action == "features")   // test: island size, large chat, notes, hide-in-apps (nothing is saved)
+                {
+                    Settings.ReadOnly = true;
+                    var dir = args.ElementAtOrDefault(r + 2) ?? System.IO.Path.GetTempPath();
+                    Island.IsHitTestVisible = false;
+                    _settings.ExpandOnHover = false;
+                    await Task.Delay(5000);
+                    foreach (var sc in new[] { 80, 100, 130 })
+                    {
+                        _settings.IslandScale = sc; ApplyIslandScale(); SetMode(Mode.Compact);
+                        await Task.Delay(1200);
+                        var b = Island.TransformToAncestor(Root).TransformBounds(new Rect(Island.RenderSize));
+                        Log.Write($"features: scale {sc}: window {Width:0}x{Height:0}, island on screen {b.Width:0}x{b.Height:0} (layout {Island.ActualWidth:0}x{Island.ActualHeight:0})");
+                        Snap(dir, $"scale-{sc}");
+                    }
+                    _settings.IslandScale = 100; ApplyIslandScale();
+                    TabNotes.IsChecked = true; _pinnedOpen = true; Expand();
+                    NewNoteBox.Text = string.Join(Environment.NewLine, Enumerable.Range(1, 40).Select(i => $"line {i}: " + new string('x', 60)));
+                    await Task.Delay(1200);
+                    Log.Write($"features: notes box keeps {NewNoteBox.LineCount} lines, {NewNoteBox.Text.Length} chars, box {NewNoteBox.ActualHeight:0}px");
+                    Snap(dir, "notes-long");
+                    NewNoteBox.Text = "";
+                    foreach (var big in new[] { false, true, false })
+                    {
+                        _settings.ChatLarge = big; ApplyChatSize(); Remeasure();
+                        await Task.Delay(400);
+                        Log.Write($"features: chat large={big}: frame {ChatFrame.Height:0}, page {ChatPage.Width:0}, window {Height:0}, screen {SystemParameters.VirtualScreenHeight:0}");
+                    }
+                    var fg = Native.GetForegroundWindow();
+                    Native.GetWindowThreadProcessId(fg, out uint fpid);
+                    string fname = ""; try { fname = System.Diagnostics.Process.GetProcessById((int)fpid).ProcessName; } catch { }
+                    _settings.HideInApps = [];
+                    bool before = IsHiddenApp(fg);
+                    _settings.HideInApps = [fname];
+                    _hiddenPid = 0;
+                    Log.Write($"features: hide-in-apps fg='{fname}': empty list -> {before}, listed -> {IsHiddenApp(fg)}");
+                    _pinnedOpen = false; SetMode(Mode.Compact);
+                    ShowToast("", L.T("Caps Lock включён"), null, null, new SolidColorBrush(Color.FromRgb(0xFF, 0x9F, 0x0A)), ms: 4000);
+                    await Task.Delay(900);
+                    Snap(dir, "toast-caps");
+                    foreach (var hide in new[] { false, true })
+                    {
+                        _settings.HideFromCapture = hide; ApplyCaptureExclusion(); CaptureFrost(); UpdateGlassFill();
+                        GetWindowDisplayAffinity(_hwnd, out uint aff);
+                        Log.Write($"features: hide from capture={hide}: affinity=0x{aff:X}, frost covers={_frostCovers}");
+                    }
+                    Log.Write($"features: vpn app = {ControlCenter.VpnApp()?.Name ?? "none"}");
                     Application.Current.Shutdown();
                     return;
                 }
@@ -508,7 +559,30 @@ public partial class MainWindow : Window
     // A see-through (layered) window is copied in full every time anything in it moves, so its size is
     // what the island costs. Folded, the window is only a little taller than the pill (room for the
     // shadow, the glow and the bulge); it grows to full size before the island opens.
-    private const double FullWindowHeight = 720, PillRoom = 150;
+    private const double PillRoom = 150;
+    private double FullWindowHeight => Math.Ceiling(720 * Math.Max(1, UiScale));
+
+    // ---------------------------------------------------------------- island size (Settings > Appearance)
+
+    private double UiScale => Math.Clamp(_settings.IslandScale, 80, 130) / 100.0;
+
+    /// <summary>Scales the whole island (and its shadow); the window grows with it, keeping its centre.</summary>
+    private void ApplyIslandScale()
+    {
+        var t = new ScaleTransform(UiScale, UiScale);
+        t.Freeze();
+        Island.LayoutTransform = t;
+        ShadowHost.LayoutTransform = t;
+        double w = Math.Ceiling(900 * Math.Max(1, UiScale));
+        if (Math.Abs(Width - w) > 1)
+        {
+            double cx = Left + Width / 2;
+            Width = w;
+            MoveWindow(cx - w / 2, Top);
+        }
+        GrowWindow();
+        ShrinkWindowToPill();
+    }
 
     private bool _windowFitted;
 
@@ -526,13 +600,15 @@ public partial class MainWindow : Window
         // the frosted picture no longer fits the new size: solid until it is retaken
         if (Math.Abs(size.Width - _w.Target) > 1 || Math.Abs(size.Height - _h.Target) > 1) SetFrostCovers(false);
         _shrinkTimer.Stop();
-        double need = Math.Ceiling(IslandTopMargin + Math.Max(size.Height, Island.ActualHeight) + PillRoom);
-        if (PerfNoResize || need > Height) GrowWindow();
+        double need = Math.Ceiling(IslandTopMargin + Math.Max(size.Height, Island.ActualHeight) * UiScale + PillRoom);
+        if (PerfNoResize || need > Height) GrowWindow(need);
     }
 
-    private void GrowWindow()
+    private void GrowWindow(double need = 0)
     {
-        if (Height < FullWindowHeight) Height = FullWindowHeight;
+        // a page taller than usual (the large chat) gets the room it needs, up to the screen
+        double h = Math.Min(Math.Max(FullWindowHeight, need), SystemParameters.VirtualScreenHeight);
+        if (Height < h) Height = h;
     }
 
     private void ShrinkWindowToPill()
@@ -546,7 +622,7 @@ public partial class MainWindow : Window
     {
         _shrinkTimer.Stop();
         if (_dragging || _rendering && !(_w.IsSettled && _h.IsSettled) || _mode is not (Mode.Compact or Mode.Toast) || Island.IsMouseOver) return;
-        double h = Math.Max(CompactWindowHeight, Math.Ceiling(IslandTopMargin + Math.Max(Island.Height, _h.Target) + PillRoom));
+        double h = Math.Max(CompactWindowHeight * UiScale, Math.Ceiling(IslandTopMargin + Math.Max(Island.Height, _h.Target) * UiScale + PillRoom));
         h = Math.Min(FullWindowHeight, h);
         if (Math.Abs(Height - h) > 1) Height = h;
     }
@@ -838,6 +914,7 @@ public partial class MainWindow : Window
     private void Island_PreviewMouseMove(object sender, MouseEventArgs e)
     {
         if (!_pressed || e.LeftButton != MouseButtonState.Pressed) return;
+        if (_settings.LockPosition) return;   // pinned in place: no dragging, no swipe-away
         var c = CursorDip();
         var d = c - _pressCursor;
         if (!_dragging)
@@ -1065,7 +1142,8 @@ public partial class MainWindow : Window
             OnGameModeChanged(game);
             if (_mode == Mode.Compact) MorphTo(TargetSize(Mode.Compact));
         }
-        bool fs = fullscreen && !game;
+        // also hide in front of the programs chosen in Settings (exe names)
+        bool fs = (fullscreen && !game) || IsHiddenApp(fg);
         if (fs != _fullscreenHidden)
         {
             _fullscreenHidden = fs;
@@ -1107,6 +1185,7 @@ public partial class MainWindow : Window
 
         UpdateProgress();
         KeepRepeating();
+        WatchKeyboard();
         UpdateLyricLine();
         UpdateLive();
         if (_tickCount % 4 == 0)

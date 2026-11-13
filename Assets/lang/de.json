@@ -496,5 +496,20 @@
  "Песок": "Sand",
  "Мята": "Minze",
  "Небо": "Himmel",
- "Сила волн": "Wellenstärke"
+ "Сила волн": "Wellenstärke",
+ "Обычный размер": "Normale Größe",
+ "Больше места (для входа и капчи)": "Mehr Platz (für Anmeldung und Captcha)",
+ "Открываю {0}": "Öffne {0}",
+ "Убрать": "Entfernen",
+ "Caps Lock включён": "Feststelltaste an",
+ "Caps Lock выключен": "Feststelltaste aus",
+ "Скопировать": "Kopieren",
+ "Размер острова": "Inselgröße",
+ "Прятать остров поверх программ": "Insel über diesen Apps ausblenden",
+ "Например, игры без полного экрана или программы для созвонов": "Zum Beispiel Spiele im Fenstermodus oder Videocall-Apps",
+ "Закрепить на месте (не перетаскивать)": "Fixieren (nicht verschieben)",
+ "Показывать Caps Lock": "Feststelltaste anzeigen",
+ "Показывать смену раскладки": "Tastaturlayout-Wechsel anzeigen",
+ "Скрывать остров на скриншотах и демонстрации экрана": "Insel in Screenshots und bei Bildschirmfreigabe ausblenden",
+ "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным": "Wenn aus, ist die Insel in Screenshots, Aufnahmen und Zoom/Discord sichtbar, aber der Glaseffekt wird deckend"
 }

@@ -496,5 +496,20 @@
  "Песок": "Arena",
  "Мята": "Menta",
  "Небо": "Cielo",
- "Сила волн": "Intensidad de las ondas"
+ "Сила волн": "Intensidad de las ondas",
+ "Обычный размер": "Tamaño normal",
+ "Больше места (для входа и капчи)": "Más espacio (para iniciar sesión y captcha)",
+ "Открываю {0}": "Abriendo {0}",
+ "Убрать": "Quitar",
+ "Caps Lock включён": "Bloq Mayús activado",
+ "Caps Lock выключен": "Bloq Mayús desactivado",
+ "Скопировать": "Copiar",
+ "Размер острова": "Tamaño de la isla",
+ "Прятать остров поверх программ": "Ocultar la isla sobre estas apps",
+ "Например, игры без полного экрана или программы для созвонов": "Por ejemplo, juegos en ventana o apps de videollamadas",
+ "Закрепить на месте (не перетаскивать)": "Fijar en su sitio (sin arrastrar)",
+ "Показывать Caps Lock": "Mostrar Bloq Mayús",
+ "Показывать смену раскладки": "Mostrar cambio de distribución de teclado",
+ "Скрывать остров на скриншотах и демонстрации экрана": "Ocultar la isla en capturas y al compartir pantalla",
+ "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным": "Si lo desactivas, la isla aparecerá en capturas, grabaciones y en Zoom/Discord, pero el efecto cristal será sólido"
 }

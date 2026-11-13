@@ -99,6 +99,7 @@ public partial class MainWindow
         }
 
         FillChatProviders();
+        ApplyChatSize();
 
         try
         {
@@ -193,6 +194,27 @@ public partial class MainWindow
     }
 
     private void ChatIdleTick(object? sender, EventArgs e) => ReleaseIdleChat();
+
+    /// <summary>
+    /// Large chat: sign-up pages with a captcha (Qwen, Grok…) don't fit the normal size and their
+    /// bottom is cut off by the island's edge.
+    /// </summary>
+    private void ApplyChatSize()
+    {
+        bool big = _settings.ChatLarge;
+        ChatPage.Width = big ? 860 : 640;
+        ChatFrame.Height = big ? 660 : 470;
+        ChatSizeButton.Content = big ? "\uE73F" : "\uE740";
+        ChatSizeButton.ToolTip = big ? L.T("Обычный размер") : L.T("Больше места (для входа и капчи)");
+    }
+
+    private void ChatSize_Click(object sender, RoutedEventArgs e)
+    {
+        _settings.ChatLarge = !_settings.ChatLarge;
+        _settings.Save();
+        ApplyChatSize();
+        Remeasure();
+    }
 
     private void ChatProvider_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
