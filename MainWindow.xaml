@@ -310,6 +310,22 @@
                   </Grid>
                 </Border>
               </Grid>
+              <!-- apps you dropped here: click to open -->
+              <Border x:Name="HomeApps" Style="{StaticResource Tile}" Margin="4,8,4,0" Padding="10,8,10,6" MinHeight="64">
+                <StackPanel>
+                  <WrapPanel x:Name="AppsRow" VerticalAlignment="Center"/>
+                  <!-- "+": find an installed app by name -->
+                  <StackPanel x:Name="AppSearchPanel" Visibility="Collapsed" Margin="0,8,0,2">
+                    <Grid>
+                      <TextBox x:Name="AppSearchBox" Style="{StaticResource SoftBox}" Height="34"
+                               TextChanged="AppSearch_TextChanged" PreviewKeyDown="AppSearch_KeyDown"/>
+                      <TextBlock x:Name="AppSearchPlaceholder" Text="Название приложения…" Style="{StaticResource Muted}" FontSize="12.5"
+                                 Margin="13,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                    </Grid>
+                    <WrapPanel x:Name="AppSearchResults" Margin="0,8,0,0"/>
+                  </StackPanel>
+                </StackPanel>
+              </Border>
             </StackPanel>
 
             <!-- ======== MUSIC ======== -->
@@ -730,6 +746,17 @@
 
             <!-- ======== SYSTEM ======== -->
             <StackPanel x:Name="SystemPage" Width="600" Visibility="Collapsed">
+              <!-- control centre: radios, VPN, clean desktop, dock, power -->
+              <Border Style="{StaticResource Tile}" Margin="0,0,0,10">
+                <StackPanel>
+                  <DockPanel>
+                    <TextBlock x:Name="BatteryLine" DockPanel.Dock="Right" Style="{StaticResource Muted}" Visibility="Collapsed"/>
+                    <TextBlock Style="{StaticResource Caption}" Text="ПУНКТ УПРАВЛЕНИЯ"/>
+                  </DockPanel>
+                  <UniformGrid x:Name="ControlTiles" Columns="6" Margin="0,12,0,0"/>
+                  <WrapPanel x:Name="PowerButtons" Margin="0,10,0,0"/>
+                </StackPanel>
+              </Border>
               <UniformGrid Columns="3">
                 <Border Style="{StaticResource Tile}" Margin="0,0,5,0">
                   <StackPanel>
@@ -959,6 +986,7 @@
                       <CheckBox x:Name="HomeActionsChip" Style="{StaticResource ChipToggle}" Content="Быстрые действия" Click="HomeLayout_Click"/>
                       <CheckBox x:Name="HomeMusicChip" Style="{StaticResource ChipToggle}" Content="Музыка" Click="HomeLayout_Click"/>
                       <CheckBox x:Name="HomeWeatherChip" Style="{StaticResource ChipToggle}" Content="Погода" Click="HomeLayout_Click"/>
+                      <CheckBox x:Name="HomeAppsChip" Style="{StaticResource ChipToggle}" Content="Приложения" Click="HomeLayout_Click"/>
                     </WrapPanel>
                     <TextBlock Text="Кнопки действий" Style="{StaticResource Muted}" Margin="0,6,0,8"/>
                     <WrapPanel x:Name="ActionChips"/>
@@ -1006,11 +1034,22 @@
                   <StackPanel>
                     <CheckBox x:Name="HoverSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Раскрывать при наведении"/>
                     <CheckBox x:Name="FullscreenSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Прятать в играх и полноэкранном режиме"/>
-                    <CheckBox x:Name="GameStatsSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="В играх показывать CPU / GPU / RAM вместо полного скрытия"/>
+                    <CheckBox x:Name="GameStatsSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="В играх показывать FPS и нагрузку вместо полного скрытия"/>
+                    <DockPanel Margin="0,0,0,8">
+                      <Button x:Name="FpsGrantButton" DockPanel.Dock="Right" Style="{StaticResource GhostPill}" Padding="12,5"
+                              Content="Разрешить" Visibility="Collapsed" Click="FpsGrant_Click"/>
+                      <StackPanel VerticalAlignment="Center">
+                        <TextBlock x:Name="FpsStatus" Style="{StaticResource Muted}" TextWrapping="Wrap"/>
+                        <TextBlock Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,2,0,0"
+                                   Text="Поверх игр в «эксклюзивном полноэкранном» режиме ничего показать нельзя — выберите «Оконный без рамки»."/>
+                      </StackPanel>
+                    </DockPanel>
                     <CheckBox x:Name="KaraokeSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Слова песни прямо в острове (караоке)"/>
                     <CheckBox x:Name="NotifySwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Сообщения Telegram, Discord, Viber… на острове"/>
                     <CheckBox x:Name="NotifyAllSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Уведомления всех приложений, не только мессенджеров"/>
                     <CheckBox x:Name="AutostartSwitch" Style="{StaticResource Switch}" Click="Autostart_Click" Content="Запускать вместе с Windows"/>
+                    <CheckBox x:Name="CleanDesktopSwitch" Style="{StaticResource Switch}" Click="CleanDesktopSwitch_Click"
+                              Content="Чистый рабочий стол: прятать значки"/>
                     <Button Style="{StaticResource AccentPill}" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="14,7"
                             Click="ResetPosition_Click" ToolTip="Поставить остров ровно по центру вверху экрана">
                       <StackPanel Orientation="Horizontal">

@@ -40,8 +40,42 @@ public sealed class AppIndex
             }
             catch { }
         }
+        AddStoreApps(found);
         _apps = found.Values.OrderBy(a => a.Name).ToList();
     }
+
+    /// <summary>
+    /// Everything in the Start menu's "All apps", including Microsoft Store apps that have no shortcut file
+    /// (Calculator, Spotify from the Store…). They open through "shell:AppsFolder\&lt;app id&gt;".
+    /// </summary>
+    private static void AddStoreApps(Dictionary<string, App> found)
+    {
+        var t = new Thread(() =>
+        {
+            try
+            {
+                var type = Type.GetTypeFromProgID("Shell.Application");
+                if (type == null) return;
+                dynamic shell = Activator.CreateInstance(type)!;
+                dynamic folder = shell.NameSpace("shell:AppsFolder");
+                foreach (dynamic item in folder.Items())
+                {
+                    string name = item.Name, id = item.Path;
+                    if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(id)) continue;
+                    if (name.Contains("uninstall", StringComparison.OrdinalIgnoreCase) || name.Contains("удал", StringComparison.OrdinalIgnoreCase)) continue;
+                    lock (found) found.TryAdd(name, new App(name, @"shell:AppsFolder\" + id));
+                }
+            }
+            catch { }
+        });
+        t.SetApartmentState(ApartmentState.STA);
+        t.IsBackground = true;
+        t.Start();
+        t.Join(TimeSpan.FromSeconds(15));
+    }
+
+    /// <summary>Display name of an indexed app (for Store apps, whose path is an id).</summary>
+    public string? NameOf(string path) => _apps.FirstOrDefault(a => a.Path.Equals(path, StringComparison.OrdinalIgnoreCase))?.Name;
 
     /// <summary>Best matches first: starts-with, then word-starts-with, then contains.</summary>
     public List<App> Search(string q, int max = 5)
@@ -66,7 +100,8 @@ public sealed class AppIndex
     public ImageSource? Icon(string path)
     {
         if (_icons.TryGetValue(path, out var cached)) return cached;
-        ImageSource? img = null;
+        ImageSource? img = ShellIcons.Get(path, 32);
+        if (img != null) return _icons[path] = img;
         try
         {
             using var icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
@@ -80,8 +115,16 @@ public sealed class AppIndex
         return _icons[path] = img;
     }
 
+    public static bool IsStoreApp(string path) => path.StartsWith("shell:AppsFolder", StringComparison.OrdinalIgnoreCase);
+
     public static void Launch(string path)
     {
-        try { Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); } catch { }
+        try
+        {
+            Process.Start(IsStoreApp(path)
+                ? new ProcessStartInfo("explorer.exe", "\"" + path + "\"") { UseShellExecute = true }
+                : new ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch { }
     }
 }

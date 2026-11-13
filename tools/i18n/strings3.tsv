@@ -126,3 +126,50 @@ Ctrl+Alt+S — скриншот области · Ctrl+Alt+R — запись ·
 Скачиваю Atoll {0}…	Downloading Atoll {0}…	Завантажую Atoll {0}…	Descargando Atoll {0}…	Lade Atoll {0}…	Baixando o Atoll {0}…	正在下载 Atoll {0}…
 Устанавливаю…	Installing…	Встановлюю…	Instalando…	Installiere…	Instalando…	正在安装…
 Проверить обновления	Check for updates	Перевірити оновлення	Buscar actualizaciones	Nach Updates suchen	Verificar atualizações	检查更新
+ПУНКТ УПРАВЛЕНИЯ	CONTROL CENTER	ПУНКТ КЕРУВАННЯ	CENTRO DE CONTROL	KONTROLLZENTRUM	CENTRAL DE CONTROLE	控制中心
+Режим полёта	Airplane mode	Режим польоту	Modo avión	Flugmodus	Modo avião	飞行模式
+Чистый стол	Clean desktop	Чистий стіл	Escritorio limpio	Leerer Desktop	Área limpa	简洁桌面
+Док	Dock	Док	Dock	Dock	Dock	程序坞
+Блокировка	Lock	Блокування	Bloquear	Sperren	Bloquear	锁定
+Сон	Sleep	Сон	Suspender	Energie sparen	Suspender	睡眠
+Перезагрузка	Restart	Перезавантаження	Reiniciar	Neu starten	Reiniciar	重启
+Выключение	Shut down	Вимкнення	Apagar	Herunterfahren	Desligar	关机
+Перезагрузить компьютер?	Restart the computer?	Перезавантажити комп'ютер?	¿Reiniciar el equipo?	Computer neu starten?	Reiniciar o computador?	要重启电脑吗？
+Выключить компьютер?	Shut down the computer?	Вимкнути комп'ютер?	¿Apagar el equipo?	Computer herunterfahren?	Desligar o computador?	要关闭电脑吗？
+нет адаптера	no adapter	немає адаптера	sin adaptador	kein Adapter	sem adaptador	无适配器
+не подключено	not connected	не підключено	sin conexión	nicht verbunden	não conectado	未连接
+выкл.	off	вимк.	apagado	aus	desligado	关
+вкл.	on	увімк.	encendido	an	ligado	开
+настроить	set up	налаштувати	configurar	einrichten	configurar	设置
+Батарея {0}% · заряжается	Battery {0}% · charging	Батарея {0}% · заряджається	Batería {0}% · cargando	Akku {0}% · lädt	Bateria {0}% · carregando	电池 {0}% · 充电中
+Батарея {0}%	Battery {0}%	Батарея {0}%	Batería {0}%	Akku {0}%	Bateria {0}%	电池 {0}%
+Нет адаптера	No adapter	Немає адаптера	Sin adaptador	Kein Adapter	Sem adaptador	无适配器
+Windows не разрешил переключить	Windows didn't allow the switch	Windows не дозволив перемкнути	Windows no permitió el cambio	Windows hat das Umschalten nicht erlaubt	O Windows não permitiu a troca	Windows 不允许切换
+Откройте «Параметры → Конфиденциальность → Радио»	Open Settings → Privacy → Radios	Відкрийте «Параметри → Конфіденційність → Радіо»	Abre Configuración → Privacidad → Radios	Öffne Einstellungen → Datenschutz → Funkempfang	Abra Configurações → Privacidade → Rádios	打开“设置 → 隐私 → 无线电收发器”
+подключаю…	connecting…	підключаю…	conectando…	verbinde…	conectando…	正在连接…
+VPN не подключился	VPN didn't connect	VPN не підключився	La VPN no se conectó	VPN nicht verbunden	A VPN não conectou	VPN 未连接
+Откройте настройки VPN, чтобы ввести данные	Open VPN settings to enter your details	Відкрийте налаштування VPN, щоб ввести дані	Abre la configuración de VPN para introducir tus datos	Öffne die VPN-Einstellungen, um deine Daten einzugeben	Abra as configurações de VPN para inserir seus dados	打开 VPN 设置以输入信息
+Чистый рабочий стол включён	Clean desktop is on	Чистий робочий стіл увімкнено	Escritorio limpio activado	Leerer Desktop ist an	Área de trabalho limpa ativada	简洁桌面已开启
+Панель задач и значки вернулись	Taskbar and icons are back	Панель завдань і значки повернулися	La barra de tareas y los iconos han vuelto	Taskleiste und Symbole sind zurück	A barra de tarefas e os ícones voltaram	任务栏和图标已恢复
+Перетащите сюда приложения	Drop apps here	Перетягніть сюди застосунки	Arrastra aquí tus apps	Apps hierher ziehen	Arraste apps para cá	把应用拖到这里
+Открыть	Open	Відкрити	Abrir	Öffnen	Abrir	打开
+Убрать из дока	Remove from dock	Прибрати з доку	Quitar del dock	Aus dem Dock entfernen	Remover do dock	从程序坞移除
+Док с приложениями внизу экрана	Dock with apps at the bottom of the screen	Док із застосунками внизу екрана	Dock con apps en la parte inferior	Dock mit Apps am unteren Bildschirmrand	Dock com apps na parte inferior da tela	屏幕底部的应用程序坞
+Чистый рабочий стол: прятать панель задач и значки	Clean desktop: hide the taskbar and icons	Чистий робочий стіл: ховати панель завдань і значки	Escritorio limpio: ocultar barra de tareas e iconos	Leerer Desktop: Taskleiste und Symbole ausblenden	Área limpa: ocultar barra de tarefas e ícones	简洁桌面：隐藏任务栏和图标
+Перетащите сюда приложения — они откроются в один клик	Drop apps here — they open in one click	Перетягніть сюди застосунки — вони відкриватимуться в один клік	Arrastra aquí tus apps: se abren con un clic	Apps hierher ziehen – sie öffnen sich mit einem Klick	Arraste apps para cá — elas abrem com um clique	把应用拖到这里，一键打开
+Приложения	Apps	Застосунки	Apps	Apps	Apps	应用
+Убрать из приложений	Remove from apps	Прибрати із застосунків	Quitar de las apps	Aus den Apps entfernen	Remover dos apps	从应用中移除
+Значки рабочего стола вернулись	Desktop icons are back	Значки робочого столу повернулися	Los iconos del escritorio han vuelto	Desktopsymbole sind zurück	Os ícones da área de trabalho voltaram	桌面图标已恢复
+Чистый рабочий стол: прятать значки	Clean desktop: hide the desktop icons	Чистий робочий стіл: ховати значки	Escritorio limpio: ocultar los iconos	Leerer Desktop: Symbole ausblenden	Área limpa: ocultar os ícones	简洁桌面：隐藏桌面图标
+Добавьте приложения кнопкой «+» — они будут открываться в один клик	Add apps with the “+” button — they open in one click	Додайте застосунки кнопкою «+» — вони відкриватимуться в один клік	Añade apps con el botón «+»: se abren con un clic	Füge Apps mit „+“ hinzu – sie öffnen sich mit einem Klick	Adicione apps com o botão “+” — eles abrem com um clique	点击“+”添加应用，一键即可打开
+Добавить приложение	Add an app	Додати застосунок	Añadir una app	App hinzufügen	Adicionar um app	添加应用
+Название приложения…	App name…	Назва застосунку…	Nombre de la app…	App-Name…	Nome do app…	应用名称…
+Ничего не найдено	Nothing found	Нічого не знайдено	No se encontró nada	Nichts gefunden	Nada encontrado	未找到
+В играх показывать FPS и нагрузку вместо полного скрытия	In games, show FPS and load instead of hiding	В іграх показувати FPS і навантаження замість повного приховування	En juegos, mostrar FPS y carga en vez de ocultarse	In Spielen FPS und Auslastung zeigen statt auszublenden	Em jogos, mostrar FPS e carga em vez de ocultar	游戏中显示 FPS 和负载，而不是完全隐藏
+Разрешить	Allow	Дозволити	Permitir	Erlauben	Permitir	允许
+Поверх игр в «эксклюзивном полноэкранном» режиме ничего показать нельзя — выберите «Оконный без рамки».	Nothing can be shown over games in exclusive full-screen mode — choose "Borderless window".	Поверх ігор у «ексклюзивному повноекранному» режимі нічого показати не можна — оберіть «Вікно без рамки».	No se puede mostrar nada sobre juegos en pantalla completa exclusiva: elige «Ventana sin bordes».	Über Spielen im exklusiven Vollbild kann nichts angezeigt werden – wähle „Randloses Fenster“.	Nada pode aparecer sobre jogos em tela cheia exclusiva — escolha “Janela sem bordas”.	独占全屏的游戏上无法显示任何内容，请选择“无边框窗口”。
+Счётчик FPS работает: в играх он появится в пилюле	FPS counter is ready: it shows in the pill while you play	Лічильник FPS працює: в іграх він з'явиться в пігулці	El contador de FPS está listo: aparecerá en la píldora al jugar	FPS-Zähler bereit: er erscheint beim Spielen in der Pille	Contador de FPS pronto: aparece na pílula enquanto você joga	FPS 计数器已就绪：游戏时会显示在胶囊中
+Чтобы видеть FPS в играх, нужно один раз разрешить доступ	To see FPS in games, allow access once	Щоб бачити FPS в іграх, треба один раз дозволити доступ	Para ver los FPS en juegos, permite el acceso una vez	Um FPS in Spielen zu sehen, einmal Zugriff erlauben	Para ver o FPS nos jogos, permita o acesso uma vez	要在游戏中查看 FPS，需要授权一次
+Доступ не выдан	Access not granted	Доступ не надано	Acceso no concedido	Zugriff nicht erteilt	Acesso não concedido	未授予访问权限
+Windows попросит подтверждение — нажмите «Да»	Windows will ask for confirmation — click "Yes"	Windows попросить підтвердження — натисніть «Так»	Windows pedirá confirmación: pulsa «Sí»	Windows fragt nach einer Bestätigung – klicke auf „Ja“	O Windows vai pedir confirmação — clique em “Sim”	Windows 会请求确认，请点击“是”
+Готово. Выйдите из Windows и войдите снова — после этого в играх появится FPS.	Done. Sign out of Windows and back in — after that, FPS appears in games.	Готово. Вийдіть із Windows і увійдіть знову — після цього в іграх з'явиться FPS.	Listo. Cierra sesión en Windows y vuelve a entrar: después verás los FPS en los juegos.	Fertig. Melde dich bei Windows ab und wieder an – danach erscheinen FPS in Spielen.	Pronto. Saia do Windows e entre novamente — depois disso o FPS aparece nos jogos.	完成。请注销 Windows 并重新登录，之后游戏中就会显示 FPS。

@@ -90,6 +90,8 @@ public partial class MainWindow : Window
         InitSettingsPage();
         InitBuddyReactions();
         InitUpdates();
+        InitControlCenter();
+        InitApps();
         InitClaude();
         InitRecording();
         InitExtras();
@@ -131,6 +133,26 @@ public partial class MainWindow : Window
             {
                 await Task.Delay(1500);
                 if (action.StartsWith("lang:")) { SwitchLanguage(action[5..]); return; }   // test the language switch
+                if (action == "fps-test")   // test: can we read frame events, and how many frames does the island itself show
+                {
+                    var ok = _fps.Start();
+                    Kick(6);
+                    await Task.Delay(6000);
+                    var we = System.Diagnostics.Process.GetProcessesByName("wallpaper64").FirstOrDefault(); Log.Write($"fps-test: started={ok} denied={_fps.AccessDenied} own={_fps.FpsOf(Environment.ProcessId)} wallpaper={(we != null ? _fps.FpsOf(we.Id) : null)}");
+                    _fps.Stop();
+                    return;
+                }
+                if (action == "clean-test")   // test: clean desktop on for 4 s, then back
+                {
+                    bool was = CleanDesktop.TaskbarAutoHide, icons = CleanDesktop.IconsVisible;
+                    CleanDesktop.Apply(true, was, icons);
+                    await Task.Delay(4000);
+                    Log.Write($"clean-test: on -> autohide={CleanDesktop.TaskbarAutoHide} icons={CleanDesktop.IconsVisible}");
+                    CleanDesktop.Apply(false, was, icons);
+                    await Task.Delay(1500);
+                    Log.Write($"clean-test: off -> autohide={CleanDesktop.TaskbarAutoHide} icons={CleanDesktop.IconsVisible} (was {was}/{icons})");
+                    return;
+                }
                 if (action == "update-dry")   // test: check + download + verify the newest installer, but don't run it
                 {
                     try
@@ -219,6 +241,8 @@ public partial class MainWindow : Window
         ShutdownChat();
         _settings.Save();
         FocusMode.End(); // never leave Windows notifications switched off
+        _fps.Dispose();
+        ShutdownControlCenter(); // taskbar and desktop icons come back
         if (_tray != null) { _tray.Visible = false; _tray.Dispose(); }
         if (_recording.IsRecording) _recording.Stop();
     }
@@ -814,10 +838,11 @@ public partial class MainWindow : Window
 
         bool fullscreen = _settings.HideInFullscreen && _hwnd != IntPtr.Zero && Native.IsFullscreenAppActive(_hwnd);
         // game mode: keep a tiny stats pill instead of hiding completely
-        bool game = fullscreen && _settings.GameStats;
+        bool game = _demoGame || (fullscreen && _settings.GameStats);
         if (game != _gameMode)
         {
             _gameMode = game;
+            OnGameModeChanged(game);
             if (_mode == Mode.Compact) MorphTo(TargetSize(Mode.Compact));
         }
         bool fs = fullscreen && !game;
@@ -845,7 +870,7 @@ public partial class MainWindow : Window
     private void OnTick()
     {
         _tickCount++;
-        var now = DateTime.Now.ToString("HH:mm");
+        var now = _demoClock ?? DateTime.Now.ToString("HH:mm");
         ExpandedTime.Text = now;
         if (_recording.IsRecording)
         {
@@ -890,9 +915,10 @@ public partial class MainWindow : Window
         if (!IsLoaded || _hidden || _fullscreenHidden) return;
         Native.GetCursorPos(out var cursor);
         if (_fakeCursor is Native.POINT fake) cursor = fake;   // screenshots / tests
+        CheckClickOutside(cursor);
         bool playing = _lastMedia?.IsPlaying == true;
         double beat = playing ? Math.Min(1, _audio.Peak * 1.6) : 0;
-        var mood = _demoMedia == null && Native.IdleSeconds() > 120 ? Views.CharacterMood.Sleep
+        var mood = _demoSleep || (_demoMedia == null && Native.IdleSeconds() > 120) ? Views.CharacterMood.Sleep
                  : _claudeCurrent != null ? Views.CharacterMood.Think
                  : playing ? Views.CharacterMood.Music : Views.CharacterMood.Idle;
 

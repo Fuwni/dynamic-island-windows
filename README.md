@@ -30,7 +30,7 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 ## Contents
 
-- [What's new in 1.3](#whats-new-in-13)
+- [What's new in 1.4](#whats-new-in-14)
 - [Features](#features)
 - [Install (2 minutes, no admin rights)](#install)
 - [How to use it](#how-to-use-it)
@@ -43,7 +43,15 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 ---
 
-## What's new in 1.3
+## What's new in 1.4
+
+- 🚀 **Apps on Home**: your favourite programs in one row at the bottom of the island. Press **+**, type a name, done (Microsoft Store apps too).
+- 🎛️ **Control center**: Wi‑Fi, Bluetooth, airplane mode, VPN, battery, lock / sleep / restart / shut down.
+- 🧹 **Clean desktop**: hide the desktop icons with one toggle; the taskbar stays.
+- 🎮 **FPS in games**: the pill shows the game's frame rate with CPU / GPU load.
+- 👆 **Click outside to close** the open island.
+
+### Earlier, in 1.3
 
 - ✨ **New name and logo — Atoll.** An atoll is a ring-shaped island: the mark is that ring, with one warm "live" dot in its lagoon. Minimal, and sharp even at 16 px in the tray.
 - 🔄 **Automatic updates**: a notice on the island when a new version is out, one click to update (Settings → Behavior → Updates).

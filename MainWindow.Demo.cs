@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -196,6 +196,19 @@ public partial class MainWindow
             Snap(folder, name);
             if (tab == TabTimer) { _timer.Reset(); _timer.SetKind(TimerKind.Timer); }
         }
+        // a few apps on Home (settings are read-only here, nothing is saved)
+        _settings.DockApps = [@"C:\Windows\explorer.exe", @"C:\Windows\System32\calc.exe", @"C:\Windows\System32\cmd.exe",
+                              @"C:\Windows\System32	askmgr.exe", Environment.ProcessPath!];
+        BuildApps();
+        TabHome.IsChecked = true;
+        await Task.Delay(2500);
+        Snap(folder, "home-apps");
+        await ToggleAppSearch(true);
+        AppSearchBox.Text = "Ка";
+        await Task.Delay(1500);
+        Snap(folder, "home-apps-search");
+        await ToggleAppSearch(false);
+
         // settings: the Behaviour section with the language list, closed and open
         TabSettings.IsChecked = true;
         ((RadioButton)SettingsNav.Children[3]).IsChecked = true;

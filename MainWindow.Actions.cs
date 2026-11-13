@@ -101,6 +101,7 @@ public partial class MainWindow
         HomeWeather.Visibility = _settings.HomeWeather ? Visibility.Visible : Visibility.Collapsed;
         HomeStrips.Visibility = _settings.HomeMusic || _settings.HomeWeather ? Visibility.Visible : Visibility.Collapsed;
         HomeStrips.Margin = new Thickness(4, actions ? 6 : 0, 4, 0);
+        HomeApps.Visibility = _settings.HomeApps ? Visibility.Visible : Visibility.Collapsed;
 
         // weather alone stretches over the whole row
         if (!_settings.HomeMusic)

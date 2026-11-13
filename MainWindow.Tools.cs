@@ -373,6 +373,7 @@ public partial class MainWindow
         if (_draggingOut || !e.Data.GetDataPresent(DataFormats.FileDrop) || _mode == Mode.Claude) { e.Effects = DragDropEffects.None; e.Handled = true; return; }
         e.Effects = DragDropEffects.Copy;
         e.Handled = true;
+        if (_mode == Mode.Expanded && HomeApps.IsVisible) { e.Effects = DragDropEffects.Link; return; }   // pin to the apps row
         if (_mode == Mode.Drop && DropActions.Visibility == Visibility.Visible) return;
         _dropped = [];
         DropIcon.Text = "";
@@ -394,8 +395,13 @@ public partial class MainWindow
     private void Island_Drop(object sender, DragEventArgs e)
     {
         if (e.Data.GetData(DataFormats.FileDrop) is not string[] files || files.Length == 0) return;
-        _dropped = files;
         e.Handled = true;
+        if (_mode == Mode.Expanded && HomeApps.IsVisible)
+        {
+            if (OverApps(e)) { AddApps(files); return; }
+            SetMode(Mode.Drop);   // dropped elsewhere on Home: the usual file actions
+        }
+        _dropped = files;
 
         long size = files.Where(File.Exists).Sum(f => new FileInfo(f).Length);
         bool images = files.All(f => File.Exists(f) && FileDropActions.IsImage(f));

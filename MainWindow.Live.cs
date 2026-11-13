@@ -73,6 +73,11 @@ public partial class MainWindow
         {
             // handled by OnTick (red dot + elapsed)
         }
+        else if (_gameMode && _stats.Last is { } gs)
+        {
+            icon = "\uE7FC";
+            text = GameStatsText(gs);   // FPS (when available) and load: the most useful thing while playing
+        }
         else if (_timer.Active)
         {
             icon = _timer.Kind == TimerKind.Stopwatch ? "" : _timer.Kind == TimerKind.Pomodoro ? "" : "";
@@ -107,11 +112,6 @@ public partial class MainWindow
             icon = "";
             var mins = (int)Math.Ceiling((ev.Start - DateTime.Now).TotalMinutes);
             text = mins <= 0 ? L.F("Сейчас: {0}", Shorten(ev.Title, 26)) : L.F("{0} · через {1} мин", Shorten(ev.Title, 22), mins);
-        }
-        else if (_gameMode && _stats.Last is { } s)
-        {
-            icon = "";
-            text = $"CPU {s.Cpu:0}% · GPU {s.Gpu:0}% · RAM {s.Ram:0}%";
         }
         else if (_settings.Karaoke && _lastMedia?.IsPlaying == true && _currentLyrics?.Synced == true &&
                  LyricCur.Text is { Length: > 0 } line && line != "♪")

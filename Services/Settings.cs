@@ -87,6 +87,13 @@ public sealed class Settings
     public string Language { get; set; } = "";
     /// <summary>Look for a newer release on GitHub now and then.</summary>
     public bool AutoUpdateCheck { get; set; } = true;
+    /// <summary>Apps pinned to the row at the bottom of Home.</summary>
+    public List<string> DockApps { get; set; } = [];
+    public bool HomeApps { get; set; } = true;
+    /// <summary>Clean desktop: hide the desktop icons (undone on exit). The taskbar is left alone.</summary>
+    public bool CleanDesktop { get; set; }
+    public bool TaskbarWasAutoHide { get; set; }
+    public bool IconsWereVisible { get; set; } = true;
     public bool RecordSystemAudio { get; set; } = true;
     public bool RecordMicrophone { get; set; } = true;
 

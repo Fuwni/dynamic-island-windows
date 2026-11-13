@@ -184,8 +184,10 @@ public partial class MainWindow
         RefreshLookControls();
         ReactiveSwitch.IsChecked = _settings.Reactive;
         ClaudeGlowSwitch.IsChecked = _settings.ClaudeGlow;
+        CleanDesktopSwitch.IsChecked = _settings.CleanDesktop;
         HandDrawnSwitch.IsChecked = _settings.HandDrawn;
         GameStatsSwitch.IsChecked = _settings.GameStats;
+        RefreshFpsAccess();
         KaraokeSwitch.IsChecked = _settings.Karaoke;
         NotifySwitch.IsChecked = _settings.MirrorNotifications;
         NotifyAllSwitch.IsChecked = _settings.MirrorAllApps;
@@ -193,6 +195,7 @@ public partial class MainWindow
         HomeActionsChip.IsChecked = _settings.HomeActions;
         HomeMusicChip.IsChecked = _settings.HomeMusic;
         HomeWeatherChip.IsChecked = _settings.HomeWeather;
+        HomeAppsChip.IsChecked = _settings.HomeApps;
         foreach (CheckBox chip in ActionChips.Children)
             chip.IsChecked = _settings.Actions.Contains((string)chip.Tag);
         HoverSwitch.IsChecked = _settings.ExpandOnHover;
@@ -262,6 +265,7 @@ public partial class MainWindow
         _settings.HomeActions = HomeActionsChip.IsChecked == true;
         _settings.HomeMusic = HomeMusicChip.IsChecked == true;
         _settings.HomeWeather = HomeWeatherChip.IsChecked == true;
+        _settings.HomeApps = HomeAppsChip.IsChecked == true;
         _settings.Save();
         BuildHome();
     }

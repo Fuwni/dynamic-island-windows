@@ -12,12 +12,15 @@ namespace DynamicIsland;
 /// are triggered by lines appended to the command file:
 ///   idle on|off · music · timer &lt;min&gt; · timer off · download · discord on|off · message &lt;who&gt;|&lt;text&gt;
 ///   cmd &lt;text&gt; · cmd off · char &lt;id&gt; · emote &lt;name&gt; · typing on|off · claude-ask · claude-done
-///   expand &lt;tab&gt; · compact · aura &lt;id&gt; · sketch on|off · dock on|off · hover on|off · quit
+///   expand &lt;tab&gt; · compact · aura &lt;id&gt; · sketch on|off · dock on|off · hover on|off
+///   clock HH:mm|off · sleep on|off · game on|off · remind <text> · pomodoro · quit
 /// </summary>
 public partial class MainWindow
 {
     private bool _liveDemo;
     private bool _demoDiscord;
+    private string? _demoClock;   // the time the island shows (a day squeezed into a timelapse)
+    private bool _demoSleep, _demoGame;
 
     private void StartLiveDemo(string file)
     {
@@ -67,6 +70,7 @@ public partial class MainWindow
             case "music":   // start the demo song again just before the chorus, so the lyrics roll on cue
                 _demoMedia = _demoMedia! with { Position = TimeSpan.FromSeconds(58), PositionUpdatedAt = DateTimeOffset.Now, IsPlaying = true };
                 _demoIdle = false;
+                _settings.Karaoke = true;   // the lyrics roll right in the pill
                 UpdateMediaUi();
                 break;
             case "timer":
@@ -142,6 +146,23 @@ public partial class MainWindow
             case "dock":
                 _settings.Docked = arg == "on";
                 UpdateShape(false);
+                break;
+            case "clock":   // clock 08:00 · clock off
+                _demoClock = arg == "off" ? null : arg;
+                OnTick();
+                break;
+            case "sleep":
+                _demoSleep = arg == "on";
+                break;
+            case "game":    // pretend a fullscreen game runs: the pill shrinks to CPU / GPU / RAM
+                _demoGame = arg == "on";
+                break;
+            case "remind":
+                ShowToast("", L.T("Напоминание"), arg, null, (Brush)FindResource("Warm"), ms: 4200);
+                break;
+            case "pomodoro":
+                _timer.SetKind(TimerKind.Pomodoro);
+                _timer.Start();
                 break;
             case "hover":   // off: a click opens it, and a click on the character makes it emote
                 _settings.ExpandOnHover = arg != "off";
