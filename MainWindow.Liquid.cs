@@ -99,7 +99,7 @@ public partial class MainWindow
     /// <summary>A soft coloured flash around the island when something happens.</summary>
     private void PulseGlow(Color color)
     {
-        if (!_settings.Reactive || Island.Effect is not DropShadowEffect fx) return;
+        if (!_settings.Reactive || IslandShadow is not DropShadowEffect fx) return;
         var dur = TimeSpan.FromMilliseconds(1300);
         var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
         fx.BeginAnimation(DropShadowEffect.ColorProperty, new ColorAnimation(color, Colors.Black, dur) { EasingFunction = ease, FillBehavior = FillBehavior.Stop });

@@ -15,11 +15,19 @@ public partial class MainWindow
     {
         if (game && !IsToolRun) _fps.Start();
         else _fps.Stop();
+        UpdateAuraVisibility();
     }
 
     /// <summary>The text of the game pill: FPS of the game in front (when we may read it) and the load.</summary>
+    private int? _demoFps;
+
     private string GameStatsText(SystemStats.Snapshot s)
     {
+        if (_liveDemo && _demoFps is int df)
+        {
+            var r = Random.Shared;
+            return $"{df + r.Next(-4, 4)} FPS · CPU {38 + r.Next(-4, 5)}% · GPU {88 + r.Next(-3, 4)}%";
+        }
         int? fps = null;
         var fg = Native.GetForegroundWindow();
         if (_fps.Running && fg != IntPtr.Zero && Native.GetWindowThreadProcessId(fg, out var pid) != 0)

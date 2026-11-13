@@ -141,12 +141,12 @@ public partial class MainWindow
             if (on)
             {
                 scale.BeginAnimation(ScaleTransform.ScaleYProperty,
-                    new DoubleAnimation(0.25, 1.0, TimeSpan.FromMilliseconds(_rng.Next(280, 560)))
+                    Slow(new DoubleAnimation(0.25, 1.0, TimeSpan.FromMilliseconds(_rng.Next(280, 560)))
                     {
                         AutoReverse = true,
                         RepeatBehavior = RepeatBehavior.Forever,
                         EasingFunction = new SineEase(),
-                    });
+                    }, 30));
             }
             else
             {

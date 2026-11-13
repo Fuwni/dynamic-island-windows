@@ -173,14 +173,17 @@ public partial class MainWindow
         _slowCount++;
         FocusMode.Tick();
         _downloads.Poll();
-        _privacy = _demoMedia != null ? new([], []) : PrivacyMonitor.Read(); // demo shows nothing real
+        if (_slowCount % 2 == 0 || _demoMedia != null)
+            _privacy = _demoMedia != null ? new([], []) : PrivacyMonitor.Read(); // demo shows nothing real
 
         // forgotten paused media disappears after a while
         if (_lastMedia != null && PausedTooLong) UpdateMediaUi();
 
         // Discord call: Discord has a live microphone stream open (not just an old Windows record)
-        _discordInCall = Process.GetProcessesByName("Discord").Length > 0 &&
-                         _audio.AppsRecording().Any(a => a.Contains("discord", StringComparison.OrdinalIgnoreCase));
+        // listing every process is not free: look for Discord every 3 s
+        if (_slowCount % 3 == 0 || _discordInCall)
+            _discordInCall = _audio.AppsRecording().Any(a => a.Contains("discord", StringComparison.OrdinalIgnoreCase)) &&
+                             Process.GetProcessesByName("Discord").Length > 0;
         _discordSpeaking = _discordInCall && _audio.AppState("discord").Peak > 0.03;
         if (_liveDemo) _discordInCall = _discordSpeaking = _demoDiscord;
 

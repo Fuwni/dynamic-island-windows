@@ -22,6 +22,30 @@ public partial class MainWindow
         return Views.CharacterMood.Idle;
     }
     private bool _chatStarting;
+    private bool _chatHostHooked;
+    private DateTime _chatSeenAt = DateTime.Now;
+    private readonly System.Windows.Threading.DispatcherTimer _chatIdleTimer = new() { Interval = TimeSpan.FromMinutes(1) };
+
+    /// <summary>
+    /// The embedded browser takes several hundred MB. After 10 minutes away from the chat it is closed
+    /// (the login stays: cookies are on disk) and opens again the next time you look at the chat.
+    /// </summary>
+    private void ReleaseIdleChat()
+    {
+        if (_chat == null || _chatStarting) return;
+        if (_mode == Mode.Expanded && TabChat.IsChecked == true) { _chatSeenAt = DateTime.Now; return; }
+        if (DateTime.Now - _chatSeenAt < TimeSpan.FromMinutes(10)) return;
+        var chat = _chat;
+        _chat = null;
+        try
+        {
+            ChatHost.Children.Remove(chat);
+            chat.Dispose();
+        }
+        catch { }
+        ChatPlaceholder.Visibility = Visibility.Visible;
+        _chatIdleTimer.Stop();
+    }
 
     private static string ChatUrl(string provider) => provider switch
     {
@@ -39,8 +63,15 @@ public partial class MainWindow
 
     private async Task EnsureChatAsync()
     {
+        _chatSeenAt = DateTime.Now;
         if (_chat != null || _chatStarting) return;
         _chatStarting = true;
+        if (!_chatIdleTimer.IsEnabled)
+        {
+            _chatIdleTimer.Tick -= ChatIdleTick;
+            _chatIdleTimer.Tick += ChatIdleTick;
+            _chatIdleTimer.Start();
+        }
 
         (_settings.ChatProvider switch
         {
@@ -61,8 +92,12 @@ public partial class MainWindow
             // composition control renders inside our transparent window (the classic one can't)
             _chat = new WebView2CompositionControl { Visibility = Visibility.Hidden };
             ChatHost.Children.Add(_chat);
-            ChatHost.SizeChanged += (_, _) =>
-                ChatHost.Clip = new RectangleGeometry(new Rect(0, 0, ChatHost.ActualWidth, ChatHost.ActualHeight), 19, 19);
+            if (!_chatHostHooked)
+            {
+                _chatHostHooked = true;
+                ChatHost.SizeChanged += (_, _) =>
+                    ChatHost.Clip = new RectangleGeometry(new Rect(0, 0, ChatHost.ActualWidth, ChatHost.ActualHeight), 19, 19);
+            }
 
             await _chat.EnsureCoreWebView2Async(env);
             var core = _chat.CoreWebView2;
@@ -123,6 +158,8 @@ public partial class MainWindow
         }
         finally { _chatStarting = false; }
     }
+
+    private void ChatIdleTick(object? sender, EventArgs e) => ReleaseIdleChat();
 
     private void ChatProvider_Checked(object sender, RoutedEventArgs e)
     {

@@ -18,6 +18,8 @@ public partial class MainWindow
     private readonly DispatcherTimer _controlTimer = new() { Interval = TimeSpan.FromSeconds(3) };
     private readonly Dictionary<string, (Border Circle, TextBlock Sub, Color On)> _toggles = [];
     private bool _controlBusy;
+    /// <summary>Demo / recording: made-up states, and clicks never touch the real radios, VPN or power.</summary>
+    private readonly Dictionary<string, bool> _demoToggles = new() { ["wifi"] = true, ["bt"] = true, ["air"] = false, ["vpn"] = false, ["clean"] = false };
 
     private void InitControlCenter()
     {
@@ -81,6 +83,13 @@ public partial class MainWindow
             if (_controlBusy) return;
             _controlBusy = true;
             Squeeze(circle);
+            if (Settings.ReadOnly)
+            {
+                if (_demoToggles.TryGetValue(id, out var was)) _demoToggles[id] = !was;
+                _controlBusy = false;
+                await RefreshControlsAsync();
+                return;
+            }
             try { await click(); }
             catch (Exception e) { Log.Write($"control {id}: {e.Message}"); }
             finally { _controlBusy = false; }
@@ -97,7 +106,7 @@ public partial class MainWindow
         content.Children.Add(new TextBlock { Text = glyph, FontFamily = (FontFamily)FindResource("IconFont"), FontSize = 12, Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center });
         content.Children.Add(new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center });
         b.Content = content;
-        b.Click += (_, _) => click();
+        b.Click += (_, _) => { if (!Settings.ReadOnly) click(); };
         PowerButtons.Children.Add(b);
     }
 
@@ -129,6 +138,17 @@ public partial class MainWindow
 
     private async Task RefreshControlsAsync()
     {
+        if (Settings.ReadOnly)
+        {
+            string OnOff(string id) => _demoToggles[id] ? L.T("вкл.") : L.T("выкл.");
+            Paint("wifi", _demoToggles["wifi"], _demoToggles["wifi"] ? D("Дом 5G", "Home 5G") : L.T("выкл."));
+            Paint("bt", _demoToggles["bt"], OnOff("bt"));
+            Paint("air", _demoToggles["air"], OnOff("air"));
+            Paint("vpn", _demoToggles["vpn"], _demoToggles["vpn"] ? D("Рабочий", "Work") : L.T("выкл."));
+            Paint("clean", _demoToggles["clean"], OnOff("clean"));
+            BatteryLine.Visibility = Visibility.Collapsed;
+            return;
+        }
         var wifi = await ControlCenter.IsOnAsync(RadioKind.WiFi);
         var net = ControlCenter.NetworkName();
         Paint("wifi", wifi, wifi == null ? L.T("нет адаптера") : wifi == true ? net ?? L.T("не подключено") : L.T("выкл."));

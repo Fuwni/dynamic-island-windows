@@ -21,6 +21,19 @@
               Opacity="0.85"/>
     </Grid>
 
+    <!-- The island's shadow, drawn apart from the island and kept as a cached picture: the character and
+         the clock can change inside the island without the shadow (a big blur) being computed again. -->
+    <Canvas x:Name="ShadowHost" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Top"
+            Width="200" Height="36" Margin="0,8,0,0" RenderTransformOrigin="0.5,0"
+            Opacity="{Binding Opacity, ElementName=Island}" Visibility="{Binding Visibility, ElementName=Island}">
+      <Canvas.CacheMode><BitmapCache/></Canvas.CacheMode>
+      <Path x:Name="IslandShadowPath" Fill="Black">
+        <Path.Effect>
+          <DropShadowEffect x:Name="IslandShadow" BlurRadius="34" ShadowDepth="6" Opacity="0.38" Color="Black" Direction="270"/>
+        </Path.Effect>
+      </Path>
+    </Canvas>
+
     <!-- The island. Its body is a Path rebuilt every frame while it moves, so the outline can ripple like liquid. -->
     <Border x:Name="Island"
             Background="Transparent"
@@ -40,9 +53,6 @@
           <TranslateTransform x:Name="IslandShift"/>
         </TransformGroup>
       </Border.RenderTransform>
-      <Border.Effect>
-        <DropShadowEffect BlurRadius="34" ShadowDepth="6" Opacity="0.38" Color="Black" Direction="270"/>
-      </Border.Effect>
       <Border.ContextMenu>
         <ContextMenu x:Name="IslandMenu">
           <MenuItem Header="Спрятать (смахнуть вверх)" Click="HideIsland_Click"/>
@@ -60,6 +70,7 @@
       <Canvas IsHitTestVisible="False">
         <!-- frosted glass: what's behind the island, blurred, clipped to its shape -->
         <Canvas x:Name="FrostHost" Visibility="Collapsed">
+          <Canvas.CacheMode><BitmapCache/></Canvas.CacheMode>
           <Image x:Name="Frost" Stretch="Fill">
             <Image.Effect>
               <BlurEffect Radius="36" KernelType="Gaussian" RenderingBias="Performance"/>
@@ -1014,7 +1025,7 @@
                     </StackPanel>
                   </DockPanel>
                 </Border>
-                <Border Style="{StaticResource Tile}" Margin="0,0,0,10">
+                <Border x:Name="UpdatesTile" Style="{StaticResource Tile}" Margin="0,0,0,10">
                   <StackPanel>
                     <DockPanel>
                       <Button x:Name="UpdateButton" DockPanel.Dock="Right" Style="{StaticResource AccentPill}" Padding="14,7"
@@ -1057,7 +1068,7 @@
                         <TextBlock Text="Выровнять по центру" VerticalAlignment="Center"/>
                       </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource DangerPill}" HorizontalAlignment="Left" Margin="0,10,0,0" Padding="14,7"
+                    <Button x:Name="UninstallButton" Style="{StaticResource DangerPill}" HorizontalAlignment="Left" Margin="0,10,0,0" Padding="14,7"
                             Click="Uninstall_Click" ToolTip="Удалить приложение, автозапуск и хуки Claude Code">
                       <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE74D;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>

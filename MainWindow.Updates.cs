@@ -21,6 +21,7 @@ public partial class MainWindow
     private void InitUpdates()
     {
         AutoUpdateSwitch.IsChecked = _settings.AutoUpdateCheck;
+        if (AppPackage.IsPackaged) { UpdatesTile.Visibility = Visibility.Collapsed; return; }   // the Store updates it
         RefreshUpdateUi();
         if (IsToolRun) return;   // no network checks while filming or rendering
         _updateTimer.Tick += async (_, _) => await CheckForUpdatesAsync(manual: false);

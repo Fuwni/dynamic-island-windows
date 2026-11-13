@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using DynamicIsland.Services;
@@ -15,8 +16,13 @@ namespace DynamicIsland;
 /// </summary>
 public partial class MainWindow
 {
-    private readonly DispatcherTimer _frostTimer = new() { Interval = TimeSpan.FromMilliseconds(650) };
-    private const double FrostHalfWidth = 380, FrostHeight = 600;
+    private readonly DispatcherTimer _frostTimer = new() { Interval = TimeSpan.FromMilliseconds(700) };
+    private const double FrostMargin = 28;      // a little of the screen around the island, for the blur to pull in
+    private double _frostHalf = 200, _frostHeight = 80;
+    private WriteableBitmap? _frostBmp;
+    private byte[]? _frostPixels;
+    private long _frostSig;
+    private int _frostSkips;
     private LinearGradientBrush? _auraBrush;
 
     public static readonly (string Id, string Name, string[] Colors)[] Auras =
@@ -86,17 +92,38 @@ public partial class MainWindow
     {
         if (!_settings.Glass || _hidden || _fullscreenHidden || !IsLoaded || !Island.IsVisible) return;
         if (_dragging || _posActive) { FrostHost.Opacity = 0; return; }
+        // the folded pill is nearly opaque: refreshing what's behind it every few seconds is plenty
+        if (_mode == Mode.Compact && ++_frostSkips % 8 != 0 && _frostBmp != null) return;
         try
         {
+            // only the island and a thin margin, at a quarter of the resolution (it is blurred anyway),
+            // into one reused bitmap - no new image (and no garbage) every time
+            double half = Island.ActualWidth / 2 + FrostMargin, height = Island.ActualHeight + FrostMargin;
             var top = Island.PointToScreen(new Point(Island.ActualWidth / 2, 0));
             double dpi = Dpi;
-            var rect = new Drawing.Rectangle(
-                (int)(top.X - FrostHalfWidth * dpi), (int)top.Y,
-                (int)(FrostHalfWidth * 2 * dpi), (int)(FrostHeight * dpi));
-            // plain BitBlt leaves layered windows (the island itself) out of the picture
-            Frost.Source = CaptureService.CaptureRect(rect);
-            Frost.Width = FrostHalfWidth * 2;
-            Frost.Height = FrostHeight;
+            var rect = new Drawing.Rectangle((int)(top.X - half * dpi), (int)top.Y, (int)(half * 2 * dpi), (int)(height * dpi));
+            int w = Math.Max(1, rect.Width / 4), h = Math.Max(1, rect.Height / 4);
+            var px = CaptureService.CaptureSmall(rect, w, h, _frostPixels);
+            if (px == null) return;
+            _frostPixels = px;
+
+            long sig = w * 73856093L ^ h * 19349663L;
+            for (int i = 0; i < px.Length; i += 16) sig = sig * 31 + px[i] + (px[i + 1] << 8) + (px[i + 2] << 16);
+            bool sizeChanged = _frostBmp == null || _frostBmp.PixelWidth != w || _frostBmp.PixelHeight != h;
+            if (!sizeChanged && sig == _frostSig && Math.Abs(half - _frostHalf) < 0.5 && Math.Abs(height - _frostHeight) < 0.5) return;   // nothing changed behind
+            _frostSig = sig;
+
+            if (sizeChanged)
+            {
+                _frostBmp = new WriteableBitmap(w, h, 96, 96, PixelFormats.Bgr32, null);
+                Frost.Source = _frostBmp;
+            }
+            _frostBmp!.WritePixels(new Int32Rect(0, 0, w, h), px, w * 4, 0);
+            _frostHalf = half;
+            _frostHeight = height;
+            Frost.Width = half * 2;
+            Frost.Height = height;
+            Canvas.SetLeft(Frost, Island.ActualWidth / 2 - half);
             if (FrostHost.Opacity < 1) FrostHost.BeginAnimation(OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(250)));
         }
         catch { }
@@ -105,8 +132,15 @@ public partial class MainWindow
     /// <summary>Called whenever the outline changes: keep frost and aura glued to the shape.</summary>
     private void ShapeChanged(Geometry g, double width)
     {
+        // the shadow follows the outline; only the part outside the island is drawn
+        IslandShadowPath.Data = g;
+        ShadowHost.Width = width;
+        ShadowHost.Height = Math.Max(1, Island.Height);
+        var outside = new CombinedGeometry(GeometryCombineMode.Exclude, new RectangleGeometry(new Rect(-200, -200, width + 400, Island.Height + 400)), g);
+        outside.Freeze();
+        ShadowHost.Clip = outside;
         FrostHost.Clip = g;
-        Canvas.SetLeft(Frost, width / 2 - FrostHalfWidth);
+        Canvas.SetLeft(Frost, width / 2 - _frostHalf);
         Canvas.SetTop(Frost, 0);
         AuraHost.Clip = g;
         AuraFill.Width = width;
@@ -136,8 +170,9 @@ public partial class MainWindow
             brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(cols[i]), (double)i / (cols.Length - 1)));
         var shift = new TranslateTransform();
         brush.RelativeTransform = shift;
-        shift.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(0, 0.5, TimeSpan.FromSeconds(4)) { RepeatBehavior = RepeatBehavior.Forever });
+        shift.BeginAnimation(TranslateTransform.XProperty, Slow(new DoubleAnimation(0, 0.5, TimeSpan.FromSeconds(4)) { RepeatBehavior = RepeatBehavior.Forever }));
         _auraBrush = brush;
+        _auraPaused = false;
 
         // light rises from the bottom edge and dies out before the middle
         var mask = new LinearGradientBrush { StartPoint = new Point(0.5, 0), EndPoint = new Point(0.5, 1) };
@@ -156,10 +191,10 @@ public partial class MainWindow
         AuraLine.Stroke = brush;
         AuraLine.OpacityMask = lineMask;
         // slow breathing
-        AuraFill.BeginAnimation(OpacityProperty, new DoubleAnimation(0.45, 0.9, TimeSpan.FromSeconds(3))
+        AuraFill.BeginAnimation(OpacityProperty, Slow(new DoubleAnimation(0.45, 0.9, TimeSpan.FromSeconds(3))
         {
             AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
-        });
+        }));
         UpdateAuraVisibility();
     }
 
@@ -170,15 +205,36 @@ public partial class MainWindow
     {
         if (_settings.Character is not ("claude" or "clawd") || !_settings.ClaudeGlow || thinking == _auraThinking) return;
         _auraThinking = thinking;
-        AuraFill.BeginAnimation(OpacityProperty, new DoubleAnimation(thinking ? 0.5 : 0.45, thinking ? 1 : 0.9, TimeSpan.FromSeconds(thinking ? 0.8 : 3))
+        AuraFill.BeginAnimation(OpacityProperty, Slow(new DoubleAnimation(thinking ? 0.5 : 0.45, thinking ? 1 : 0.9, TimeSpan.FromSeconds(thinking ? 0.8 : 3))
         {
             AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
-        });
+        }));
     }
+
+    /// <summary>
+    /// Endless animations make WPF redraw the whole window at 60 fps for as long as they run. A soft,
+    /// blurred glow looks the same at 15 frames a second for a quarter of the work.
+    /// </summary>
+    private static T Slow<T>(T timeline, int fps = 12) where T : Timeline
+    {
+        Timeline.SetDesiredFrameRate(timeline, fps);
+        return timeline;
+    }
+
+    private bool _auraPaused;
 
     private void UpdateAuraVisibility()
     {
-        bool show = _auraBrush != null && _mode == Mode.Compact && !_recording.IsRecording;
+        // never over a game or a full-screen video: the glow would cost frames there
+        bool show = _auraBrush != null && _mode == Mode.Compact && !_recording.IsRecording && !_gameMode && !_fullscreenHidden && !_hidden;
+        if (show && _auraPaused) { _auraPaused = false; SetupAura(); return; }   // starts the glow again
+        if (!show && _auraBrush != null && !_auraPaused)
+        {
+            // a hidden glow still ticks its animations (and WPF keeps drawing): stop them
+            _auraPaused = true;
+            AuraFill.BeginAnimation(OpacityProperty, null);
+            (_auraBrush.RelativeTransform as TranslateTransform)?.BeginAnimation(TranslateTransform.XProperty, null);
+        }
         var v = show ? Visibility.Visible : Visibility.Collapsed;
         if (AuraLine.Visibility == v) return;
         AuraLine.Visibility = AuraHost.Visibility = v;

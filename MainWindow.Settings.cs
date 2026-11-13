@@ -201,6 +201,7 @@ public partial class MainWindow
         HoverSwitch.IsChecked = _settings.ExpandOnHover;
         FullscreenSwitch.IsChecked = _settings.HideInFullscreen;
         AutostartSwitch.IsChecked = Autostart.IsEnabled;
+        if (AppPackage.IsPackaged) UninstallButton.Visibility = Visibility.Collapsed;   // Store apps are removed in Windows Settings
         CommandBox.Text = _settings.Command;
         TranslateBox.Text = _settings.TranslateTo;
         RecSysSwitch.IsChecked = _settings.RecordSystemAudio;

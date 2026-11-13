@@ -13,7 +13,7 @@ namespace DynamicIsland;
 ///   idle on|off · music · timer &lt;min&gt; · timer off · download · discord on|off · message &lt;who&gt;|&lt;text&gt;
 ///   cmd &lt;text&gt; · cmd off · char &lt;id&gt; · emote &lt;name&gt; · typing on|off · claude-ask · claude-done
 ///   expand &lt;tab&gt; · compact · aura &lt;id&gt; · sketch on|off · dock on|off · hover on|off
-///   clock HH:mm|off · sleep on|off · game on|off · remind <text> · pomodoro · quit
+///   clock HH:mm|off · sleep on|off · game on|off · remind <text> · pomodoro · appsearch <text>|off · fps <n>|off · quit
 /// </summary>
 public partial class MainWindow
 {
@@ -28,6 +28,14 @@ public partial class MainWindow
         _fakeCursor = null;               // the real cursor drives the island
         _demoIdle = true;
         _settings.Aura = "none";
+        _settings.DockApps =
+        [
+            @"C:\Windows\explorer.exe",
+            @"shell:AppsFolder\MSEdge",
+            @"shell:AppsFolder\SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify",
+            @"shell:AppsFolder\TelegramMessengerLLP.TelegramDesktop_t4vj0pshhgkwm!Telegram.TelegramDesktop.Store",
+            @"shell:AppsFolder\com.squirrel.Discord.Discord",
+        ];
         file = Path.GetFullPath(file);
         File.WriteAllText(file, "");
         long read = 0;
@@ -166,6 +174,25 @@ public partial class MainWindow
                 break;
             case "hover":   // off: a click opens it, and a click on the character makes it emote
                 _settings.ExpandOnHover = arg != "off";
+                break;
+            case "appsearch":   // appsearch <text> · appsearch off
+                if (arg == "off") { await ToggleAppSearch(false); break; }
+                AppSearchBox.Text = "";
+                await ToggleAppSearch(true);
+                await Task.Delay(350);
+                foreach (var ch in arg)
+                {
+                    AppSearchBox.Text += ch;
+                    AppSearchBox.CaretIndex = AppSearchBox.Text.Length;
+                    await Task.Delay(110 + Random.Shared.Next(80));
+                }
+                break;
+            case "update":   // update 1.4.0: the notice users of an older version get
+                ShowToast("", L.F("Доступна версия {0}", arg), L.T("Нажмите, чтобы обновить"), null,
+                    (Brush)FindResource("AccentBlue"), ms: 5000);
+                break;
+            case "fps":   // fps 144 · fps off (the game pill)
+                _demoFps = arg == "off" ? null : int.Parse(arg);
                 break;
             case "quit":
                 Application.Current.Shutdown();

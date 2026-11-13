@@ -78,10 +78,15 @@ public sealed class CharacterView : FrameworkElement
     }
 
     private double _real;
+    private double _sinceDraw, _drawnLookX, _drawnLookY;
     private int _frame = -1;
+
+    /// <summary>Performance test only: stop drawing.</summary>
+    public static bool PerfFreeze;
 
     public void Tick(double dt)
     {
+        if (PerfFreeze) return;
         _real += dt;
         // hand-drawn mode animates "on twos": the picture changes 12 times a second, not 30
         double t = Sketch ? Math.Floor(_real * 12) / 12 : _real;
@@ -107,6 +112,17 @@ public sealed class CharacterView : FrameworkElement
         int frame = (int)Math.Floor(_real * 12);
         if (Sketch && frame == _frame && !changed) return;   // hold the drawing
         _frame = frame;
+
+        // a calm character breathes slowly: 15 redraws a second are enough, 8 while asleep.
+        // Anything lively (an emotion, a jump, music, the eyes following the cursor) gets the full 30.
+        _sinceDraw += dt;
+        bool lively = _emoteLeft > 0 || _happy > 0 || !_jump.IsSettled || _blink > 0 || Mood == CharacterMood.Music
+                      || Math.Abs(_lookX - _drawnLookX) > 0.015 || Math.Abs(_lookY - _drawnLookY) > 0.015 || _beat > 0.02;
+        double interval = lively ? 0 : Mood == CharacterMood.Sleep ? 1 / 8.0 : 1 / 15.0;
+        if (_sinceDraw + 1e-6 < interval) return;
+        _sinceDraw = 0;
+        _drawnLookX = _lookX;
+        _drawnLookY = _lookY;
         InvalidateVisual();
     }
 

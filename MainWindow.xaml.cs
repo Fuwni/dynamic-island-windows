@@ -50,6 +50,7 @@ public partial class MainWindow : Window
     public MainWindow(string[] args)
     {
         InitializeComponent();
+        ShadowHost.RenderTransform = Island.RenderTransform;   // the shadow moves, squashes and bounces with the island
         Services.Loc.TranslateTree(this);
         if (ContextMenu != null) Services.Loc.TranslateTree(ContextMenu);
 
@@ -98,6 +99,7 @@ public partial class MainWindow : Window
 
         OnTick();
         _tick.Start();
+        _ = Dispatcher.InvokeAsync(ShrinkWindowToPill, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         _gaze.Start();
         _watch.Start();
         ScheduleBlink();
@@ -133,6 +135,34 @@ public partial class MainWindow : Window
             {
                 await Task.Delay(1500);
                 if (action.StartsWith("lang:")) { SwitchLanguage(action[5..]); return; }   // test the language switch
+                if (action == "perf")   // test: what the idle island costs, switching parts off one by one (nothing is saved)
+                {
+                    Settings.ReadOnly = true;
+                    var me = System.Diagnostics.Process.GetCurrentProcess();
+                    Log.Write($"perf: render tier {System.Windows.Media.RenderCapability.Tier >> 16}, window {Width}x{Height}");
+                    async Task Phase(string name)
+                    {
+                        await Task.Delay(2000);
+                        me.Refresh(); var c0 = me.TotalProcessorTime; var t0 = DateTime.Now;
+                        await Task.Delay(10000);
+                        me.Refresh();
+                        Log.Write($"perf: {name}: {(me.TotalProcessorTime - c0).TotalMilliseconds / (DateTime.Now - t0).TotalMilliseconds * 100:0.0}% of one core");
+                    }
+                    await Task.Delay(8000);
+                    await Phase("everything on");
+                    _settings.Aura = "none"; _settings.ClaudeGlow = false; SetupAura();
+                    await Phase("aura off");
+                    Views.CharacterView.PerfFreeze = true;
+                    await Phase("character still");
+                    _settings.Glass = false; ApplyGlass(); FrostHost.Visibility = Visibility.Collapsed;
+                    await Phase("+ no frosted glass");
+                    ShadowHost.Visibility = Visibility.Collapsed; ShadowHost.SetBinding(VisibilityProperty, new System.Windows.Data.Binding());
+                    await Phase("+ no shadow");
+                    Island.Visibility = Visibility.Hidden;
+                    await Phase("+ island hidden");
+                    Application.Current.Shutdown();
+                    return;
+                }
                 if (action == "fps-test")   // test: can we read frame events, and how many frames does the island itself show
                 {
                     var ok = _fps.Start();
@@ -264,6 +294,7 @@ public partial class MainWindow : Window
     private void ApplyDock(bool animate)
     {
         Island.Margin = new Thickness(0, IslandTopMargin, 0, 0);
+        ShadowHost.Margin = Island.Margin;
         if (_settings.Docked && !_hidden) MoveWindow(Left, MonitorTop());
         if (Island.ActualWidth > 0) Island_SizeChanged(this, null!);
         UpdateShape(false);
@@ -348,11 +379,35 @@ public partial class MainWindow : Window
             CompositionTarget.Rendering -= OnRendering;
             _rendering = false;
             UpdateShape(false);
+            ShrinkWindowToPill();
+            _frostSkips = 3;          // the next frost tick refreshes even when folded
+            Dispatcher.InvokeAsync(CaptureFrost, System.Windows.Threading.DispatcherPriority.Background);
         }
+    }
+
+    // ---------------------------------------------------------------- window size
+    // A see-through (layered) window is copied in full every time anything in it moves, so its size is
+    // what the island costs. Folded, the window is only a little taller than the pill (room for the
+    // shadow, the glow and the bulge); it grows to full size before the island opens.
+    private const double FullWindowHeight = 720, PillRoom = 150;
+    private bool SmallWindowMode => _mode is Mode.Compact or Mode.Toast;
+
+    private void GrowWindowFor(Size size)
+    {
+        if (!SmallWindowMode || IslandTopMargin + size.Height + PillRoom > Height)
+            if (Height < FullWindowHeight) Height = FullWindowHeight;
+    }
+
+    private void ShrinkWindowToPill()
+    {
+        if (!SmallWindowMode || _dragging) return;
+        double h = Math.Min(FullWindowHeight, Math.Ceiling(IslandTopMargin + Math.Max(Island.Height, _h.Target) + PillRoom));
+        if (Math.Abs(Height - h) > 1) Height = h;
     }
 
     private void MorphTo(Size size)
     {
+        GrowWindowFor(size);
         // calm mode: near-critical damping, the size glides without bouncing
         _w.Damping = _h.Damping = Liquid ? 23 : _settings.Bouncy ? 25 : 31;   // "springy": a small overshoot
         _w.Stiffness = _h.Stiffness = _settings.FastAnimations ? 560 : 340;
@@ -722,6 +777,7 @@ public partial class MainWindow : Window
         if (_hidden && animate) return;
         if (_mode != Mode.Compact && _mode != Mode.Claude) SetMode(Mode.Compact);
         _hidden = true;
+        UpdateAuraVisibility();
         _posActive = false;
         _settings.Hidden = true;
         if (Top > SystemParameters.VirtualScreenTop + 1) _settings.Top = Top; // remember where it was
@@ -755,6 +811,7 @@ public partial class MainWindow : Window
     {
         if (!_hidden) return;
         _hidden = false;
+        UpdateAuraVisibility();
         _settings.Hidden = false;
         _settings.Save();
 
@@ -849,6 +906,7 @@ public partial class MainWindow : Window
         if (fs != _fullscreenHidden)
         {
             _fullscreenHidden = fs;
+            UpdateAuraVisibility();
             if (fs)
             {
                 Root.IsHitTestVisible = false;
@@ -890,7 +948,7 @@ public partial class MainWindow : Window
         if (_tickCount % 4 == 0)
         {
             SlowTick();
-            _media.PollLegacy();
+            if (_tickCount % 8 == 0) _media.PollLegacy();
             if (_mode == Mode.Expanded && TabMusic.IsChecked == true && !VolumeSlider.IsMouseCaptureWithin) RefreshVolume();
         }
     }
@@ -910,12 +968,25 @@ public partial class MainWindow : Window
     private Native.POINT? _fakeCursor;
 
     /// <summary>~30 times a second: drive the character and the pill's reaction to the cursor.</summary>
+    private readonly Dictionary<Views.CharacterView, (Point Center, long Tick)> _charCenters = [];
+    private long _gazeTicks;
+    private DateTime _gazeAt = DateTime.Now;
+
     private void UpdateGaze()
     {
         if (!IsLoaded || _hidden || _fullscreenHidden) return;
+        _gazeTicks++;
         Native.GetCursorPos(out var cursor);
         if (_fakeCursor is Native.POINT fake) cursor = fake;   // screenshots / tests
         CheckClickOutside(cursor);
+        if (_mode == Mode.Compact && !_rendering && _gazeTicks % 3 != 0)
+        {
+            double dx = cursor.X - (Left + Width / 2) * Dpi, dy = cursor.Y - Top * Dpi;
+            if (dx * dx + dy * dy > 420 * 420) return;
+        }
+        var gazeNow = DateTime.Now;
+        double gazeDt = Math.Clamp((gazeNow - _gazeAt).TotalSeconds, 0.001, 0.15);   // real time since the last frame
+        _gazeAt = gazeNow;
         bool playing = _lastMedia?.IsPlaying == true;
         double beat = playing ? Math.Min(1, _audio.Peak * 1.6) : 0;
         var mood = _demoSleep || (_demoMedia == null && Native.IdleSeconds() > 120) ? Views.CharacterMood.Sleep
@@ -925,16 +996,20 @@ public partial class MainWindow : Window
         void Drive(Views.CharacterView ch, Views.CharacterMood? moodOverride = null)
         {
             if (!ch.IsVisible) return;
-            Point c;
-            try { c = ch.PointToScreen(new Point(ch.ActualWidth / 2, ch.ActualHeight / 2)); }
-            catch { return; }
+            if (!_charCenters.TryGetValue(ch, out var cached) || _gazeTicks - cached.Tick > 15 || _rendering)
+            {
+                try { cached = (ch.PointToScreen(new Point(ch.ActualWidth / 2, ch.ActualHeight / 2)), _gazeTicks); }
+                catch { return; }
+                _charCenters[ch] = cached;
+            }
+            var c = cached.Center;
             ch.LookX = Math.Clamp((cursor.X - c.X) / 170.0, -1, 1);
             ch.LookY = Math.Clamp((cursor.Y - c.Y) / 170.0, -1, 1);
             ch.Beat = beat;
             ch.Mood = moodOverride ?? mood;
             ch.Tint = _albumColor;
             ch.Sketch = _settings.HandDrawn;
-            ch.Tick(0.033);
+            ch.Tick(gazeDt);
         }
 
         if (_mode == Mode.Compact) Drive(Character);
@@ -1031,8 +1106,7 @@ public partial class MainWindow : Window
 
     private void ApplyThemeLocal()
     {
-        if (Island.Effect is System.Windows.Media.Effects.DropShadowEffect fx)
-            fx.Opacity = _settings.DarkTheme ? 0.38 : 0.18;
+        IslandShadow.Opacity = _settings.DarkTheme ? 0.38 : 0.18;
     }
 
     private void ToggleTheme_Click(object sender, RoutedEventArgs e) => ToggleTheme();

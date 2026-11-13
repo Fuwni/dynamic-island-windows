@@ -198,7 +198,7 @@ public partial class MainWindow
         }
         // a few apps on Home (settings are read-only here, nothing is saved)
         _settings.DockApps = [@"C:\Windows\explorer.exe", @"C:\Windows\System32\calc.exe", @"C:\Windows\System32\cmd.exe",
-                              @"C:\Windows\System32	askmgr.exe", Environment.ProcessPath!];
+                              @"C:\Windows\System32\taskmgr.exe", Environment.ProcessPath!];
         BuildApps();
         TabHome.IsChecked = true;
         await Task.Delay(2500);

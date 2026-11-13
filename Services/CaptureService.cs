@@ -61,6 +61,43 @@ public static class CaptureService
     }
 
     [DllImport("gdi32.dll")] private static extern bool DeleteObject(IntPtr h);
+    [DllImport("user32.dll")] private static extern IntPtr GetDC(IntPtr hwnd);
+    [DllImport("user32.dll")] private static extern int ReleaseDC(IntPtr hwnd, IntPtr dc);
+    [DllImport("gdi32.dll")] private static extern int SetStretchBltMode(IntPtr dc, int mode);
+    [DllImport("gdi32.dll")] private static extern bool StretchBlt(IntPtr dst, int x, int y, int w, int h, IntPtr src, int sx, int sy, int sw, int sh, int rop);
+
+    private static Drawing.Bitmap? _small;
+
+    /// <summary>
+    /// A screen area shrunk to (w, h) pixels, as BGRA bytes (reuses one buffer). For the frosted glass:
+    /// it's blurred anyway, so a quarter of the resolution looks the same and costs a fraction.
+    /// Plain StretchBlt leaves layered windows (the island itself) out of the picture.
+    /// </summary>
+    public static byte[]? CaptureSmall(Drawing.Rectangle r, int w, int h, byte[]? buffer)
+    {
+        if (w < 1 || h < 1 || r.Width < 1 || r.Height < 1) return null;
+        if (_small == null || _small.Width != w || _small.Height != h)
+        {
+            _small?.Dispose();
+            _small = new Drawing.Bitmap(w, h, Drawing.Imaging.PixelFormat.Format32bppRgb);
+        }
+        using (var g = Drawing.Graphics.FromImage(_small))
+        {
+            var dst = g.GetHdc();
+            var screen = GetDC(IntPtr.Zero);
+            try
+            {
+                SetStretchBltMode(dst, 4);   // HALFTONE: averages the pixels instead of skipping them
+                StretchBlt(dst, 0, 0, w, h, screen, r.Left, r.Top, r.Width, r.Height, 0x00CC0020);
+            }
+            finally { ReleaseDC(IntPtr.Zero, screen); g.ReleaseHdc(dst); }
+        }
+        if (buffer == null || buffer.Length != w * h * 4) buffer = new byte[w * h * 4];
+        var data = _small.LockBits(new Drawing.Rectangle(0, 0, w, h), Drawing.Imaging.ImageLockMode.ReadOnly, Drawing.Imaging.PixelFormat.Format32bppRgb);
+        try { for (int y = 0; y < h; y++) Marshal.Copy(data.Scan0 + y * data.Stride, buffer, y * w * 4, w * 4); }
+        finally { _small.UnlockBits(data); }
+        return buffer;
+    }
 
     public static BitmapSource Crop(BitmapSource src, Int32Rect rect)
     {

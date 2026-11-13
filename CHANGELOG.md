@@ -2,6 +2,23 @@
 
 All notable changes to Atoll (formerly "Dynamic Island for Windows"). Русская версия каждого пункта — ниже английской.
 
+## 1.4.1 — 2026-11-13
+
+- **Much lighter**: the idle island now uses about a quarter of the CPU it did (measured: ~28 % of one core → ~7 %).
+  - The window is only as tall as the folded pill, so Windows copies far fewer pixels on each frame.
+  - The glow animates at 12 frames a second instead of 60, and pauses in games, full-screen apps and when the island is hidden.
+  - The frosted glass captures only the area behind the island, at a quarter of the resolution, into one reused image, and only when the background changes.
+  - The shadow is a cached layer: the character and the clock no longer force the whole island to be blurred again.
+  - In games, GPU load is read with one query a second instead of hundreds.
+  - A calm character redraws 15 times a second (8 when asleep) instead of 30.
+  - The built-in chat browser closes after 10 minutes unused and frees its memory; your login stays.
+- **Microsoft Store version** (coming soon): installs without the blue "Windows protected your PC" warning; it updates through the Store and starts with Windows through the Store's own startup setting.
+- Privacy policy: [PRIVACY.md](PRIVACY.md).
+
+### По-русски
+- **Заметно легче**: в простое остров нагружает процессор примерно в 4 раза меньше (было ~28 % одного ядра, стало ~7 %). Свечение не работает поверх игр, стекло и тень больше не перерисовываются без нужды, чат освобождает память, если им не пользоваться.
+- **Версия для Microsoft Store** (скоро): ставится без синего предупреждения Windows.
+
 ## 1.4.0 — 2026-11-13
 
 - **Apps on Home**: a row of your favourite apps at the bottom of the open island. Press **+** and type a name to find any program, including Microsoft Store apps (Calculator, Spotify…). One click opens it; a dot shows what is running; right-click to open its folder or remove it.
