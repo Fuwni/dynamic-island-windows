@@ -36,7 +36,7 @@ public static class ClaudeHooks
     {
         try
         {
-            if (IsInstalled) File.Copy(Path.Combine(AppContext.BaseDirectory, "Assets", Marker), ScriptPath, overwrite: true);
+            if (IsInstalled || CodexHooks.IsInstalled) File.Copy(Path.Combine(AppContext.BaseDirectory, "Assets", Marker), ScriptPath, overwrite: true);
         }
         catch { }
     }

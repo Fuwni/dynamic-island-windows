@@ -18,6 +18,8 @@ public static class LegacyPlayers
     private const int AIMP_RA_WM_COMMAND = Native.WM_USER + 0x75;
     private const int AIMP_PLAYPAUSE = 14, AIMP_NEXT = 17, AIMP_PREV = 18;
 
+    private static readonly string[] YandexNames = ["Яндекс Музыка", "Yandex Music", "YandexMusic", "Y.Music"];
+
     private static IntPtr Winamp => Native.FindWindow("Winamp v1.x", null);
     private static IntPtr AimpRemote => Native.FindWindow("AIMP2_RemoteInfo", "AIMP2_RemoteInfo");
 
@@ -34,6 +36,26 @@ public static class LegacyPlayers
             {
                 var (artist, song) = Split(title);
                 return new Track("Winamp", artist, song, state == 1);
+            }
+        }
+
+        // Yandex Music for Windows doesn't always report to Windows media controls: read its window title
+        foreach (var name in YandexNames)
+        {
+            foreach (var p in Process.GetProcessesByName(name))
+            {
+                var title = p.MainWindowTitle.Trim();
+                if (title.Length == 0 || YandexNames.Any(n => title.Equals(n, StringComparison.OrdinalIgnoreCase)) ||
+                    title.StartsWith("Яндекс Музыка", StringComparison.OrdinalIgnoreCase) || title.StartsWith("Yandex Music", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                int cut = title.IndexOf(". Слушать", StringComparison.Ordinal);
+                if (cut > 0) title = title[..cut];
+                // "Track — Artist"
+                var i = title.IndexOf(" — ", StringComparison.Ordinal);
+                if (i < 0) i = title.IndexOf(" - ", StringComparison.Ordinal);
+                return i > 0
+                    ? new Track("Яндекс Музыка", title[(i + 3)..].Trim(), title[..i].Trim(), true)
+                    : new Track("Яндекс Музыка", "", title, true);
             }
         }
 

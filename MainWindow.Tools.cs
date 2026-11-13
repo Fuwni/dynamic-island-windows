@@ -127,8 +127,33 @@ public partial class MainWindow
         return pid == (uint)Environment.ProcessId;
     }
 
+    /// <summary>
+    /// Password managers (KeePass, Bitwarden, 1Password, Windows itself…) mark copied secrets as
+    /// "not for clipboard history / monitors". Such copies never enter the island's history.
+    /// </summary>
+    private static bool IsPrivateClip()
+    {
+        try
+        {
+            if (Clipboard.ContainsData("ExcludeClipboardContentFromMonitorProcessing")) return true;
+            if (Clipboard.ContainsData("Clipboard Viewer Ignore")) return true;
+            foreach (var f in new[] { "CanIncludeInClipboardHistory", "CanUploadToCloudClipboard" })
+            {
+                if (!Clipboard.ContainsData(f)) continue;
+                if (Clipboard.GetData(f) is System.IO.MemoryStream ms && ms.Length >= 4)
+                {
+                    var b = ms.ToArray();
+                    if (BitConverter.ToInt32(b, 0) == 0) return true;
+                }
+            }
+        }
+        catch { }
+        return false;
+    }
+
     private async void OnClipboardChanged()
     {
+        if (IsPrivateClip()) return;
         ClipItem? item = null;
         for (int attempt = 0; attempt < 3 && item == null; attempt++)
         {

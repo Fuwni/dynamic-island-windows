@@ -37,7 +37,7 @@ public partial class App : Application
         // "--lang de" previews another language without touching the saved setting
         int langArg = Array.IndexOf(e.Args, "--lang");
         Loc.Init(langArg >= 0 && langArg + 1 < e.Args.Length ? e.Args[langArg + 1] : settings.Language);
-        Theme.Apply(settings.DarkTheme, settings.IslandColor, settings.GlassOpacity);
+        Theme.Apply(settings.DarkTheme, settings.IslandColor, settings.GlassOpacity, settings.AccentColor);
 
         var window = new MainWindow(e.Args);
         MainWindow = window;

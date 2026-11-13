@@ -25,10 +25,17 @@ public sealed class Settings
     // look
     public bool DarkTheme { get; set; } = true;
     public string IslandColor { get; set; } = "#000000";
+    /// <summary>Accent colour of the chosen theme ("" = the default green).</summary>
+    public string AccentColor { get; set; } = "";
+    public string ThemeId { get; set; } = "";
+    /// <summary>Your own photo inside the island (a copy is kept in the settings folder).</summary>
+    public bool IslandPhoto { get; set; }
     /// <summary>1 = solid (readable). Kept for old settings files.</summary>
     public double GlassOpacity { get; set; } = 1;
     /// <summary>Jelly / ripple physics (off = calm, smooth animation).</summary>
     public bool LiquidWaves { get; set; }
+    /// <summary>How strong the live waves are, 10…100.</summary>
+    public int LiquidStrength { get; set; } = 60;
     /// <summary>Which creature lives in the pill (see CharacterView.All).</summary>
     public string Character { get; set; } = "eyes";
     /// <summary>Edge reaches for the cursor, breathes with music, glows on events.</summary>
@@ -39,6 +46,12 @@ public sealed class Settings
     public bool HandDrawn { get; set; }
     /// <summary>Frosted glass: the desktop behind the island, blurred, under a tint.</summary>
     public bool Glass { get; set; } = true;
+    /// <summary>Shortcut that opens / folds the island: "Ctrl+Alt+O", "Ctrl+Alt+A", "Alt+Q", "Ctrl+Shift+Space" or "" (off).</summary>
+    public string OpenHotkey { get; set; } = "Ctrl+Alt+O";
+    /// <summary>Tracks liked with the heart on the music page ("Artist — Title"), newest first.</summary>
+    public List<string> LikedTracks { get; set; } = [];
+    /// <summary>Light graphics for weak PCs: no frosted glass, glow, colour split or bulge. Null = decide by the hardware.</summary>
+    public bool? LiteGraphics { get; set; }
     /// <summary>Tint strength over the frosted glass, 20…100 %.</summary>
     public int GlassTint { get; set; } = 72;
     /// <summary>Lower half of the island fades to see-through.</summary>

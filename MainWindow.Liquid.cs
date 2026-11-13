@@ -29,7 +29,36 @@ public partial class MainWindow
     private double _audioLevel;
     private double _dripPhase;
 
-    private bool Liquid => _settings.LiquidWaves;
+    private bool Liquid => _settings.LiquidWaves && !Lite;
+    /// <summary>The waves slider: 1 at the default (60), from about 0.2 to 1.7.</summary>
+    private double LiquidK => Math.Clamp(_settings.LiquidStrength, 10, 100) / 60.0;
+
+    /// <summary>
+    /// Light graphics: on weak PCs every effect is a full redraw of a see-through window on the CPU.
+    /// Default: on when the graphics card is not fully accelerated or there are 4 logical cores or fewer.
+    /// </summary>
+    private bool Lite => _settings.LiteGraphics ?? (AutoLite || _slowPcSeen);
+
+    // the island watches its own animations: if many frames come late, light graphics switch on by themselves
+    private bool _slowPcSeen;
+    private int _animFrames, _animSlow;
+
+    private void CountAnimationFrame(double dt)
+    {
+        if (_settings.LiteGraphics != null || _slowPcSeen || _demoMedia != null) return;
+        _animFrames++;
+        if (dt > 0.028) _animSlow++;
+        if (_animFrames < 240) return;
+        if (_animSlow > _animFrames * 0.2)
+        {
+            _slowPcSeen = true;
+            Log.Write($"slow animations ({_animSlow}/{_animFrames} late frames): light graphics on");
+            ApplyGlass(); UpdateAuraVisibility();
+            ShowToast("", L.T("Включена облегчённая графика"), L.T("Анимации шли рывками — эффекты выключены для плавности. Вернуть: Настройки → Поведение."));
+        }
+        _animFrames = _animSlow = 0;
+    }
+    private static readonly bool AutoLite = (System.Windows.Media.RenderCapability.Tier >> 16) < 2 || Environment.ProcessorCount <= 4;
 
     // ---- reactive pill: the lower edge reaches for the cursor and breathes with the music ----
     private readonly Spring _reach = new(0) { Stiffness = 210, Damping = 17 };
@@ -77,8 +106,11 @@ public partial class MainWindow
     private Views.ChromaticEffect? _chromatic;
     private bool _chromaticTried;
 
+    private static bool PerfNoChromatic;
+
     private void PlayChromatic(double px = 7)
     {
+        if (Lite || PerfNoChromatic) return;
         if (!_chromaticTried)
         {
             _chromaticTried = true;
@@ -190,7 +222,7 @@ public partial class MainWindow
     public void Kick(double px)
     {
         if (!Liquid) return;
-        _ripple = Math.Min(7, _ripple + px);
+        _ripple = Math.Min(7 * LiquidK, _ripple + px * LiquidK);
         StartRendering();
     }
 
@@ -226,8 +258,12 @@ public partial class MainWindow
         {
             _px.Step(dt);
             _py.Step(dt);
-            Left = _px.Value;
-            Top = _py.Value;
+            if (_hwnd != IntPtr.Zero)
+            {
+                var dpi = VisualTreeHelper.GetDpi(this);
+                Native.MoveTo(_hwnd, (int)Math.Round(_px.Value * dpi.DpiScaleX), (int)Math.Round(_py.Value * dpi.DpiScaleY));
+            }
+            else { Left = _px.Value; Top = _py.Value; }
             if (!_dragging && _px.IsSettled && _py.IsSettled)
             {
                 _posActive = false;
@@ -250,7 +286,7 @@ public partial class MainWindow
         _lean.Step(dt);
         IslandShift.X = _lean.Value;
         bool shapeMoving = Liquid && (_ripple > 0 || playing || _audioLevel > 0);
-        bool reactive = _settings.Reactive && _mode == Mode.Compact &&
+        bool reactive = _settings.Reactive && !Lite && _mode == Mode.Compact &&
                         (playing || _audioLevel > 0 || !_reach.IsSettled || _reach.Value > 0.01 || !_lean.IsSettled);
         UpdateShape(shapeMoving);
 
@@ -291,7 +327,7 @@ public partial class MainWindow
 
         // reactive bulge of the lower edge: towards the cursor, or a gentle wandering swell with the music
         double bump = 0, bumpX = w / 2;
-        if (_settings.Reactive && _mode == Mode.Compact)
+        if (_settings.Reactive && !Lite && _mode == Mode.Compact)
         {
             if (_reach.Value > 0.01) bump = -1; // handled by FlowGeometry below
             else if (_audioLevel > 0.02) { bump = _audioLevel * 5.5; bumpX = w / 2 + Math.Sin(_dripPhase * 0.6) * w * 0.22; }
@@ -386,7 +422,7 @@ public partial class MainWindow
         double L = 2 * (W - 2 * R) + 2 * (H - 2 * R) + 2 * Math.PI * R;
         int waves = Math.Max(3, (int)Math.Round(L / 150));
         bool playing = _lastMedia?.IsPlaying == true;
-        double drip = playing ? 1.2 + _audioLevel * 9 : _audioLevel * 9;
+        double drip = (playing ? 1.2 + _audioLevel * 9 : _audioLevel * 9) * LiquidK;
         double s = 0;
 
         void Add(double x, double y, double nx, double ny, double ds, double bottomT = -1)

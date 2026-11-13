@@ -107,6 +107,7 @@ public partial class MainWindow
             if (_mode == Mode.Expanded && TabMusic.IsChecked == true) RefreshVolume();
         }
 
+        RefreshMusicExtras();
         UpdateProgress();
         UpdateLyricLine();
     }

@@ -50,6 +50,15 @@ public partial class MainWindow : Window
     public MainWindow(string[] args)
     {
         InitializeComponent();
+        _shrinkTimer.Tick += (_, _) => ShrinkNow();
+        // Esc folds the open island (when nothing inside used the key first, e.g. the app search)
+        KeyDown += (_, e) =>
+        {
+            if (e.Key != System.Windows.Input.Key.Escape || e.Handled || _mode != Mode.Expanded) return;
+            _pinnedOpen = false;
+            SetMode(Mode.Compact);
+            e.Handled = true;
+        };
         ShadowHost.RenderTransform = Island.RenderTransform;   // the shadow moves, squashes and bounces with the island
         Services.Loc.TranslateTree(this);
         if (ContextMenu != null) Services.Loc.TranslateTree(ContextMenu);
@@ -93,6 +102,7 @@ public partial class MainWindow : Window
         InitUpdates();
         InitControlCenter();
         InitApps();
+        ApplyPhoto();
         InitClaude();
         InitRecording();
         InitExtras();
@@ -135,6 +145,44 @@ public partial class MainWindow : Window
             {
                 await Task.Delay(1500);
                 if (action.StartsWith("lang:")) { SwitchLanguage(action[5..]); return; }   // test the language switch
+                if (action == "morph")   // test: how smooth opening / closing is (frames per second while the island moves)
+                {
+                    Settings.ReadOnly = true;
+                    var gaps = new List<double>(); TimeSpan last = default;
+                    EventHandler onFrame = (_, e2) => { var t = ((RenderingEventArgs)e2).RenderingTime; if (_rendering && last != default && t != last) gaps.Add((t - last).TotalMilliseconds); last = t; };
+                    async Task Run(string name)
+                    {
+                        gaps.Clear();
+                        CompositionTarget.Rendering += onFrame;
+                        for (int i = 0; i < 5; i++)
+                        {
+                            TabHome.IsChecked = true; _pinnedOpen = true; Expand(); await Task.Delay(900);
+                            _pinnedOpen = false; SetMode(Mode.Compact); await Task.Delay(900);
+                        }
+                        CompositionTarget.Rendering -= onFrame;
+                        var g = gaps.Where(x => x < 500).ToList();
+                        double avg = g.Count > 0 ? g.Average() : 0;
+                        Log.Write($"morph: {name}: {g.Count} frames, {1000 / Math.Max(1, avg):0} fps avg, worst {(g.Count > 0 ? g.Max() : 0):0} ms, slow (>20 ms) {g.Count(x => x > 20) * 100.0 / Math.Max(1, g.Count):0}%");
+                    }
+                    await Task.Delay(6000);
+                    await Run("as is");
+                    _settings.Glass = false; ApplyGlass(); FrostHost.Visibility = Visibility.Collapsed;
+                    await Run("no frost");
+                    _settings.Aura = "none"; _settings.ClaudeGlow = false; SetupAura();
+                    await Run("no frost, no glow");
+                    PerfNoResize = true; Height = FullWindowHeight;
+                    await Run("window not resized");
+                    PerfNoResize = false;
+                    PerfNoChromatic = true;
+                    await Run("no colour split");
+                    PerfNoChromatic = false;
+                    ShadowHost.Visibility = Visibility.Collapsed; ShadowHost.SetBinding(VisibilityProperty, new System.Windows.Data.Binding());
+                    await Run("no shadow");
+                    _settings.LiteGraphics = true; ApplyGlass();
+                    await Run("lite");
+                    Application.Current.Shutdown();
+                    return;
+                }
                 if (action == "perf")   // test: what the idle island costs, switching parts off one by one (nothing is saved)
                 {
                     Settings.ReadOnly = true;
@@ -236,6 +284,44 @@ public partial class MainWindow : Window
         if (!Native.RegisterHotKey(_hwnd, 5, Native.MOD_ALT | Native.MOD_NOREPEAT, 0x20))
             Log.Write("Alt+Space is taken by another program (use Ctrl+Alt+Space)");
         Native.RegisterHotKey(_hwnd, 6, mods, 0x20);
+        RegisterOpenHotkey();
+    }
+
+    // ---------------------------------------------------------------- open / fold the island from the keyboard
+
+    public static readonly (string Name, uint Mods, uint Vk)[] OpenHotkeys =
+    [
+        ("Ctrl+Alt+O", Native.MOD_CONTROL | Native.MOD_ALT, 0x4F),
+        ("Ctrl+Alt+A", Native.MOD_CONTROL | Native.MOD_ALT, 0x41),
+        ("Alt+Q", Native.MOD_ALT, 0x51),
+        ("Ctrl+Shift+Space", Native.MOD_CONTROL | 0x4, 0x20),
+    ];
+
+    /// <summary>Registers the chosen shortcut; false when another program already owns it.</summary>
+    private bool RegisterOpenHotkey()
+    {
+        if (_hwnd == IntPtr.Zero) return true;
+        Native.UnregisterHotKey(_hwnd, 7);
+        var hk = OpenHotkeys.FirstOrDefault(h => h.Name == _settings.OpenHotkey);
+        if (hk.Name == null) return true;   // off
+        bool ok = Native.RegisterHotKey(_hwnd, 7, hk.Mods | Native.MOD_NOREPEAT, hk.Vk);
+        if (!ok) Log.Write($"{hk.Name} is taken by another program");
+        return ok;
+    }
+
+    private void ToggleOpenFromKeyboard()
+    {
+        if (_mode == Mode.Expanded)
+        {
+            _pinnedOpen = false;
+            SetMode(Mode.Compact);
+            return;
+        }
+        if (_hidden) ShowIsland();
+        _pinnedOpen = true;   // stays open until the shortcut, Esc or a click elsewhere
+        GrowWindow();
+        Expand();
+        Activate();
     }
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -254,6 +340,7 @@ public partial class MainWindow : Window
                 case 3: RunAction("region"); break;
                 case 4: RunAction("record"); break;
                 case 5 or 6: ToggleCommandBar(); break;
+                case 7: ToggleOpenFromKeyboard(); break;
             }
             handled = true;
         }
@@ -266,7 +353,7 @@ public partial class MainWindow : Window
     {
         if (_shutDown) return;
         _shutDown = true;
-        for (int id = 1; id <= 6; id++) Native.UnregisterHotKey(_hwnd, id);
+        for (int id = 1; id <= 7; id++) Native.UnregisterHotKey(_hwnd, id);
         Native.RemoveClipboardFormatListener(_hwnd);
         ShutdownChat();
         _settings.Save();
@@ -365,6 +452,7 @@ public partial class MainWindow : Window
         double dt = _lastFrame == TimeSpan.Zero ? 1 / 60.0 : Math.Min(0.05, (now - _lastFrame).TotalSeconds);
         _lastFrame = now;
 
+        if (!_w.IsSettled || !_h.IsSettled) CountAnimationFrame(dt);
         _w.Step(dt);
         _h.Step(dt);
         _y.Step(dt);
@@ -373,6 +461,13 @@ public partial class MainWindow : Window
         IslandShift.Y = _y.Value;
 
         bool liquid = StepLiquid(dt);
+
+        // the size has arrived: fit the window to it now, even if the outline keeps moving with the music
+        if (!_windowFitted && _w.IsSettled && _h.IsSettled)
+        {
+            _windowFitted = true;
+            ShrinkWindowToPill();
+        }
 
         if (_w.IsSettled && _h.IsSettled && _y.IsSettled && !liquid)
         {
@@ -390,18 +485,43 @@ public partial class MainWindow : Window
     // what the island costs. Folded, the window is only a little taller than the pill (room for the
     // shadow, the glow and the bulge); it grows to full size before the island opens.
     private const double FullWindowHeight = 720, PillRoom = 150;
-    private bool SmallWindowMode => _mode is Mode.Compact or Mode.Toast;
+
+    private bool _windowFitted;
+
+    private static bool PerfNoResize;
+
+    // Resizing a see-through window mid-animation costs a frame or two, so: it grows to full size in one
+    // step (best before anything moves: when the cursor reaches the island), and shrinks back only once
+    // the island has been folded and quiet for a moment.
+    private const double CompactWindowHeight = 240;
+    private readonly System.Windows.Threading.DispatcherTimer _shrinkTimer = new() { Interval = TimeSpan.FromMilliseconds(1500) };
 
     private void GrowWindowFor(Size size)
     {
-        if (!SmallWindowMode || IslandTopMargin + size.Height + PillRoom > Height)
-            if (Height < FullWindowHeight) Height = FullWindowHeight;
+        _windowFitted = false;
+        _shrinkTimer.Stop();
+        double need = Math.Ceiling(IslandTopMargin + Math.Max(size.Height, Island.ActualHeight) + PillRoom);
+        if (PerfNoResize || need > Height) GrowWindow();
+    }
+
+    private void GrowWindow()
+    {
+        if (Height < FullWindowHeight) Height = FullWindowHeight;
     }
 
     private void ShrinkWindowToPill()
     {
-        if (!SmallWindowMode || _dragging) return;
-        double h = Math.Min(FullWindowHeight, Math.Ceiling(IslandTopMargin + Math.Max(Island.Height, _h.Target) + PillRoom));
+        if (PerfNoResize) return;
+        _shrinkTimer.Stop();
+        if (_mode is Mode.Compact or Mode.Toast) _shrinkTimer.Start();
+    }
+
+    private void ShrinkNow()
+    {
+        _shrinkTimer.Stop();
+        if (_dragging || _rendering && !(_w.IsSettled && _h.IsSettled) || _mode is not (Mode.Compact or Mode.Toast) || Island.IsMouseOver) return;
+        double h = Math.Max(CompactWindowHeight, Math.Ceiling(IslandTopMargin + Math.Max(Island.Height, _h.Target) + PillRoom));
+        h = Math.Min(FullWindowHeight, h);
         if (Math.Abs(Height - h) > 1) Height = h;
     }
 
@@ -558,6 +678,8 @@ public partial class MainWindow : Window
     private void Island_MouseEnter(object sender, MouseEventArgs e)
     {
         _collapseDelay.Stop();
+        _shrinkTimer.Stop();
+        GrowWindow();   // room to open, before anything moves (resizing mid-animation would stutter)
         if (_mode == Mode.Compact && !_dragging)
         {
             Squish(1.05); // swells a little under the cursor
@@ -664,16 +786,27 @@ public partial class MainWindow : Window
     {
         // every touch makes a wave
         SpawnRipple(e.GetPosition(RippleLayer));
-        Squish(0.955);
         Kick(1.4);
 
-        if (IsInteractive(e.OriginalSource as DependencyObject)) return;
+        // the squeeze shrinks the island towards its top: a button low in the open island would slide out
+        // from under the cursor before the mouse is released, and the click would be lost. Squeeze only
+        // the folded pill, and never when a button was pressed.
+        bool interactive = IsInteractive(e.OriginalSource as DependencyObject);
+        if (!interactive && _mode == Mode.Compact) Squish(1 - 0.045 * LiquidK);
+        if (interactive) return;
         _pressed = true;
         _dragging = false;
         _pressCursor = CursorDip();
         _pressWindow = new Point(Left, Top);
         _samples.Clear();
         _samples.Add((DateTime.Now, _pressCursor));
+    }
+
+    private void Island_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (_mode != Mode.Compact) return;
+        SwitchLive(e.Delta < 0 ? 1 : -1);
+        e.Handled = true;
     }
 
     private void Island_PreviewMouseMove(object sender, MouseEventArgs e)
@@ -690,6 +823,8 @@ public partial class MainWindow : Window
             Island.CaptureMouse();
             _px.Snap(Left);
             _py.Snap(Top);
+            _px.Stiffness = _py.Stiffness = 1500;   // follows the hand closely, without lag or wobble
+            _px.Damping = _py.Damping = 72;
             _posActive = true;
         }
 
@@ -705,8 +840,8 @@ public partial class MainWindow : Window
         {
             // lean into the motion and stretch along it, like a drop of water
             var v = CursorVelocity();
-            _skew.Target = Math.Clamp(-v.X * 0.007, -12, 12);
-            double sx = Math.Clamp(Math.Abs(v.X) * 0.00007, 0, 0.12), sy = Math.Clamp(Math.Abs(v.Y) * 0.00007, 0, 0.12);
+            _skew.Target = Math.Clamp(-v.X * 0.007, -12, 12) * LiquidK;
+            double sx = Math.Clamp(Math.Abs(v.X) * 0.00007, 0, 0.12) * LiquidK, sy = Math.Clamp(Math.Abs(v.Y) * 0.00007, 0, 0.12) * LiquidK;
             _sx.Target = 1 + sx - sy * 0.5;
             _sy.Target = 1 + sy - sx * 0.5;
             _ripple = Math.Min(6, _ripple + v.Length * 0.00035);
@@ -726,6 +861,8 @@ public partial class MainWindow : Window
         if (_dragging)
         {
             _dragging = false;
+            _px.Stiffness = _py.Stiffness = 560;      // the throw and the settle stay soft
+            _px.Damping = _py.Damping = 38;
             Island.ReleaseMouseCapture();
             e.Handled = true;
             _justDragged = true;
@@ -943,6 +1080,7 @@ public partial class MainWindow : Window
         }
 
         UpdateProgress();
+        KeepRepeating();
         UpdateLyricLine();
         UpdateLive();
         if (_tickCount % 4 == 0)
@@ -1036,6 +1174,7 @@ public partial class MainWindow : Window
             MenuBuddy.Kind = _settings.Character;
             Drive(MenuBuddy, MenuBuddyMood());
         }
+        if (_mode == Mode.Expanded && TabMusic.IsChecked == true) UpdateMusicWave(gazeDt);
         UpdateAuraMood(mood == Views.CharacterMood.Think);
         if (_mode == Mode.Expanded && TabSettings.IsChecked == true)
             foreach (var preview in _previewCharacters) Drive(preview);
@@ -1091,7 +1230,7 @@ public partial class MainWindow : Window
 
     // ================================================================ theme
 
-    private void ApplyTheme() => Theme.Apply(_settings.DarkTheme, _settings.IslandColor, _settings.GlassOpacity);
+    private void ApplyTheme() => Theme.Apply(_settings.DarkTheme, _settings.IslandColor, _settings.GlassOpacity, _settings.AccentColor);
 
     private void ToggleTheme()
     {

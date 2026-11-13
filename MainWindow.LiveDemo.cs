@@ -187,6 +187,9 @@ public partial class MainWindow
                     await Task.Delay(110 + Random.Shared.Next(80));
                 }
                 break;
+            case "switch":   // the mouse wheel over the pill: next activity
+                SwitchLive(1);
+                break;
             case "update":   // update 1.4.0: the notice users of an older version get
                 ShowToast("", L.F("Доступна версия {0}", arg), L.T("Нажмите, чтобы обновить"), null,
                     (Brush)FindResource("AccentBlue"), ms: 5000);

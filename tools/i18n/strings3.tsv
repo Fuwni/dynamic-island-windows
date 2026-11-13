@@ -173,3 +173,50 @@ VPN не подключился	VPN didn't connect	VPN не підключивс
 Доступ не выдан	Access not granted	Доступ не надано	Acceso no concedido	Zugriff nicht erteilt	Acesso não concedido	未授予访问权限
 Windows попросит подтверждение — нажмите «Да»	Windows will ask for confirmation — click "Yes"	Windows попросить підтвердження — натисніть «Так»	Windows pedirá confirmación: pulsa «Sí»	Windows fragt nach einer Bestätigung – klicke auf „Ja“	O Windows vai pedir confirmação — clique em “Sim”	Windows 会请求确认，请点击“是”
 Готово. Выйдите из Windows и войдите снова — после этого в играх появится FPS.	Done. Sign out of Windows and back in — after that, FPS appears in games.	Готово. Вийдіть із Windows і увійдіть знову — після цього в іграх з'явиться FPS.	Listo. Cierra sesión en Windows y vuelve a entrar: después verás los FPS en los juegos.	Fertig. Melde dich bei Windows ab und wieder an – danach erscheinen FPS in Spielen.	Pronto. Saia do Windows e entre novamente — depois disso o FPS aparece nos jogos.	完成。请注销 Windows 并重新登录，之后游戏中就会显示 FPS。
+Повтор: весь список	Repeat: whole list	Повтор: увесь список	Repetir: toda la lista	Wiederholen: ganze Liste	Repetir: lista inteira	重复：整个列表
+Повтор: этот трек	Repeat: this track	Повтор: цей трек	Repetir: esta pista	Wiederholen: dieser Titel	Repetir: esta faixa	重复：当前曲目
+Повтор выключен	Repeat off	Повтор вимкнено	Repetición desactivada	Wiederholen aus	Repetição desligada	重复已关闭
+Убрать из избранного	Remove from favourites	Прибрати з обраного	Quitar de favoritos	Aus Favoriten entfernen	Remover dos favoritos	从收藏中移除
+В избранное	Add to favourites	До обраного	Añadir a favoritos	Zu Favoriten	Adicionar aos favoritos	加入收藏
+Убрано из избранного	Removed from favourites	Прибрано з обраного	Quitado de favoritos	Aus Favoriten entfernt	Removido dos favoritos	已从收藏中移除
+Добавлено в избранное	Added to favourites	Додано до обраного	Añadido a favoritos	Zu Favoriten hinzugefügt	Adicionado aos favoritos	已加入收藏
+Нажмите ♥ под треком, и он появится здесь	Press ♥ under a track and it will appear here	Натисніть ♥ під треком, і він з’явиться тут	Pulsa ♥ bajo una pista y aparecerá aquí	Tippe unter einem Titel auf ♥, dann erscheint er hier	Toque em ♥ abaixo de uma faixa e ela aparecerá aqui	点击曲目下方的 ♥，它就会出现在这里
+Скопировать название	Copy the name	Скопіювати назву	Copiar el nombre	Namen kopieren	Copiar o nome	复制名称
+Повтор	Repeat	Повтор	Repetir	Wiederholen	Repetir	重复
+Избранное	Favourites	Обране	Favoritos	Favoriten	Favoritos	收藏
+Канал Atoll в Telegram	Atoll channel on Telegram	Канал Atoll у Telegram	Canal de Atoll en Telegram	Atoll-Kanal auf Telegram	Canal do Atoll no Telegram	Atoll 的 Telegram 频道
+Поддержать разработку Atoll	Support Atoll development	Підтримати розробку Atoll	Apoyar el desarrollo de Atoll	Die Entwicklung von Atoll unterstützen	Apoiar o desenvolvimento do Atoll	支持 Atoll 的开发
+Поддержать	Support	Підтримати	Apoyar	Unterstützen	Apoiar	支持
+Облегчённая графика для слабых ПК	Light graphics for weak PCs	Полегшена графіка для слабких ПК	Gráficos ligeros para PC modestos	Leichte Grafik für schwache PCs	Gráficos leves para PCs fracos	适合低配电脑的轻量图形
+Без стекла, свечения и эффектов: заметно меньше нагрузка	No glass, glow or effects: much lower load	Без скла, світіння та ефектів: помітно менше навантаження	Sin cristal, brillo ni efectos: mucha menos carga	Ohne Glas, Leuchten und Effekte: deutlich weniger Last	Sem vidro, brilho ou efeitos: carga bem menor	无毛玻璃、光晕和特效：负载明显降低
+Загрузка заблокирована	Download blocked	Завантаження заблоковано	Descarga bloqueada	Download blockiert	Download bloqueado	下载已阻止
+Чат пытался скачать «{0}» — программы из чата не скачиваются	The chat tried to download "{0}" — programs are never downloaded from the chat	Чат намагався завантажити «{0}» — програми з чату не завантажуються	El chat intentó descargar «{0}»: los programas nunca se descargan desde el chat	Der Chat wollte „{0}“ herunterladen – Programme werden aus dem Chat nie heruntergeladen	O chat tentou baixar “{0}” — programas nunca são baixados pelo chat	聊天试图下载“{0}”——不会从聊天中下载程序
+Codex закончил	Codex finished	Codex завершив	Codex terminó	Codex ist fertig	Codex terminou	Codex 已完成
+Подключено. Один раз подтвердите хуки в Codex командой /hooks — после этого запросы разрешений и «готово» появятся на острове.	Connected. Approve the hooks once in Codex with /hooks — after that, permission requests and "done" appear on the island.	Підключено. Один раз підтвердьте хуки в Codex командою /hooks — після цього запити дозволів і «готово» з’являться на острові.	Conectado. Aprueba los hooks una vez en Codex con /hooks; después, las solicitudes de permiso y el «listo» aparecerán en la isla.	Verbunden. Bestätige die Hooks einmal in Codex mit /hooks – danach erscheinen Berechtigungsanfragen und „fertig“ auf der Insel.	Conectado. Aprove os hooks uma vez no Codex com /hooks — depois, pedidos de permissão e “pronto” aparecem na ilha.	已连接。在 Codex 中用 /hooks 批准一次钩子，之后权限请求和“完成”会显示在小岛上。
+Запросы разрешений и «готово» от Codex CLI на острове. Добавит хуки в ~/.codex/hooks.json (резервная копия сохранится рядом).	Permission requests and "done" from Codex CLI on the island. Adds hooks to ~/.codex/hooks.json (a backup is kept next to it).	Запити дозволів і «готово» від Codex CLI на острові. Додасть хуки в ~/.codex/hooks.json (резервна копія збережеться поруч).	Solicitudes de permiso y «listo» de Codex CLI en la isla. Añade hooks a ~/.codex/hooks.json (se guarda una copia al lado).	Berechtigungsanfragen und „fertig“ von Codex CLI auf der Insel. Fügt Hooks zu ~/.codex/hooks.json hinzu (eine Sicherung bleibt daneben).	Pedidos de permissão e “pronto” do Codex CLI na ilha. Adiciona hooks a ~/.codex/hooks.json (um backup fica ao lado).	在小岛上显示 Codex CLI 的权限请求和“完成”。将钩子添加到 ~/.codex/hooks.json（旁边会保留备份）。
+hooks.json не является JSON-объектом	hooks.json is not a JSON object	hooks.json не є JSON-об’єктом	hooks.json no es un objeto JSON	hooks.json ist kein JSON-Objekt	hooks.json não é um objeto JSON	hooks.json 不是 JSON 对象
+ИИ-агенты	AI agents	ШІ-агенти	Agentes de IA	KI-Agenten	Agentes de IA	AI 智能体
+Включена облегчённая графика	Light graphics turned on	Увімкнено полегшену графіку	Gráficos ligeros activados	Leichte Grafik eingeschaltet	Gráficos leves ativados	已开启轻量图形
+Анимации шли рывками — эффекты выключены для плавности. Вернуть: Настройки → Поведение.	Animations were stuttering, so effects are off for smoothness. To bring them back: Settings → Behavior.	Анімації йшли ривками — ефекти вимкнено для плавності. Повернути: Налаштування → Поведінка.	Las animaciones daban tirones: los efectos se han desactivado para más fluidez. Para recuperarlos: Ajustes → Comportamiento.	Animationen ruckelten – Effekte sind für flüssigere Bewegung aus. Zurück: Einstellungen → Verhalten.	As animações estavam travando, então os efeitos foram desligados. Para voltar: Configurações → Comportamento.	动画出现卡顿，已关闭特效以保持流畅。恢复：设置 → 行为。
+Ещё раз — свернуть. Esc или клик мимо — тоже.	Press again to fold it. Esc or a click elsewhere works too.	Ще раз — згорнути. Esc або клік повз — теж.	Pulsa de nuevo para plegarla. Esc o un clic fuera también.	Nochmal drücken zum Einklappen. Esc oder ein Klick daneben geht auch.	Pressione de novo para recolher. Esc ou um clique fora também.	再按一次收起。按 Esc 或点击别处也可以。
+Это сочетание уже занято другой программой — выберите другое.	Another program already uses this shortcut — pick a different one.	Це поєднання вже зайняте іншою програмою — оберіть інше.	Otro programa ya usa este atajo: elige otro.	Ein anderes Programm nutzt dieses Kürzel bereits – wähle ein anderes.	Outro programa já usa este atalho — escolha outro.	此快捷键已被其他程序占用，请换一个。
+Тем в галерее: {0}. Хотите свою? Пришлите её в Telegram-канал.	Themes in the gallery: {0}. Want yours here? Send it to the Telegram channel.	Тем у галереї: {0}. Хочете свою? Надішліть її в Telegram-канал.	Temas en la galería: {0}. ¿Quieres el tuyo? Envíalo al canal de Telegram.	Themes in der Galerie: {0}. Eigenes Theme? Schick es an den Telegram-Kanal.	Temas na galeria: {0}. Quer o seu aqui? Envie no canal do Telegram.	图库中的主题：{0}。想加入你的主题？发到 Telegram 频道。
+Галерея пока пуста	The gallery is empty for now	Галерея поки порожня	La galería está vacía por ahora	Die Galerie ist noch leer	A galeria ainda está vazia	图库暂时为空
+Не удалось загрузить галерею — проверьте интернет	Couldn't load the gallery — check your internet connection	Не вдалося завантажити галерею — перевірте інтернет	No se pudo cargar la galería: comprueba la conexión	Galerie konnte nicht geladen werden – Internet prüfen	Não foi possível carregar a galeria — verifique a internet	无法加载图库，请检查网络
+Фото для острова	Photo for the island	Фото для острова	Foto para la isla	Foto für die Insel	Foto para a ilha	小岛背景照片
+Изображения	Images	Зображення	Imágenes	Bilder	Imagens	图片
+Не получилось открыть фото	Couldn't open the photo	Не вдалося відкрити фото	No se pudo abrir la foto	Foto konnte nicht geöffnet werden	Não foi possível abrir a foto	无法打开照片
+ТЕМЫ	THEMES	ТЕМИ	TEMAS	THEMES	TEMAS	主题
+Галерея тем из интернета	Online theme gallery	Галерея тем з інтернету	Galería de temas en línea	Online-Themegalerie	Galeria de temas online	在线主题库
+Своё фото…	Your photo…	Своє фото…	Tu foto…	Eigenes Foto…	Sua foto…	自定义照片…
+Убрать фото	Remove photo	Прибрати фото	Quitar foto	Foto entfernen	Remover foto	移除照片
+Открывать остров клавишами	Open the island with a shortcut	Відкривати острів клавішами	Abrir la isla con un atajo	Insel per Tastenkürzel öffnen	Abrir a ilha com um atalho	用快捷键打开小岛
+Полночь	Midnight	Північ	Medianoche	Mitternacht	Meia-noite	午夜
+Графит	Graphite	Графіт	Grafito	Graphit	Grafite	石墨
+Лес	Forest	Ліс	Bosque	Wald	Floresta	森林
+Роза	Rose	Троянда	Rosa	Rose	Rosa	玫瑰
+Лаванда	Lavender	Лаванда	Lavanda	Lavendel	Lavanda	薰衣草
+Песок	Sand	Пісок	Arena	Sand	Areia	沙丘
+Мята	Mint	М’ята	Menta	Minze	Hortelã	薄荷
+Небо	Sky	Небо	Cielo	Himmel	Céu	天空
+Сила волн	Wave strength	Сила хвиль	Intensidad de las ondas	Wellenstärke	Intensidade das ondas	波浪强度

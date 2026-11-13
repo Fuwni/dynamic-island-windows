@@ -1,0 +1,12 @@
+[
+  { "id": "aurora-night", "name": "Aurora Night", "author": "Atoll", "dark": true, "island": "#0B1026", "accent": "#7CF5C8", "aura": "aurora" },
+  { "id": "cherry", "name": "Cherry", "author": "Atoll", "dark": true, "island": "#2A0A12", "accent": "#FF3B5C", "aura": "sunset" },
+  { "id": "matrix", "name": "Matrix", "author": "Atoll", "dark": true, "island": "#020A04", "accent": "#39FF14", "aura": "neon" },
+  { "id": "deep-sea", "name": "Deep Sea", "author": "Atoll", "dark": true, "island": "#04121F", "accent": "#00C2FF", "aura": "ocean" },
+  { "id": "espresso", "name": "Espresso", "author": "Atoll", "dark": true, "island": "#1E140E", "accent": "#E0A86B", "aura": "none" },
+  { "id": "royal", "name": "Royal", "author": "Atoll", "dark": true, "island": "#120B2E", "accent": "#FFD60A", "aura": "none" },
+  { "id": "ukraine", "name": "Ukraine", "author": "Atoll", "dark": true, "island": "#0A1E3D", "accent": "#FFD500", "aura": "none" },
+  { "id": "peach", "name": "Peach", "author": "Atoll", "dark": false, "island": "#B5653A", "accent": "#FF7A45", "aura": "none" },
+  { "id": "lilac", "name": "Lilac", "author": "Atoll", "dark": false, "island": "#6B4FA0", "accent": "#8B5CF6", "aura": "none" },
+  { "id": "paper", "name": "Paper", "author": "Atoll", "dark": false, "island": "#5C5C5C", "accent": "#111111", "aura": "none" }
+]

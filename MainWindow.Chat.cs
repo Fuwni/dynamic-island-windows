@@ -47,19 +47,44 @@ public partial class MainWindow
         _chatIdleTimer.Stop();
     }
 
-    private static string ChatUrl(string provider) => provider switch
-    {
-        "claude" => "https://claude.ai/new",
-        "deepseek" => "https://chat.deepseek.com/",
-        _ => "https://gemini.google.com/app",
-    };
+    public sealed record ChatProvider(string Id, string Name, string Hint, string Url);
+
+    /// <summary>The AI chats the island can show (their own websites, with your own account).</summary>
+    private static readonly ChatProvider[] ChatProviders =
+    [
+        new("chatgpt", "ChatGPT", "OpenAI", "https://chatgpt.com/"),
+        new("claude", "Claude", "Anthropic", "https://claude.ai/new"),
+        new("gemini", "Gemini", "Google", "https://gemini.google.com/app"),
+        new("deepseek", "DeepSeek", "DeepSeek", "https://chat.deepseek.com/"),
+        new("grok", "Grok", "xAI", "https://grok.com/"),
+        new("perplexity", "Perplexity", "Perplexity AI", "https://www.perplexity.ai/"),
+        new("copilot", "Copilot", "Microsoft", "https://copilot.microsoft.com/"),
+        new("mistral", "Le Chat", "Mistral AI", "https://chat.mistral.ai/chat"),
+        new("qwen", "Qwen", "Alibaba", "https://chat.qwen.ai/"),
+    ];
+
+    private static ChatProvider ProviderOf(string id) => ChatProviders.FirstOrDefault(p => p.Id == id) ?? ChatProviders[2];
+    private static string ChatUrl(string provider) => ProviderOf(provider).Url;
 
     // sign-in pages that must stay inside the chat instead of opening the normal browser
     private static readonly string[] ChatHosts =
-        ["claude.ai", "anthropic.com", "accounts.google.com", "gemini.google.com", "deepseek.com", "appleid.apple.com"];
+    [
+        "claude.ai", "anthropic.com", "accounts.google.com", "gemini.google.com", "deepseek.com", "appleid.apple.com",
+        "chatgpt.com", "openai.com", "grok.com", "x.ai", "perplexity.ai", "copilot.microsoft.com",
+        "login.live.com", "login.microsoftonline.com", "account.live.com", "mistral.ai", "qwen.ai",
+    ];
 
-    private string SelectedProvider =>
-        ChatClaude.IsChecked == true ? "claude" : ChatDeepSeek.IsChecked == true ? "deepseek" : "gemini";
+    private string SelectedProvider => (ChatProviderBox.SelectedItem as ChatProvider)?.Id ?? _settings.ChatProvider;
+
+    private void FillChatProviders()
+    {
+        if (ChatProviderBox.Items.Count > 0) return;
+        _chatProvidersLoading = true;
+        foreach (var p in ChatProviders) ChatProviderBox.Items.Add(p);
+        ChatProviderBox.SelectedItem = ProviderOf(_settings.ChatProvider);
+        _chatProvidersLoading = false;
+    }
+    private bool _chatProvidersLoading;
 
     private async Task EnsureChatAsync()
     {
@@ -73,12 +98,7 @@ public partial class MainWindow
             _chatIdleTimer.Start();
         }
 
-        (_settings.ChatProvider switch
-        {
-            "claude" => ChatClaude,
-            "deepseek" => ChatDeepSeek,
-            _ => ChatGemini,
-        }).IsChecked = true;
+        FillChatProviders();
 
         try
         {
@@ -113,6 +133,19 @@ public partial class MainWindow
                 else if (m == "key") _chatTypedAt = DateTime.Now;
             };
             core.Settings.AreDevToolsEnabled = false;
+            core.Settings.IsPasswordAutosaveEnabled = false;   // the chat window is not a password manager
+            // a page in the chat can't drop a program, script or shortcut onto the PC
+            core.DownloadStarting += (_, e) =>
+            {
+                var name = System.IO.Path.GetFileName(e.ResultFilePath ?? "").ToLowerInvariant();
+                string[] risky = [".exe", ".msi", ".msix", ".appx", ".bat", ".cmd", ".com", ".scr", ".pif", ".ps1", ".psm1", ".vbs", ".vbe",
+                                  ".js", ".jse", ".wsf", ".wsh", ".hta", ".lnk", ".url", ".reg", ".jar", ".dll", ".cpl", ".msc", ".iso", ".img", ".vhd", ".vhdx"];
+                if (risky.Any(x => name.EndsWith(x)))
+                {
+                    e.Cancel = true;
+                    Dispatcher.BeginInvoke(() => ShowToast("\uE72E", L.T("Загрузка заблокирована"), L.F("Чат пытался скачать «{0}» — программы из чата не скачиваются", name)));
+                }
+            };
             core.Settings.AreHostObjectsAllowed = false;
             // never let a page start a program through a custom protocol (ms-..., file:, etc.)
             core.NavigationStarting += (_, e) =>
@@ -161,9 +194,9 @@ public partial class MainWindow
 
     private void ChatIdleTick(object? sender, EventArgs e) => ReleaseIdleChat();
 
-    private void ChatProvider_Checked(object sender, RoutedEventArgs e)
+    private void ChatProvider_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
-        if (!IsLoaded) return;
+        if (!IsLoaded || _chatProvidersLoading) return;
         var provider = SelectedProvider;
         if (provider == _settings.ChatProvider && _chat?.CoreWebView2?.Source.Contains(new Uri(ChatUrl(provider)).Host) == true) return;
         _settings.ChatProvider = provider;

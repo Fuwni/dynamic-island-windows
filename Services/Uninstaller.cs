@@ -33,6 +33,7 @@ public static class Uninstaller
     {
         try { if (Settings.Current.CleanDesktop) CleanDesktop.Apply(false, Settings.Current.TaskbarWasAutoHide, Settings.Current.IconsWereVisible); } catch { }
         try { if (ClaudeHooks.IsInstalled) ClaudeHooks.Uninstall(); } catch (Exception e) { Log.Write("uninstall hooks: " + e.Message); }
+        try { if (CodexHooks.IsInstalled) CodexHooks.Uninstall(); } catch (Exception e) { Log.Write("uninstall codex hooks: " + e.Message); }
         // only our own autostart entry: another copy of the island may own it
         try { if (Autostart.IsEnabled) Autostart.Set(false); } catch (Exception e) { Log.Write("uninstall autostart: " + e.Message); }
     }

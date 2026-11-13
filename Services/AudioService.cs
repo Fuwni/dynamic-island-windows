@@ -31,12 +31,31 @@ public sealed class AudioService
         }
     }
 
+    private AudioMeterInformation? _meter;
+    private MMDevice? _meterDevice;
+    private float _peak;
+    private long _peakAt;
+
+    /// <summary>
+    /// The sound level now (0…1). Read many times a frame (the wave, the character, the outline), so the
+    /// meter object is kept (asking the device for a new one each time was costly) and the value is reused
+    /// for 15 ms.
+    /// </summary>
     public float Peak
     {
         get
         {
-            try { return Device?.AudioMeterInformation.MasterPeakValue ?? 0; }
-            catch { _device = null; return 0; }
+            long now = Environment.TickCount64;
+            if (now - _peakAt < 15) return _peak;
+            _peakAt = now;
+            try
+            {
+                var d = Device;
+                if (d == null) return _peak = 0;
+                if (!ReferenceEquals(d, _meterDevice) || _meter == null) { _meter = d.AudioMeterInformation; _meterDevice = d; }
+                return _peak = _meter.MasterPeakValue;
+            }
+            catch { _device = null; _meter = null; return _peak = 0; }
         }
     }
 

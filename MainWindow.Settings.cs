@@ -76,6 +76,7 @@ public partial class MainWindow
     private void InitSettingsPage()
     {
         BuildLanguageList();
+        BuildThemeGallery();
         foreach (var hex in Theme.Palette)
         {
             var b = new Button
@@ -181,12 +182,24 @@ public partial class MainWindow
         _settingsLoading = true;
         DarkSwitch.IsChecked = _settings.DarkTheme;
         LiquidSwitch.IsChecked = _settings.LiquidWaves;
+        LiquidSlider.Value = Math.Clamp(_settings.LiquidStrength, 10, 100);
+        LiquidValue.Text = $"{_settings.LiquidStrength}%";
+        LiquidRow.Visibility = _settings.LiquidWaves ? Visibility.Visible : Visibility.Collapsed;
         RefreshLookControls();
         ReactiveSwitch.IsChecked = _settings.Reactive;
         ClaudeGlowSwitch.IsChecked = _settings.ClaudeGlow;
         CleanDesktopSwitch.IsChecked = _settings.CleanDesktop;
         HandDrawnSwitch.IsChecked = _settings.HandDrawn;
         GameStatsSwitch.IsChecked = _settings.GameStats;
+        LiteSwitch.IsChecked = Lite;
+        if (OpenHotkeyBox.Items.Count == 0)
+        {
+            foreach (var h in OpenHotkeys) OpenHotkeyBox.Items.Add(h.Name);
+            OpenHotkeyBox.Items.Add(L.T("Выключено"));
+        }
+        OpenHotkeyBox.SelectedIndex = Math.Max(0, Array.FindIndex(OpenHotkeys, h => h.Name == _settings.OpenHotkey) is int i && i >= 0 ? i : OpenHotkeys.Length);
+        OpenHotkeyStatus.Text = L.T("Ещё раз — свернуть. Esc или клик мимо — тоже.");
+        DonateButton.Visibility = DonateUrl.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         RefreshFpsAccess();
         KaraokeSwitch.IsChecked = _settings.Karaoke;
         NotifySwitch.IsChecked = _settings.MirrorNotifications;
@@ -207,6 +220,7 @@ public partial class MainWindow
         RecSysSwitch.IsChecked = _settings.RecordSystemAudio;
         RecMicSwitch.IsChecked = _settings.RecordMicrophone;
         RefreshClaudeHooksUi();
+        RefreshCodexHooksUi();
         _settingsLoading = false;
     }
 
@@ -224,6 +238,7 @@ public partial class MainWindow
             return;
         }
         _settings.IslandColor = hex;
+        _settings.ThemeId = "";
         _settings.Save();
         ColorBox.Text = hex;
         ApplyTheme();
@@ -236,6 +251,8 @@ public partial class MainWindow
     {
         _settings.LiquidWaves = LiquidSwitch.IsChecked == true;
         _settings.Save();
+        LiquidRow.Visibility = _settings.LiquidWaves ? Visibility.Visible : Visibility.Collapsed;
+        Remeasure();
         if (_settings.LiquidWaves) Kick(5);
         else
         {
@@ -280,6 +297,44 @@ public partial class MainWindow
         _settings.MirrorNotifications = NotifySwitch.IsChecked == true;
         _settings.MirrorAllApps = NotifyAllSwitch.IsChecked == true;
         _settings.Save();
+    }
+
+    /// <summary>The Atoll channel on Telegram.</summary>
+    private const string TelegramUrl = "https://t.me/atollisland";
+    /// <summary>Where donations go; the button stays hidden while this is empty.</summary>
+    private const string DonateUrl = "";
+
+    private void Telegram_Click(object sender, RoutedEventArgs e) => SafeShell.OpenUrl(TelegramUrl);
+    private void Donate_Click(object sender, RoutedEventArgs e) { if (DonateUrl.Length > 0) SafeShell.OpenUrl(DonateUrl); }
+
+    private void OpenHotkey_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (_settingsLoading || OpenHotkeyBox.SelectedIndex < 0) return;
+        int i = OpenHotkeyBox.SelectedIndex;
+        _settings.OpenHotkey = i < OpenHotkeys.Length ? OpenHotkeys[i].Name : "";
+        _settings.Save();
+        OpenHotkeyStatus.Text = RegisterOpenHotkey()
+            ? L.T("Ещё раз — свернуть. Esc или клик мимо — тоже.")
+            : L.T("Это сочетание уже занято другой программой — выберите другое.");
+    }
+
+    private void LiquidSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_settingsLoading || !IsLoaded) return;
+        _settings.LiquidStrength = (int)Math.Round(LiquidSlider.Value);
+        LiquidValue.Text = $"{_settings.LiquidStrength}%";
+        _settings.Save();
+        Kick(4);   // a wave to show the new strength
+    }
+
+    private void Lite_Click(object sender, RoutedEventArgs e)
+    {
+        _settings.LiteGraphics = LiteSwitch.IsChecked == true;
+        _settings.Save();
+        ApplyGlass();
+        CaptureFrost();
+        UpdateAuraVisibility();
+        UpdateShape(false);
     }
 
     private void Autostart_Click(object sender, RoutedEventArgs e)

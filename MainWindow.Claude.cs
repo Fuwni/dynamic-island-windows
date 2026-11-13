@@ -17,6 +17,7 @@ public partial class MainWindow
         _bridge.Notified += n => Dispatcher.BeginInvoke(() => OnClaudeNotice(n));
         _bridge.Start();
         ClaudeHooks.RefreshScript();
+        FillChatProviders();
     }
 
     private void EnqueuePermission(ClaudeBridge.PermissionRequest req)
@@ -49,6 +50,7 @@ public partial class MainWindow
         }
 
         if (_hidden) ShowIsland();
+        ShowAgent(_claudeCurrent.Agent);
         ClaudeProject.Text = _claudeCurrent.Project;
         ClaudeTitle.Text = L.F("Хочет использовать «{0}». Разрешить?", _claudeCurrent.Tool);
         ClaudeDetails.Text = _claudeCurrent.Details;
@@ -76,18 +78,20 @@ public partial class MainWindow
         // the permission prompt itself is already on the island
         if (n.Kind == "permission_prompt" && _claudeCurrent != null) return;
 
-        var title = n.Kind == "stop" ? L.T("Claude Code закончил") : string.IsNullOrWhiteSpace(n.Title) ? "Claude Code" : n.Title;
+        bool codex = n.Agent == "Codex";
+        var title = n.Kind == "stop" ? (codex ? L.T("Codex закончил") : L.T("Claude Code закончил")) : string.IsNullOrWhiteSpace(n.Title) ? n.Agent : n.Title;
         var project = string.IsNullOrEmpty(n.Project) ? "" : n.Project + " · ";
         var preview = n.Message.Replace('\n', ' ').Trim();
 
         _claudeInfoText = n.Message;
-        ShowToast("✳", title, project + (preview.Length > 0 ? preview : L.T("готово")), () => ShowClaudeMessage(n),
-            (System.Windows.Media.Brush)FindResource("ClaudeOrange"), ms: 6000);
+        ShowToast(codex ? "◎" : "✳", title, project + (preview.Length > 0 ? preview : L.T("готово")), () => ShowClaudeMessage(n),
+            codex ? CodexGreen : (System.Windows.Media.Brush)FindResource("ClaudeOrange"), ms: 6000);
     }
 
     private void ShowClaudeMessage(ClaudeBridge.Notice n)
     {
         if (_claudeCurrent != null || string.IsNullOrWhiteSpace(n.Message)) return;
+        ShowAgent(n.Agent);
         ClaudeProject.Text = n.Project;
         ClaudeQueue.Text = "";
         ClaudeTitle.Text = n.Kind == "stop" ? L.T("Последний ответ:") : n.Title;
@@ -95,6 +99,19 @@ public partial class MainWindow
         ClaudeAskButtons.Visibility = Visibility.Collapsed;
         ClaudeInfoButtons.Visibility = Visibility.Visible;
         SetMode(Mode.Claude);
+    }
+
+    private static readonly System.Windows.Media.Brush CodexGreen =
+        new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x10, 0xA3, 0x7F));
+
+    /// <summary>The panel shows who is asking: Claude Code (orange ✳) or Codex (green ◎).</summary>
+    private void ShowAgent(string agent)
+    {
+        bool codex = agent == "Codex";
+        ClaudeAgentName.Text = codex ? "Codex" : "Claude Code";
+        ClaudeAgentIcon.Text = codex ? "◎" : "✳";
+        if (codex) ClaudeAgentIcon.Foreground = CodexGreen;
+        else ClaudeAgentIcon.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "ClaudeOrange");
     }
 
     private void ClaudeCopy_Click(object sender, RoutedEventArgs e)
@@ -117,6 +134,31 @@ public partial class MainWindow
                 ? L.T("Подключено. Запросы разрешений Claude Code появятся на острове — отвечайте прямо здесь. Если остров закрыт, Claude Code спросит в терминале, как обычно.")
                 : L.T("Хуки установлены, но порт 47811 занят — остров не может их принять."))
             : L.T("Остров сможет показывать запросы разрешений и «готово» от Claude Code и отвечать на них без терминала. Добавит хуки в ~/.claude/settings.json (резервная копия сохранится рядом).");
+    }
+
+    private void RefreshCodexHooksUi()
+    {
+        bool installed = CodexHooks.IsInstalled;
+        CodexHooksButton.Content = installed ? L.T("Отключить") : L.T("Подключить");
+        CodexHooksStatus.Text = installed
+            ? L.T("Подключено. Один раз подтвердите хуки в Codex командой /hooks — после этого запросы разрешений и «готово» появятся на острове.")
+            : L.T("Запросы разрешений и «готово» от Codex CLI на острове. Добавит хуки в ~/.codex/hooks.json (резервная копия сохранится рядом).");
+    }
+
+    private void CodexHooks_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (CodexHooks.IsInstalled) CodexHooks.Uninstall();
+            else CodexHooks.Install();
+        }
+        catch (Exception ex)
+        {
+            CodexHooksStatus.Text = L.T("Не получилось: ") + ex.Message;
+            return;
+        }
+        RefreshCodexHooksUi();
+        Remeasure();
     }
 
     private void ClaudeHooks_Click(object sender, RoutedEventArgs e)

@@ -154,12 +154,40 @@ public sealed class MediaService
         Changed?.Invoke();
     }
 
+    private Windows.Media.MediaPlaybackAutoRepeatMode? _repeat;
+    private bool _canRepeat;
+
+    /// <summary>The player's repeat mode (null when it doesn't tell) and whether it lets us change it.</summary>
+    public Windows.Media.MediaPlaybackAutoRepeatMode? Repeat { get { lock (_lock) return _session != null ? _repeat : null; } }
+    public bool CanRepeat { get { lock (_lock) return _session != null && _canRepeat; } }
+
+    /// <summary>Off → whole list → this track → off. Players that don't support it simply ignore the request.</summary>
+    public async void CycleRepeat()
+    {
+        try
+        {
+            var s = _session;
+            if (s == null) return;
+            var next = _repeat switch
+            {
+                Windows.Media.MediaPlaybackAutoRepeatMode.List => Windows.Media.MediaPlaybackAutoRepeatMode.Track,
+                Windows.Media.MediaPlaybackAutoRepeatMode.Track => Windows.Media.MediaPlaybackAutoRepeatMode.None,
+                _ => Windows.Media.MediaPlaybackAutoRepeatMode.List,
+            };
+            if (await s.TryChangeAutoRepeatModeAsync(next)) { lock (_lock) _repeat = next; Changed?.Invoke(); }
+        }
+        catch { }
+    }
+
     private void ReadPlayback(GlobalSystemMediaTransportControlsSession s)
     {
         try
         {
             var wasPlaying = _playing;
-            _playing = s.GetPlaybackInfo().PlaybackStatus ==
+            var info = s.GetPlaybackInfo();
+            _repeat = info.AutoRepeatMode;
+            _canRepeat = info.Controls.IsRepeatEnabled;
+            _playing = info.PlaybackStatus ==
                        GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
 
             // Freeze/unfreeze the extrapolated position at the moment state flips.

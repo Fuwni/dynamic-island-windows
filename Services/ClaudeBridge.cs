@@ -59,10 +59,12 @@ public sealed class ClaudeBridge
         public required string Tool { get; init; }
         public required string Details { get; init; }
         public required string Project { get; init; }
+        /// <summary>"Claude Code" or "Codex".</summary>
+        public string Agent { get; init; } = "Claude Code";
         public TaskCompletionSource<string?> Decision { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
     }
 
-    public sealed record Notice(string Kind, string Title, string Message, string Project);
+    public sealed record Notice(string Kind, string Title, string Message, string Project, string Agent = "Claude Code");
 
     private HttpListener? _listener;
 
@@ -113,6 +115,7 @@ public sealed class ClaudeBridge
             var body = await reader.ReadToEndAsync();
             var json = JsonNode.Parse(body) as JsonObject ?? new JsonObject();
             var project = Path.GetFileName((json["cwd"]?.GetValue<string>() ?? "").TrimEnd('\\', '/'));
+            var agent = ctx.Request.QueryString["src"] == "codex" ? "Codex" : "Claude Code";
 
             switch (ctx.Request.Url?.AbsolutePath)
             {
@@ -131,6 +134,7 @@ public sealed class ClaudeBridge
                         Tool = json["tool_name"]?.GetValue<string>() ?? "?",
                         Details = Describe(json["tool_name"]?.GetValue<string>(), json["tool_input"]),
                         Project = project,
+                        Agent = agent,
                     };
                     PermissionRequested?.Invoke(req);
                     var winner = await Task.WhenAny(req.Decision.Task, Task.Delay(TimeSpan.FromSeconds(110)));
@@ -160,13 +164,13 @@ public sealed class ClaudeBridge
                     if (evt == "Stop")
                     {
                         var last = json["last_assistant_message"]?.GetValue<string>() ?? "";
-                        Notified?.Invoke(new Notice("stop", L.T("Claude Code закончил"), last, project));
+                        Notified?.Invoke(new Notice("stop", agent == "Codex" ? L.T("Codex закончил") : L.T("Claude Code закончил"), last, project, agent));
                     }
                     else
                     {
                         var type = json["notification_type"]?.GetValue<string>() ?? "";
                         var msg = json["message"]?.GetValue<string>() ?? "";
-                        Notified?.Invoke(new Notice(type, json["title"]?.GetValue<string>() ?? "Claude Code", msg, project));
+                        Notified?.Invoke(new Notice(type, json["title"]?.GetValue<string>() ?? agent, msg, project, agent));
                     }
                     break;
                 }
@@ -192,7 +196,7 @@ public sealed class ClaudeBridge
 
         var text = tool switch
         {
-            "Bash" or "PowerShell" => Get("command"),
+            "Bash" or "PowerShell" or "apply_patch" or "shell" => Get("command"),
             "Edit" or "Write" or "Read" or "NotebookEdit" => Get("file_path"),
             "WebFetch" => Get("url"),
             "WebSearch" => Get("query"),

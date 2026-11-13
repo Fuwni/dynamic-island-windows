@@ -69,55 +69,49 @@ public partial class MainWindow
         double ring = -1;
         Brush ringBrush = (Brush)FindResource("Accent");
 
-        if (_recording.IsRecording)
+        // everything that wants the pill right now, most important first; the mouse wheel over the
+        // pill switches between them (a Discord call and the music, a timer and a download…)
+        var lives = new List<(string Id, string? Icon, string? Text, double Ring, Brush Brush)>();
+        if (!_recording.IsRecording)   // recording owns the pill (red dot + elapsed, see OnTick)
         {
-            // handled by OnTick (red dot + elapsed)
+            if (_gameMode && _stats.Last is { } gs)
+                lives.Add(("game", "\uE7FC", GameStatsText(gs), -1, ringBrush));
+            if (_timer.Active)
+            {
+                var b = _timer.Kind == TimerKind.Pomodoro && !_timer.PomodoroWork ? (Brush)FindResource("AccentBlue") : ringBrush;
+                lives.Add(("timer", _timer.Kind == TimerKind.Stopwatch ? "\uE916" : _timer.Kind == TimerKind.Pomodoro ? "\uE7C1" : "\uE823",
+                           _timer.Display + (_timer.Running ? "" : L.T(" · пауза")), _timer.Progress, b));
+            }
+            if (FocusMode.IsOn)
+            {
+                var left = FocusMode.Until!.Value - DateTime.Now;
+                lives.Add(("focus", "\uE708", L.F("Не беспокоить · {0}:{1:00}", (int)left.TotalMinutes, left.Seconds), -1,
+                           new SolidColorBrush(Color.FromRgb(0x5E, 0x5C, 0xE6))));
+            }
+            if (_discordInCall)
+                lives.Add(("discord", "\uE7F6",
+                           _audio.MicMuted == true ? L.T("Discord · микрофон выкл") : _discordSpeaking ? L.T("Discord · говорят") : L.T("Discord · в канале"),
+                           _discordSpeaking ? 1 : 0, new SolidColorBrush(Color.FromRgb(0x58, 0x65, 0xF2))));
+            if (_downloads.Current is { } d)
+                lives.Add(("download", "\uE896",
+                           L.F("{0} · {1}/с", Shorten(d.Name, 22), DownloadWatcher.FormatBytes(d.BytesPerSecond)) + (d.Count > 1 ? L.F(" · ещё {0}", d.Count - 1) : ""),
+                           (_tickCount % 8) / 8.0, (Brush)FindResource("AccentBlue")));
+            if (_soonEvent is { } ev)
+            {
+                var mins = (int)Math.Ceiling((ev.Start - DateTime.Now).TotalMinutes);
+                lives.Add(("event", "\uE787", mins <= 0 ? L.F("Сейчас: {0}", Shorten(ev.Title, 26)) : L.F("{0} · через {1} мин", Shorten(ev.Title, 22), mins), -1, ringBrush));
+            }
+            if (_lastMedia?.IsPlaying == true)
+            {
+                string? karaoke = _settings.Karaoke && _currentLyrics?.Synced == true && LyricCur.Text is { Length: > 0 } line && line != "♪" ? Shorten(line, 44) : null;
+                lives.Add(("music", null, karaoke, -1, ringBrush));   // the cover, the equaliser and the eyes
+            }
         }
-        else if (_gameMode && _stats.Last is { } gs)
-        {
-            icon = "\uE7FC";
-            text = GameStatsText(gs);   // FPS (when available) and load: the most useful thing while playing
-        }
-        else if (_timer.Active)
-        {
-            icon = _timer.Kind == TimerKind.Stopwatch ? "" : _timer.Kind == TimerKind.Pomodoro ? "" : "";
-            text = _timer.Display;
-            ring = _timer.Progress;
-            if (_timer.Kind == TimerKind.Pomodoro && !_timer.PomodoroWork) ringBrush = (Brush)FindResource("AccentBlue");
-            if (!_timer.Running) text += L.T(" · пауза");
-        }
-        else if (FocusMode.IsOn)
-        {
-            icon = "";
-            var left = FocusMode.Until!.Value - DateTime.Now;
-            text = L.F("Не беспокоить · {0}:{1:00}", (int)left.TotalMinutes, left.Seconds);
-            ringBrush = new SolidColorBrush(Color.FromRgb(0x5E, 0x5C, 0xE6));
-        }
-        else if (_discordInCall)
-        {
-            icon = "";
-            text = _audio.MicMuted == true ? L.T("Discord · микрофон выкл") : _discordSpeaking ? L.T("Discord · говорят") : L.T("Discord · в канале");
-            ring = _discordSpeaking ? 1 : 0;
-            ringBrush = new SolidColorBrush(Color.FromRgb(0x58, 0x65, 0xF2));
-        }
-        else if (_downloads.Current is { } d)
-        {
-            icon = "";
-            text = L.F("{0} · {1}/с", Shorten(d.Name, 22), DownloadWatcher.FormatBytes(d.BytesPerSecond)) + (d.Count > 1 ? L.F(" · ещё {0}", d.Count - 1) : "");
-            ring = (_tickCount % 8) / 8.0; // spinner: size of the file is unknown
-            ringBrush = (Brush)FindResource("AccentBlue");
-        }
-        else if (_soonEvent is { } ev)
-        {
-            icon = "";
-            var mins = (int)Math.Ceiling((ev.Start - DateTime.Now).TotalMinutes);
-            text = mins <= 0 ? L.F("Сейчас: {0}", Shorten(ev.Title, 26)) : L.F("{0} · через {1} мин", Shorten(ev.Title, 22), mins);
-        }
-        else if (_settings.Karaoke && _lastMedia?.IsPlaying == true && _currentLyrics?.Synced == true &&
-                 LyricCur.Text is { Length: > 0 } line && line != "♪")
-        {
-            text = Shorten(line, 44); // lyrics right in the pill
-        }
+        var pick = lives.FirstOrDefault(l => l.Id == _liveChoice);
+        if (pick.Id == null) { pick = lives.FirstOrDefault(); if (_liveChoice != null && lives.All(l => l.Id != _liveChoice)) _liveChoice = null; }
+        _liveIds = lives.Select(l => l.Id).ToList();
+        if (pick.Id != null) { icon = pick.Icon; text = pick.Text; ring = pick.Ring; ringBrush = pick.Brush; }
+        UpdateLiveDots(pick.Id);
 
         LiveSlot.Visibility = icon != null ? Visibility.Visible : Visibility.Collapsed;
         if (icon != null)
@@ -147,6 +141,34 @@ public partial class MainWindow
         }
 
         if (_mode == Mode.Expanded && TabTimer.IsChecked == true) UpdateTimerPage();
+    }
+
+    private string? _liveChoice;            // the activity the user switched to with the wheel
+    private List<string> _liveIds = [];
+
+    /// <summary>Wheel over the folded pill: next activity (or the previous one).</summary>
+    private void SwitchLive(int step)
+    {
+        if (_liveIds.Count < 2) return;
+        int i = _liveChoice == null ? 0 : Math.Max(0, _liveIds.IndexOf(_liveChoice));
+        _liveChoice = _liveIds[((i + step) % _liveIds.Count + _liveIds.Count) % _liveIds.Count];
+        Squish(1.04);
+        Kick(1.5);
+        UpdateLive();
+    }
+
+    /// <summary>Small dots under the pill's content: how many activities there are and which one is shown.</summary>
+    private void UpdateLiveDots(string? current)
+    {
+        LiveDots.Children.Clear();
+        LiveDots.Visibility = _liveIds.Count > 1 && _mode == Mode.Compact ? Visibility.Visible : Visibility.Collapsed;
+        if (_liveIds.Count < 2) return;
+        foreach (var id in _liveIds)
+        {
+            var dot = new System.Windows.Shapes.Ellipse { Width = id == current ? 5 : 3.5, Height = id == current ? 5 : 3.5, Margin = new Thickness(1.5, 0, 1.5, 0), VerticalAlignment = VerticalAlignment.Center };
+            dot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, id == current ? "Fg" : "Fg3");
+            LiveDots.Children.Add(dot);
+        }
     }
 
     private static string Shorten(string s, int max) => s.Length <= max ? s : s[..(max - 1)].TrimEnd() + "…";

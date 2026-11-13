@@ -53,9 +53,11 @@ public partial class MainWindow
         var c = (FindResource("IslandBg") as SolidColorBrush)?.Color ?? Colors.Black;
         c.A = 255;
         bool expanded = _mode != Mode.Compact;
-        double tint = _settings.Glass ? Math.Clamp(_settings.GlassTint, 20, 100) / 100.0 : 1;
+        double tint = _settings.Glass && !Lite ? Math.Clamp(_settings.GlassTint, 20, 100) / 100.0 : 1;
         // the folded pill stays readable: never thinner than 80 %
         double body = expanded ? tint : Math.Max(tint, 0.8);
+        // your photo shows through a lighter tint (still dark enough for white text)
+        if (PhotoHost.Visibility == Visibility.Visible) body = expanded ? 0.5 : 0.62;
         double bottom = _settings.BottomFade ? body * (expanded ? 0.55 : 0.45) : body;
 
         Color A(double a) => Color.FromArgb((byte)Math.Round(Math.Clamp(a, 0, 1) * 255), c.R, c.G, c.B);
@@ -90,8 +92,10 @@ public partial class MainWindow
     /// <summary>Snapshot of the screen behind the island (our own window isn't in it), blurred by the Image's effect.</summary>
     private void CaptureFrost()
     {
-        if (!_settings.Glass || _hidden || _fullscreenHidden || !IsLoaded || !Island.IsVisible) return;
+        if (!_settings.Glass || Lite || _hidden || _fullscreenHidden || !IsLoaded || !Island.IsVisible) { if (Lite) FrostHost.Opacity = 0; return; }
         if (_dragging || _posActive) { FrostHost.Opacity = 0; return; }
+        // grabbing the screen makes Windows finish composing first: never in the middle of an animation
+        if (_rendering) return;
         // the folded pill is nearly opaque: refreshing what's behind it every few seconds is plenty
         if (_mode == Mode.Compact && ++_frostSkips % 8 != 0 && _frostBmp != null) return;
         try
@@ -140,6 +144,9 @@ public partial class MainWindow
         outside.Freeze();
         ShadowHost.Clip = outside;
         FrostHost.Clip = g;
+        PhotoHost.Clip = g;
+        PhotoImage.Width = Math.Max(1, width);
+        PhotoImage.Height = Math.Max(1, Island.Height);
         Canvas.SetLeft(Frost, width / 2 - _frostHalf);
         Canvas.SetTop(Frost, 0);
         AuraHost.Clip = g;
@@ -226,7 +233,7 @@ public partial class MainWindow
     private void UpdateAuraVisibility()
     {
         // never over a game or a full-screen video: the glow would cost frames there
-        bool show = _auraBrush != null && _mode == Mode.Compact && !_recording.IsRecording && !_gameMode && !_fullscreenHidden && !_hidden;
+        bool show = _auraBrush != null && !Lite && _mode == Mode.Compact && !_recording.IsRecording && !_gameMode && !_fullscreenHidden && !_hidden;
         if (show && _auraPaused) { _auraPaused = false; SetupAura(); return; }   // starts the glow again
         if (!show && _auraBrush != null && !_auraPaused)
         {

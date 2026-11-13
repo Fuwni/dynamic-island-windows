@@ -15,11 +15,12 @@ public static class Theme
         "#3A1F4D", "#4A1C2C", "#4A2E12", "#2E2E2E", "#0F3D3E",
     ];
 
-    public static void Apply(bool dark, string islandHex, double glass = 1)
+    public static void Apply(bool dark, string islandHex, double glass = 1, string accentHex = "")
     {
         var island = Parse(islandHex) ?? Colors.Black;
         byte a = (byte)Math.Round(Math.Clamp(glass, 0.4, 1) * 255);
         var r = Application.Current.Resources;
+        r["Accent"] = Solid(accentHex.Length > 0 && Parse(accentHex) is Color ac ? ac : Color.FromRgb(0x30, 0xD1, 0x58));
 
         if (dark)
         {

@@ -111,6 +111,14 @@ internal static class Native
     [DllImport("user32.dll")]
     private static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int cx, int cy, uint flags);
 
+    /// <summary>Move a window in one step (x and y together, in physical pixels): setting WPF's Left
+    /// and then Top moves it twice per frame, which shows up as a judder while dragging.</summary>
+    public static void MoveTo(IntPtr h, int x, int y)
+    {
+        const uint SWP_NOSIZE = 0x1, SWP_NOZORDER = 0x4, SWP_NOACTIVATE = 0x10, SWP_NOOWNERZORDER = 0x200, SWP_ASYNCWINDOWPOS = 0x4000;
+        SetWindowPos(h, IntPtr.Zero, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_ASYNCWINDOWPOS);
+    }
+
     /// <summary>Re-assert "always on top" (some apps / the taskbar push topmost windows down).</summary>
     public static void KeepTopmost(IntPtr h)
     {

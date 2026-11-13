@@ -30,7 +30,7 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 ## Contents
 
-- [What's new in 1.4](#whats-new-in-14)
+- [What's new in 1.5](#whats-new-in-15)
 - [Features](#features)
 - [Install (2 minutes, no admin rights)](#install)
 - [How to use it](#how-to-use-it)
@@ -43,7 +43,16 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 ---
 
-## What's new in 1.4
+## What's new in 1.5
+
+- 🪶 **Smoother**: steady 60 fps animations, a drag that follows the mouse, light graphics for weak PCs.
+- 🎵 **Music**: a wave that moves with the sound, repeat for any player, ♥ favourites, Yandex Music.
+- 🔀 **Several activities at once**: the mouse wheel over the pill switches between a call, the music, a timer…
+- ⌨️ **Ctrl+Alt+O** opens the island. 🎨 **Themes**, an online theme gallery and your own photo.
+- 🤖 **Codex** on the island and **9 AI assistants** in the chat.
+- 🔒 Passwords from password managers stay out of the clipboard history.
+
+### Earlier, in 1.4
 
 - 🚀 **Apps on Home**: your favourite programs in one row at the bottom of the island. Press **+**, type a name, done (Microsoft Store apps too).
 - 🎛️ **Control center**: Wi‑Fi, Bluetooth, airplane mode, VPN, battery, lock / sleep / restart / shut down.

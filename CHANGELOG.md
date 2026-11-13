@@ -2,6 +2,49 @@
 
 All notable changes to Atoll (formerly "Dynamic Island for Windows"). Русская версия каждого пункта — ниже английской.
 
+## 1.5.0 — 2026-11-14
+
+### Smoother
+- Opening and closing run at a steady 60 fps: the window grows before the island moves (when the cursor reaches it) instead of mid-animation, the frosted glass never grabs the screen during an animation, and the sound level is read once per frame instead of many times.
+- Dragging the island follows the mouse closely: one window move per frame instead of two, no lag.
+- **Light graphics** for weak PCs (Settings → Behavior): no glass, glow or effects. Turns on by itself when the graphics card isn't fully accelerated, there are 4 threads or fewer, or animations keep coming late.
+
+### Music
+- A wave under the track that moves with the sound.
+- **Repeat** for any player: players that allow it get it directly; for Spotify, Yandex Music and others Atoll repeats the track itself.
+- **♥ Favourites**: like a track, see your list next to the lyrics, click to copy its name.
+- **Yandex Music** app is recognised even when it doesn't report to Windows.
+
+### Island
+- **Several activities at once** (a Discord call, music, a timer, a download…): the mouse wheel over the pill switches between them; dots show how many there are.
+- **Shortcut to open the island**: Ctrl+Alt+O by default (or Ctrl+Alt+A, Alt+Q, Ctrl+Shift+Space). Again, Esc or a click elsewhere folds it.
+- **Themes**: 12 ready-made looks (colour, accent, glow), an online theme gallery (colours only, kept in this repository: `themes/themes.json`) and **your own photo** as the island's background.
+
+### AI
+- **Codex (OpenAI)**: permission requests and "done" from Codex CLI on the island, like Claude Code (Settings → AI agents → Connect; approve once with `/hooks` in Codex).
+- The chat has **9 assistants**: ChatGPT, Claude, Gemini, DeepSeek, Grok, Perplexity, Copilot, Le Chat and Qwen.
+
+### Safer
+- Passwords copied from password managers (KeePass, Bitwarden, 1Password, Windows) never enter the clipboard history.
+- The embedded chat can't download programs or scripts and doesn't offer to save passwords.
+
+### Live waves
+- Buttons work again with **Live waves** on: pressing squeezed the island towards its top, so a button low in the open island slid out from under the cursor and the click was lost. Only the folded pill squeezes now, and never under a button.
+- A **wave strength** slider (Settings → Appearance).
+
+### Also
+- A button to the Atoll channel on Telegram (bottom of Settings).
+
+### По-русски
+- **Плавнее**: открытие и закрытие идут ровно в 60 кадров, перетаскивание острова больше не дёргается, для слабых ПК есть облегчённая графика (включается сама, если анимации тормозят).
+- **Музыка**: волна под треком, повтор в любом плеере, ♥ избранное, поддержка приложения Яндекс Музыка.
+- **Несколько активностей**: звонок в Discord, музыка, таймер — переключайте колесом мыши над пилюлей.
+- **Ctrl+Alt+O** открывает остров. **Темы**: 12 готовых, галерея из интернета и своё фото.
+- **Codex** на острове, **9 нейросетей** в чате.
+- **Безопаснее**: пароли из менеджеров паролей не попадают в историю буфера, чат не скачивает программы.
+- **Живые волны**: кнопки снова нажимаются, появился ползунок силы волн.
+- Кнопка Telegram-канала в настройках.
+
 ## 1.4.1 — 2026-11-13
 
 - **Much lighter**: the idle island now uses about a quarter of the CPU it did (measured: ~28 % of one core → ~7 %).
