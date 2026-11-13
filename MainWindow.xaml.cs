@@ -145,6 +145,28 @@ public partial class MainWindow : Window
             {
                 await Task.Delay(1500);
                 if (action.StartsWith("lang:")) { SwitchLanguage(action[5..]); return; }   // test the language switch
+                if (action == "glass")   // test: is the island opaque while the frosted picture doesn't fit it?
+                {
+                    Settings.ReadOnly = true;
+                    _settings.Glass = true; ApplyGlass();
+                    string State() => $"frost covers={_frostCovers}, body alpha={((LinearGradientBrush)IslandShape.Fill).GradientStops[1].Color.A}, bottom alpha={((LinearGradientBrush)IslandShape.Fill).GradientStops[3].Color.A}";
+                    await Task.Delay(5000);
+                    Log.Write("glass: folded, settled: " + State());
+                    TabHome.IsChecked = true; _pinnedOpen = true; Expand();
+                    await Task.Delay(60);
+                    Log.Write("glass: opening: " + State());
+                    await Task.Delay(1500);
+                    Log.Write("glass: open, settled: " + State());
+                    _pinnedOpen = false; SetMode(Mode.Compact);
+                    await Task.Delay(60);
+                    Log.Write("glass: closing: " + State());
+                    await Task.Delay(1500);
+                    Log.Write("glass: folded again: " + State());
+                    await Task.Delay(5000);
+                    Log.Write("glass: folded, 6 s later: " + State());
+                    Application.Current.Shutdown();
+                    return;
+                }
                 if (action == "morph")   // test: how smooth opening / closing is (frames per second while the island moves)
                 {
                     Settings.ReadOnly = true;
@@ -467,6 +489,8 @@ public partial class MainWindow : Window
         {
             _windowFitted = true;
             ShrinkWindowToPill();
+            _frostSkips = 7;   // the next capture is not skipped, even when folded
+            Dispatcher.InvokeAsync(CaptureFrost, System.Windows.Threading.DispatcherPriority.Background);
         }
 
         if (_w.IsSettled && _h.IsSettled && _y.IsSettled && !liquid)
@@ -499,6 +523,8 @@ public partial class MainWindow : Window
     private void GrowWindowFor(Size size)
     {
         _windowFitted = false;
+        // the frosted picture no longer fits the new size: solid until it is retaken
+        if (Math.Abs(size.Width - _w.Target) > 1 || Math.Abs(size.Height - _h.Target) > 1) SetFrostCovers(false);
         _shrinkTimer.Stop();
         double need = Math.Ceiling(IslandTopMargin + Math.Max(size.Height, Island.ActualHeight) + PillRoom);
         if (PerfNoResize || need > Height) GrowWindow();

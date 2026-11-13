@@ -47,18 +47,44 @@ public partial class MainWindow
 
     // ================================================================ fill: tint + transparent bottom
 
+    /// <summary>
+    /// The frosted picture lies under the whole island right now (right size, visible). Only then may the
+    /// island be see-through: otherwise the windows behind it (a web page, a chat) would show through
+    /// sharp - for example for half a second while the island opens, before the picture is retaken.
+    /// </summary>
+    private bool _frostCovers;
+
+    private void SetFrostCovers(bool covers)
+    {
+        if (_frostCovers == covers) return;
+        _frostCovers = covers;
+        UpdateGlassFill();
+    }
+
     /// <summary>The island's fill: the theme colour, see-through over the frost, fading at the bottom.</summary>
     private void ApplyGlass()
+    {
+        UpdateGlassFill();
+        ApplyCaptureExclusion();
+        FrostHost.Visibility = _settings.Glass && !_dragging ? Visibility.Visible : Visibility.Collapsed;
+        if (_settings.Glass) CaptureFrost();
+        UpdateAuraVisibility();
+    }
+
+    private void UpdateGlassFill()
     {
         var c = (FindResource("IslandBg") as SolidColorBrush)?.Color ?? Colors.Black;
         c.A = 255;
         bool expanded = _mode != Mode.Compact;
-        double tint = _settings.Glass && !Lite ? Math.Clamp(_settings.GlassTint, 20, 100) / 100.0 : 1;
+        bool photo = PhotoHost.Visibility == Visibility.Visible;
+        // see-through only over a picture: the frost (when it covers the island) or your photo
+        bool overPicture = photo || (_settings.Glass && !Lite && _frostCovers);
+        double tint = overPicture && !photo ? Math.Clamp(_settings.GlassTint, 20, 100) / 100.0 : 1;
         // the folded pill stays readable: never thinner than 80 %
         double body = expanded ? tint : Math.Max(tint, 0.8);
         // your photo shows through a lighter tint (still dark enough for white text)
-        if (PhotoHost.Visibility == Visibility.Visible) body = expanded ? 0.5 : 0.62;
-        double bottom = _settings.BottomFade ? body * (expanded ? 0.55 : 0.45) : body;
+        if (photo) body = expanded ? 0.5 : 0.62;
+        double bottom = _settings.BottomFade && overPicture ? body * (expanded ? 0.55 : 0.45) : body;
 
         Color A(double a) => Color.FromArgb((byte)Math.Round(Math.Clamp(a, 0, 1) * 255), c.R, c.G, c.B);
         var fill = new LinearGradientBrush { StartPoint = new Point(0.5, 0), EndPoint = new Point(0.5, 1) };
@@ -68,11 +94,6 @@ public partial class MainWindow
         fill.GradientStops.Add(new GradientStop(A(bottom), 1));
         fill.Freeze();
         IslandShape.Fill = fill;
-
-        ApplyCaptureExclusion();
-        FrostHost.Visibility = _settings.Glass && !_dragging ? Visibility.Visible : Visibility.Collapsed;
-        if (_settings.Glass) CaptureFrost();
-        UpdateAuraVisibility();
     }
 
     private bool? _excluded;
@@ -92,10 +113,10 @@ public partial class MainWindow
     /// <summary>Snapshot of the screen behind the island (our own window isn't in it), blurred by the Image's effect.</summary>
     private void CaptureFrost()
     {
-        if (!_settings.Glass || Lite || _hidden || _fullscreenHidden || !IsLoaded || !Island.IsVisible) { if (Lite) FrostHost.Opacity = 0; return; }
-        if (_dragging || _posActive) { FrostHost.Opacity = 0; return; }
-        // grabbing the screen makes Windows finish composing first: never in the middle of an animation
-        if (_rendering) return;
+        if (!_settings.Glass || Lite || _hidden || _fullscreenHidden || !IsLoaded || !Island.IsVisible) { if (Lite) FrostHost.Opacity = 0; SetFrostCovers(false); return; }
+        if (_dragging || _posActive) { FrostHost.Opacity = 0; SetFrostCovers(false); return; }
+        // grabbing the screen makes Windows finish composing first: never while the size is changing
+        if (_rendering && !(_w.IsSettled && _h.IsSettled)) return;
         // the folded pill is nearly opaque: refreshing what's behind it every few seconds is plenty
         if (_mode == Mode.Compact && ++_frostSkips % 8 != 0 && _frostBmp != null) return;
         try
@@ -114,7 +135,11 @@ public partial class MainWindow
             long sig = w * 73856093L ^ h * 19349663L;
             for (int i = 0; i < px.Length; i += 16) sig = sig * 31 + px[i] + (px[i + 1] << 8) + (px[i + 2] << 16);
             bool sizeChanged = _frostBmp == null || _frostBmp.PixelWidth != w || _frostBmp.PixelHeight != h;
-            if (!sizeChanged && sig == _frostSig && Math.Abs(half - _frostHalf) < 0.5 && Math.Abs(height - _frostHeight) < 0.5) return;   // nothing changed behind
+            if (!sizeChanged && sig == _frostSig && Math.Abs(half - _frostHalf) < 0.5 && Math.Abs(height - _frostHeight) < 0.5)
+            {
+                if (FrostHost.Opacity > 0.5) SetFrostCovers(true);
+                return;   // nothing changed behind
+            }
             _frostSig = sig;
 
             if (sizeChanged)
@@ -128,7 +153,9 @@ public partial class MainWindow
             Frost.Width = half * 2;
             Frost.Height = height;
             Canvas.SetLeft(Frost, Island.ActualWidth / 2 - half);
-            if (FrostHost.Opacity < 1) FrostHost.BeginAnimation(OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(250)));
+            FrostHost.BeginAnimation(OpacityProperty, null);
+            FrostHost.Opacity = 1;
+            SetFrostCovers(true);
         }
         catch { }
     }

@@ -2,6 +2,14 @@
 
 All notable changes to Atoll (formerly "Dynamic Island for Windows"). Русская версия каждого пункта — ниже английской.
 
+## 1.5.1 — 2026-11-14
+
+- Opening the island no longer shows the window behind it through the island for half a second. With frosted glass on, the island is see-through over a blurred picture of the screen. That picture was still small while the island opened, so a web page or chat text showed through sharply. Now the island stays solid until a fresh picture covers it; the same applies while dragging.
+- "See-through bottom" now only applies over the frosted glass or your photo. Before, with glass off or with light graphics, the bottom of the island showed the windows behind it sharply.
+
+### По-русски
+- При открытии острова на полсекунды больше не просвечивает текст окна позади (страница, чат): остров непрозрачный, пока не готов свежий размытый снимок под стеклом. То же при перетаскивании.
+
 ## 1.5.0 — 2026-11-14
 
 ### Smoother
