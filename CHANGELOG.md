@@ -2,6 +2,23 @@
 
 All notable changes to Atoll (formerly "Dynamic Island for Windows"). Русская версия каждого пункта — ниже английской.
 
+## 1.6.1 — 2026-11-14
+
+- **FPS in games without signing out**: one "Yes" in the Windows prompt and FPS shows at once. Until the next sign-in a small helper (running as administrator, ending with Atoll) measures it; after that Atoll reads it by itself.
+- **Weather without a VPN**: when Open-Meteo can't be reached (some providers in Russia), the weather comes from MET Norway; towns Open-Meteo doesn't know are found in OpenStreetMap.
+- **Caps Lock and layout** notices are a small pill next to the island (under it when open) — the open island no longer folds.
+- **NVIDIA recording**: while NVIDIA's recorder (ShadowPlay / NVIDIA app overlay) runs, the island stops hiding from screen capture, so it no longer says "Atoll prevents desktop recording". The glass turns solid meanwhile. A choice made in Settings still wins.
+- **Messenger notifications**: Settings explain why messages may not appear — most often the Windows notification center is turned off by a "tweak" tool, so Windows keeps no notifications at all; or Telegram uses its own windows instead of system notifications.
+- **Smoothness**: Windows 11 no longer runs the island in "efficiency mode" (slower CPU and timers for background apps, mostly on laptops). New *Settings → Behavior → Copy smoothness report* with the real frame times, graphics cards, screens and power, to send if the island stutters.
+
+### По-русски
+- FPS в играх без выхода из Windows: одно «Да» — и FPS сразу в пилюле.
+- Погода без VPN: запасной сервис MET Norway и поиск городов через OpenStreetMap.
+- Caps Lock и раскладка — плашкой рядом с островом, открытый остров не сворачивается.
+- Запись NVIDIA больше не пишет «Atoll препятствует записи рабочего стола».
+- Настройки подсказывают, почему не приходят уведомления (часто центр уведомлений отключён «твикером»).
+- Atoll не попадает под энергосбережение Windows 11; кнопка «Скопировать отчёт о плавности».
+
 ## 1.6.0 — 2026-11-14
 
 ### Island

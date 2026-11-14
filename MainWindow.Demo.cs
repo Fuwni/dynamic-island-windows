@@ -36,6 +36,7 @@ public partial class MainWindow
         _settings.LiquidWaves = false;
         _fakeCursor = new Native.POINT { X = -20000, Y = -20000 }; // ignore the real mouse while shooting
         _settings.Glass = false; // the frost would show the real desktop: keep screenshots clean
+        _settings.CaptureHidden = false; // screen recordings of the demo must see the island
         _settings.Docked = Environment.GetCommandLineArgs().Contains("--docked");
         _settings.City = "London";
         _settings.Reminders =

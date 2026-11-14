@@ -195,7 +195,7 @@ public partial class MainWindow
         FillHideAppPicker();
         CapsSwitch.IsChecked = _settings.ShowCapsLock;
         LayoutSwitch.IsChecked = _settings.ShowKeyboardLayout;
-        CaptureSwitch.IsChecked = _settings.HideFromCapture;
+        CaptureSwitch.IsChecked = HideFromCapture;
         ScaleSlider.Value = Math.Clamp(_settings.IslandScale, 80, 130);
         ScaleValue.Text = $"{_settings.IslandScale}%";
         LiteSwitch.IsChecked = Lite;
@@ -210,6 +210,7 @@ public partial class MainWindow
         RefreshFpsAccess();
         KaraokeSwitch.IsChecked = _settings.Karaoke;
         NotifySwitch.IsChecked = _settings.MirrorNotifications;
+        RefreshNotifyHint();
         NotifyAllSwitch.IsChecked = _settings.MirrorAllApps;
         ColorBox.Text = _settings.IslandColor;
         HomeActionsChip.IsChecked = _settings.HomeActions;
@@ -306,17 +307,35 @@ public partial class MainWindow
         _settings.LockPosition = LockSwitch.IsChecked == true;
         _settings.ShowCapsLock = CapsSwitch.IsChecked == true;
         _settings.ShowKeyboardLayout = LayoutSwitch.IsChecked == true;
-        if (_settings.HideFromCapture != (CaptureSwitch.IsChecked == true))
+        if (HideFromCapture != (CaptureSwitch.IsChecked == true))
         {
-            _settings.HideFromCapture = CaptureSwitch.IsChecked == true;
+            _settings.CaptureHidden = CaptureSwitch.IsChecked == true;
             ApplyCaptureExclusion();
             CaptureFrost();
             UpdateGlassFill();
         }
         _settings.Karaoke = KaraokeSwitch.IsChecked == true;
         _settings.MirrorNotifications = NotifySwitch.IsChecked == true;
+        RefreshNotifyHint();
         _settings.MirrorAllApps = NotifyAllSwitch.IsChecked == true;
         _settings.Save();
+    }
+
+    /// <summary>Why messages may not show up: the notification center is off, or no access.</summary>
+    private void RefreshNotifyHint()
+    {
+        string? hint = null;
+        if (_settings.MirrorNotifications)
+        {
+            if (NotificationMirror.CenterDisabled())
+                hint = L.T("Центр уведомлений Windows отключён (обычно это делают программы-«твикеры»), поэтому Windows не хранит уведомления и Atoll их не видит. Включите его обратно в той же программе.");
+            else if (!_notifications.Available)
+                hint = L.T("Windows не дал доступ к уведомлениям: «Параметры → Конфиденциальность → Уведомления» — разрешите приложениям доступ.");
+            else
+                hint = L.T("В Telegram Desktop включите «Настройки → Уведомления → Системные уведомления», иначе Telegram показывает свои окна, которые Windows не видит.");
+        }
+        NotifyHint.Text = hint ?? "";
+        NotifyHint.Visibility = hint == null ? Visibility.Collapsed : Visibility.Visible;
     }
 
     /// <summary>The Atoll channel on Telegram.</summary>

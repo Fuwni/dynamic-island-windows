@@ -30,8 +30,8 @@ public partial class MainWindow
         }
         int? fps = null;
         var fg = Native.GetForegroundWindow();
-        if (_fps.Running && fg != IntPtr.Zero && Native.GetWindowThreadProcessId(fg, out var pid) != 0)
-            fps = _fps.FpsOf((int)pid);
+        if (fg != IntPtr.Zero && Native.GetWindowThreadProcessId(fg, out var pid) != 0)
+            fps = _fps.Running ? _fps.FpsOf((int)pid) : FpsMeter.FromHelper((int)pid);
         return fps is int f
             ? $"{f} FPS · CPU {s.Cpu:0}% · GPU {s.Gpu:0}%"
             : $"CPU {s.Cpu:0}% · GPU {s.Gpu:0}% · RAM {s.Ram:0}%";
@@ -42,7 +42,7 @@ public partial class MainWindow
     private void RefreshFpsAccess()
     {
         if (IsToolRun) return;
-        bool ok = _fps.Running || ProbeFps();
+        bool ok = _fps.Running || FpsMeter.HelperAlive() || ProbeFps();
         FpsStatus.Text = ok
             ? L.T("Счётчик FPS работает: в играх он появится в пилюле")
             : L.T("Чтобы видеть FPS в играх, нужно один раз разрешить доступ");
@@ -59,14 +59,21 @@ public partial class MainWindow
 
     private void FpsGrant_Click(object sender, RoutedEventArgs e)
     {
-        if (!FpsMeter.GrantAccess())
+        // one "Yes" in the Windows prompt: FPS works right away (a helper measures it until Atoll closes),
+        // and from the next sign-in Atoll reads it by itself, without the helper
+        if (!FpsMeter.StartHelper())
         {
-            ShowToast("", L.T("Доступ не выдан"), L.T("Windows попросит подтверждение — нажмите «Да»"));
+            ShowToast("\uE7BA", L.T("Доступ не выдан"), L.T("Windows попросит подтверждение — нажмите «Да»"));
             return;
         }
-        MessageBox.Show(this, L.T("Готово. Выйдите из Windows и войдите снова — после этого в играх появится FPS."),
-            "Atoll", MessageBoxButton.OK, MessageBoxImage.Information);
-        RefreshFpsAccess();
+        FpsStatus.Text = L.T("Включаю счётчик FPS…");
+        FpsGrantButton.Visibility = Visibility.Collapsed;
+        Dispatcher.InvokeAsync(async () =>
+        {
+            for (int i = 0; i < 20 && !FpsMeter.HelperAlive(); i++) await Task.Delay(500);
+            if (FpsMeter.HelperAlive()) ShowToast("\uE7FC", L.T("FPS включён"), L.T("Выходить из Windows не нужно"));
+            RefreshFpsAccess();
+        });
     }
 
     // ------------------------------------------------------------------ click outside to close

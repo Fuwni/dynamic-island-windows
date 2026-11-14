@@ -22,6 +22,24 @@ public sealed class NotificationMirror
 
     public bool Available { get; private set; }
 
+    /// <summary>
+    /// The Windows notification center is switched off by a policy (often set by "tweak" tools): Windows then
+    /// keeps no notifications at all, so there is nothing to read.
+    /// </summary>
+    public static bool CenterDisabled()
+    {
+        foreach (var root in new[] { Microsoft.Win32.Registry.CurrentUser, Microsoft.Win32.Registry.LocalMachine })
+        {
+            try
+            {
+                using var k = root.OpenSubKey(@"Software\Policies\Microsoft\Windows\Explorer");
+                if (k?.GetValue("DisableNotificationCenter") is int v && v != 0) return true;
+            }
+            catch { }
+        }
+        return false;
+    }
+
     public async Task<bool> InitAsync()
     {
         try
@@ -32,6 +50,30 @@ public sealed class NotificationMirror
         }
         catch { Available = false; }
         return Available;
+    }
+
+    /// <summary>Test: logs what the listener sees, step by step.</summary>
+    public async Task DebugPollAsync()
+    {
+        try
+        {
+            var list = await _listener!.GetNotificationsAsync(NotificationKinds.Toast);
+            foreach (var n in list)
+            {
+                if (!_seen.Add(n.Id)) continue;
+                string app = "?", step = "appinfo";
+                try
+                {
+                    app = n.AppInfo?.DisplayInfo?.DisplayName ?? "(null)";
+                    step = "binding";
+                    var b = n.Notification?.Visual?.GetBinding(KnownNotificationBindings.ToastGeneric);
+                    var texts = b?.GetTextElements().Select(t => t.Text).ToList() ?? [];
+                    Log.Write($"notiftest: #{n.Id} app='{app}' texts={texts.Count}");
+                }
+                catch (Exception e) { Log.Write($"notiftest: #{n.Id} app='{app}' failed at {step}: {e.GetType().Name} {e.Message}"); }
+            }
+        }
+        catch (Exception e) { Log.Write("notiftest: list failed: " + e.Message); }
     }
 
     /// <summary>New notifications since the last call (the first call only remembers what is already there).</summary>

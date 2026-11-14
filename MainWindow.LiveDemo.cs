@@ -22,6 +22,8 @@ public partial class MainWindow
     private string? _demoClock;   // the time the island shows (a day squeezed into a timelapse)
     private bool _demoSleep, _demoGame;
 
+    private bool _demoHide;
+
     private void StartLiveDemo(string file)
     {
         _liveDemo = true;
@@ -196,6 +198,51 @@ public partial class MainWindow
                 break;
             case "fps":   // fps 144 · fps off (the game pill)
                 _demoFps = arg == "off" ? null : int.Parse(arg);
+                break;
+            case "scale":   // scale 120: the island size from Settings > Appearance
+                _settings.IslandScale = int.Parse(arg);
+                ApplyIslandScale();
+                break;
+            case "caps":    // caps on · caps off: the Caps Lock notice
+                ShowKeyPill("", arg == "on" ? L.T("Caps Lock включён") : L.T("Caps Lock выключен"), null,
+                            arg == "on" ? Color.FromRgb(0xFF, 0x9F, 0x0A) : null);
+                break;
+            case "layout":  // layout EN English: the keyboard layout notice
+            {
+                var lp = arg.Split(' ', 2);
+                ShowKeyPill("", lp[0], lp.Length > 1 ? lp[1] : null, null);
+                break;
+            }
+            case "hide":    // hide on · hide off: as if a program from "Hide over programs" came to the front
+                _demoHide = arg == "on";
+                break;
+            case "behavior":   // the Behavior section, scrolled to the new switches (demo programs in the list)
+                _settings.HideInApps = ["Zoom", "Minecraft"];
+                _settings.LockPosition = true;
+                _pinnedOpen = true;
+                TabSettings.IsChecked = true;
+                Expand();
+                ((System.Windows.Controls.RadioButton)SettingsNav.Children[3]).IsChecked = true;
+                await Task.Delay(400);
+                RefreshSettingsPage();
+                BuildHideAppChips();
+                await Task.Delay(200);
+                HideAppChips.BringIntoView(new Rect(0, -60, 10, 330));
+                break;
+            case "notepaste":   // a long text pasted into a new note (all of its lines stay)
+                NewNoteBox.Text = arg.Replace("\\n", Environment.NewLine);   // "\n" written as two characters in the command file
+                NewNoteBox.CaretIndex = NewNoteBox.Text.Length;
+                break;
+            case "notesave":
+                if (NewNoteBox.Text.Trim().Length > 0)
+                {
+                    NotesStore.Notes.Insert(0, new Note { Text = NewNoteBox.Text.Trim() });
+                    NewNoteBox.Clear();
+                    RenderNotes();
+                }
+                break;
+            case "vpnapp":  // the VPN tile without a Windows VPN profile: opens your VPN app
+                ShowToast("", L.F("Открываю {0}", arg), null, null, new SolidColorBrush(Color.FromRgb(0x30, 0xD1, 0x58)), ms: 2200);
                 break;
             case "quit":
                 Application.Current.Shutdown();

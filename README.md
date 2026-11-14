@@ -45,6 +45,7 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 ## What's new in 1.6
 
+- 🛠️ **1.6.1**: FPS in games without signing out, weather without a VPN, Caps Lock / layout no longer fold the island, NVIDIA recording works, a smoothness report.
 - 📏 **Island size** from 80 to 130 %, and **lock in place** so it can't be dragged.
 - 🙈 **Hide over chosen apps** (a windowed game, a call app) and a switch to **show or hide the island in screenshots** and screen sharing.
 - ⌨️ **Caps Lock and keyboard layout** notices on the island.
@@ -263,12 +264,24 @@ and a chat that can't launch programs. Found a problem? Please report it as desc
 
 ## FAQ
 
+**Is it free?** Yes, completely: no subscription, no ads, MIT license.
+
+**Is it safe / virus-free?** Yes. All the code is open in this repository, so you can read it or build it yourself. Atoll installs without admin rights.
+
+**Is there a Linux or macOS version?** No, Windows 10 and 11 only: the app is built with WPF, a Windows technology.
+
+**How much memory does it use?** Usually 250–400 MB, about a couple of browser tabs. On a weak PC turn on *Settings → Behavior → Light graphics* (no glass or glow; it turns on by itself on weak PCs).
+
+**Does it need the internet?** Only for the weather, song lyrics and their translation, AI chats, updates and the theme gallery. Everything else works offline.
+
+**How do I uninstall it?** *Settings → Behavior → Uninstall Atoll*, or *Windows Settings → Apps*.
+
 **The blue "Windows protected your PC" window.** The app isn't signed with a paid certificate. Click *More info → Run anyway*.
 
-**The island disappears in games.** That's on purpose. Turn on game mode in Settings to see CPU/GPU/RAM instead.
+**The island disappears in games.** That's on purpose ("Hide in games and full screen"). Turn on "In games, show FPS and load instead of hiding", and use "Hide the island over these apps" for windowed games.
 Nothing can be drawn over *exclusive* fullscreen games; switch the game to borderless windowed.
 
-**The island is missing from my screenshots.** With frosted glass on, the island hides itself from screen capture (otherwise the glass would photograph itself). Turn glass off if you want it in screenshots.
+**The island is missing from my screenshots.** By default it stays out of screenshots, recordings and screen sharing. Turn off *Settings → Behavior → Hide the island in screenshots and screen sharing*; the glass then turns solid, otherwise the island would photograph itself.
 
 **My headset battery isn't shown.** Some headsets (for example Logitech G435) don't report battery to the PC at all — not even to the vendor's own app.
 

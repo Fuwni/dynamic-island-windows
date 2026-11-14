@@ -19,6 +19,16 @@ public partial class App : Application
             return;
         }
 
+        int fh = Array.IndexOf(e.Args, "--fps-helper");
+        if (fh >= 0)
+        {
+            // the elevated FPS helper: no window, no single-instance lock, ends with Atoll
+            int.TryParse(e.Args.ElementAtOrDefault(fh + 1), out int parent);
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            new Thread(() => { FpsMeter.RunHelper(parent); Dispatcher.Invoke(Shutdown); }) { IsBackground = true }.Start();
+            return;
+        }
+
         _mutex = new Mutex(true, "DynamicIsland.SingleInstance", out bool created);
         if (!created && e.Args.Contains("--restart"))
         {

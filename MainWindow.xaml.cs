@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using DynamicIsland.Services;
 using Forms = System.Windows.Forms;
@@ -84,13 +85,15 @@ public partial class MainWindow : Window
         Application.Current.SessionEnding += (_, _) => { if (!_shutDown) Close(); };
     }
 
+    [System.Runtime.InteropServices.DllImport("dwmapi.dll")] private static extern int DwmFlush();
+
     private async Task OnLoadedAsync(string[] args)
     {
         int snap = Array.IndexOf(args, "--snapshot");
         int promo = Array.IndexOf(args, "--promo");
         int review = Array.IndexOf(args, "--review");
         int live = Array.IndexOf(args, "--live-demo");
-        if (snap >= 0 || promo >= 0 || review >= 0 || live >= 0) BeginDemo();
+        if (snap >= 0 || promo >= 0 || review >= 0 || live >= 0 || args.Contains("--cover")) BeginDemo();
         if (live >= 0) StartLiveDemo(args.ElementAtOrDefault(live + 1) ?? "demo-commands.txt");
         ApplyThemeLocal();
         Character.Kind = _settings.Character;
@@ -168,6 +171,123 @@ public partial class MainWindow : Window
                     Application.Current.Shutdown();
                     return;
                 }
+                if (action == "weathertest")   // test: the weather fallbacks for places Open-Meteo can't serve
+                {
+                    Settings.ReadOnly = true;
+                    foreach (var fb in new[] { false, true })
+                        foreach (var city in new[] { "Москва", "Новозыбков", "Kyiv" })
+                        {
+                            var ws = new WeatherService { TestFallback = fb };
+                            try
+                            {
+                                var place = await ws.ResolveAsync(city);
+                                if (place == null) { Log.Write($"weathertest: fallback={fb} {city}: not found"); continue; }
+                                var w = await ws.GetAsync(place);
+                                Log.Write($"weathertest: fallback={fb} {city} -> {place.Name} ({place.Lat:0.00},{place.Lon:0.00}) via {ws.Source}: {w.Temp:0.0}° feels {w.FeelsLike:0.0}°, {WeatherService.Describe(w.Code)}, min {w.Min:0} max {w.Max:0}, wind {w.WindSpeed:0.0}, hum {w.Humidity:0}, press {w.PressureMm:0}, sun {w.Sunrise:HH:mm}-{w.Sunset:HH:mm}, hours {w.Hours.Count} first {w.Hours.FirstOrDefault()?.Time:HH:mm} {w.Hours.FirstOrDefault()?.Temp:0}°");
+                            }
+                            catch (Exception e) { Log.Write($"weathertest: fallback={fb} {city}: {e.Message}"); }
+                            await Task.Delay(1100);   // OpenStreetMap: at most one request a second
+                        }
+                    Application.Current.Shutdown();
+                    return;
+                }
+                if (action == "keypill")   // pictures of the Caps Lock / layout pill, folded and open (with --cover)
+                {
+                    var dir = args.ElementAtOrDefault(r + 2) ?? System.IO.Path.GetTempPath();
+                    Island.IsHitTestVisible = false; _settings.ExpandOnHover = false;
+                    await Task.Delay(6000);
+                    void Shot(string name)
+                    {
+                        var rtb = new RenderTargetBitmap((int)Root.ActualWidth, (int)Root.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+                        rtb.Render(Root);
+                        CaptureService.SavePng(rtb, System.IO.Path.Combine(dir, name + ".png"));
+                    }
+                    SetMode(Mode.Compact); await Task.Delay(1200);
+                    ShowKeyPill("", L.T("Caps Lock включён"), null, Color.FromRgb(0xFF, 0x9F, 0x0A));
+                    await Task.Delay(400); Shot("pill-compact");
+                    TabMusic.IsChecked = true; _pinnedOpen = true; Expand(); await Task.Delay(1500);
+                    ShowKeyPill("", "EN", "English", null);
+                    await Task.Delay(400); Shot("pill-open");
+                    Log.Write($"keypill: mode after = {_mode}");
+                    Application.Current.Shutdown();
+                    return;
+                }
+                if (action == "capturetest")   // test: does the glass's screen grab see the island itself without the capture exclusion?
+                {
+                    Settings.ReadOnly = true;
+                    var dir = args.ElementAtOrDefault(r + 2) ?? System.IO.Path.GetTempPath();
+                    _settings.ExpandOnHover = false;
+                    TabHome.IsChecked = true; _pinnedOpen = true; Expand();
+                    await Task.Delay(2500);
+                    var tl = Island.PointToScreen(new Point(0, 0));
+                    var br = Island.PointToScreen(new Point(Island.ActualWidth, Island.ActualHeight));
+                    var rect = new System.Drawing.Rectangle((int)tl.X, (int)tl.Y, (int)(br.X - tl.X), (int)(br.Y - tl.Y));
+                    foreach (var hide in new[] { true, false })
+                    {
+                        _settings.CaptureHidden = hide; ApplyCaptureExclusion();
+                        await Task.Delay(800);
+                        int w = rect.Width / 2, h = rect.Height / 2;
+                        var px = CaptureService.CaptureSmall(rect, w, h, null)!;
+                        double sum = 0; for (int i = 0; i < px.Length; i += 4) sum += px[i] + px[i + 1] + px[i + 2];
+                        var bmp = BitmapSource.Create(w, h, 96, 96, PixelFormats.Bgr32, null, px, w * 4);
+                        CaptureService.SavePng(bmp, System.IO.Path.Combine(dir, $"grab-exclude-{hide}.png"));
+                        Log.Write($"capturetest: exclude={hide}: mean brightness {sum / (px.Length / 4 * 3):0}");
+                    }
+                    // the pulse: exclude only for the grab
+                    foreach (var flush in new[] { false, true, false, true })
+                    {
+                        int w = rect.Width / 2, h = rect.Height / 2;
+                        var sw = System.Diagnostics.Stopwatch.StartNew();
+                        Native.SetWindowDisplayAffinity(_hwnd, Native.WDA_EXCLUDEFROMCAPTURE);
+                        if (flush) DwmFlush();
+                        var px = CaptureService.CaptureSmall(rect, w, h, null)!;
+                        Native.SetWindowDisplayAffinity(_hwnd, 0);
+                        double sum = 0; for (int i = 0; i < px.Length; i += 4) sum += px[i] + px[i + 1] + px[i + 2];
+                        Log.Write($"capturetest: pulse flush={flush}: mean brightness {sum / (px.Length / 4 * 3):0}, {sw.Elapsed.TotalMilliseconds:0.0} ms");
+                        await Task.Delay(500);
+                    }
+                    Application.Current.Shutdown();
+                    return;
+                }
+                if (action == "notiftest")   // test: does the notification listener see new toasts? (logs only)
+                {
+                    Settings.ReadOnly = true;
+                    var nm = new NotificationMirror();
+                    Log.Write($"notiftest: access={await nm.InitAsync()}");
+                    await nm.DebugPollAsync();
+                    for (int i = 0; i < 40; i++) { await Task.Delay(1000); await nm.DebugPollAsync(); }
+                    Application.Current.Shutdown();
+                    return;
+                }
+                if (action == "cover")   // pictures of the newest features for the update cover (demo data, with --cover)
+                {
+                    var dir = args.ElementAtOrDefault(r + 2) ?? System.IO.Path.GetTempPath();
+                    Island.IsHitTestVisible = false;
+                    _settings.ExpandOnHover = false;
+                    await Task.Delay(7000);
+                    UpdateMediaUi(); SetMode(Mode.Compact); await Task.Delay(1500);
+                    Snap(dir, "compact-music");
+                    ShowToast("", L.T("Caps Lock включён"), null, null, new SolidColorBrush(Color.FromRgb(0xFF, 0x9F, 0x0A)), ms: 6000);
+                    await Task.Delay(1200); Snap(dir, "toast-caps");
+                    await Task.Delay(5500);
+                    ShowToast("", "EN", "English", null, null, ms: 6000);
+                    await Task.Delay(1200); Snap(dir, "toast-layout");
+                    await Task.Delay(5500);
+                    _settings.HideInApps = ["Zoom", "Minecraft"];
+                    _settings.LockPosition = true;
+                    _settings.IslandScale = 100;
+                    TabSettings.IsChecked = true; _pinnedOpen = true; Expand();
+                    ((System.Windows.Controls.RadioButton)SettingsNav.Children[3]).IsChecked = true;
+                    await Task.Delay(900);
+                    RefreshSettingsPage();
+                    BuildHideAppChips();
+                    await Task.Delay(500);
+                    HideAppChips.BringIntoView(new Rect(0, -60, 10, 330));
+                    await Task.Delay(900);
+                    Snap(dir, "settings-new");
+                    Application.Current.Shutdown();
+                    return;
+                }
                 if (action == "features")   // test: island size, large chat, notes, hide-in-apps (nothing is saved)
                 {
                     Settings.ReadOnly = true;
@@ -210,11 +330,55 @@ public partial class MainWindow : Window
                     Snap(dir, "toast-caps");
                     foreach (var hide in new[] { false, true })
                     {
-                        _settings.HideFromCapture = hide; ApplyCaptureExclusion(); CaptureFrost(); UpdateGlassFill();
+                        _settings.CaptureHidden = hide; ApplyCaptureExclusion(); CaptureFrost(); UpdateGlassFill();
                         GetWindowDisplayAffinity(_hwnd, out uint aff);
                         Log.Write($"features: hide from capture={hide}: affinity=0x{aff:X}, frost covers={_frostCovers}");
                     }
                     Log.Write($"features: vpn app = {ControlCenter.VpnApp()?.Name ?? "none"}");
+                    Application.Current.Shutdown();
+                    return;
+                }
+                if (action == "perfreport")   // test: the smoothness report after a few openings
+                {
+                    Settings.ReadOnly = true;
+                    await Task.Delay(4000);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        TabHome.IsChecked = true; _pinnedOpen = true; Expand(); await Task.Delay(900);
+                        _pinnedOpen = false; SetMode(Mode.Compact); await Task.Delay(900);
+                    }
+                    Log.Write("perfreport: " + Environment.NewLine + PerfReport());
+                    Application.Current.Shutdown();
+                    return;
+                }
+                if (action == "morphsize")   // test: does the size of the (layered) window decide how smooth it is?
+                {
+                    Settings.ReadOnly = true;
+                    var gaps = new List<double>(); TimeSpan last = default;
+                    EventHandler onFrame = (_, e2) => { var t = ((RenderingEventArgs)e2).RenderingTime; if (_rendering && last != default && t != last) gaps.Add((t - last).TotalMilliseconds); last = t; };
+                    async Task Run(string name)
+                    {
+                        gaps.Clear();
+                        CompositionTarget.Rendering += onFrame;
+                        for (int i = 0; i < 4; i++)
+                        {
+                            TabHome.IsChecked = true; _pinnedOpen = true; Expand(); await Task.Delay(900);
+                            _pinnedOpen = false; SetMode(Mode.Compact); await Task.Delay(900);
+                        }
+                        CompositionTarget.Rendering -= onFrame;
+                        var g = gaps.Where(x => x < 500).ToList();
+                        double avg = g.Count > 0 ? g.Average() : 0;
+                        Log.Write($"morphsize: {name}: window {Width:0}x{Height:0} DIP x{Dpi:0.00}: {1000 / Math.Max(1, avg):0} fps avg, worst {(g.Count > 0 ? g.Max() : 0):0} ms, slow (>20 ms) {g.Count(x => x > 20) * 100.0 / Math.Max(1, g.Count):0}%");
+                    }
+                    await Task.Delay(5000);
+                    PerfNoResize = true;
+                    double cx = Left + Width / 2;
+                    foreach (var (w, h) in new[] { (900.0, 720.0), (1800.0, 1440.0), (2700.0, 1440.0), (700.0, 520.0) })
+                    {
+                        Width = w; Height = h; MoveWindow(cx - w / 2, Top);
+                        await Task.Delay(500);
+                        await Run($"{w}x{h}");
+                    }
                     Application.Current.Shutdown();
                     return;
                 }
@@ -342,6 +506,7 @@ public partial class MainWindow : Window
     private void OnSourceInitialized()
     {
         _hwnd = new WindowInteropHelper(this).Handle;
+        DisablePowerThrottling();
         Native.SetWindowLong(_hwnd, Native.GWL_EXSTYLE, Native.GetWindowLong(_hwnd, Native.GWL_EXSTYLE) | Native.WS_EX_TOOLWINDOW);
 
         HwndSource.FromHwnd(_hwnd)!.AddHook(WndProc);
@@ -525,7 +690,7 @@ public partial class MainWindow : Window
         double dt = _lastFrame == TimeSpan.Zero ? 1 / 60.0 : Math.Min(0.05, (now - _lastFrame).TotalSeconds);
         _lastFrame = now;
 
-        if (!_w.IsSettled || !_h.IsSettled) CountAnimationFrame(dt);
+        if (!_w.IsSettled || !_h.IsSettled) { CountAnimationFrame(dt); RecordPerf(dt); }
         _w.Step(dt);
         _h.Step(dt);
         _y.Step(dt);
@@ -1143,7 +1308,7 @@ public partial class MainWindow : Window
             if (_mode == Mode.Compact) MorphTo(TargetSize(Mode.Compact));
         }
         // also hide in front of the programs chosen in Settings (exe names)
-        bool fs = (fullscreen && !game) || IsHiddenApp(fg);
+        bool fs = (fullscreen && !game) || IsHiddenApp(fg) || _demoHide;
         if (fs != _fullscreenHidden)
         {
             _fullscreenHidden = fs;

@@ -104,10 +104,34 @@ public partial class MainWindow
     /// </summary>
     [System.Runtime.InteropServices.DllImport("user32.dll")] private static extern bool GetWindowDisplayAffinity(IntPtr hwnd, out uint affinity);
 
+    private static readonly string[] NvidiaRecorders = ["NVIDIA Overlay", "NVIDIA Share", "nvsphelper64", "nvsphelper"];
+    private bool _nvidiaRecorder;
+    private DateTime _nvidiaCheckedAt;
+
+    /// <summary>Is NVIDIA's screen recorder around? (checked at most once a minute)</summary>
+    private bool NvidiaRecorderRunning()
+    {
+        if (DateTime.UtcNow - _nvidiaCheckedAt < TimeSpan.FromMinutes(1)) return _nvidiaRecorder;
+        _nvidiaCheckedAt = DateTime.UtcNow;
+        bool found = false;
+        foreach (var name in NvidiaRecorders)
+        {
+            var ps = System.Diagnostics.Process.GetProcessesByName(name);
+            foreach (var p in ps) p.Dispose();
+            if (ps.Length > 0) { found = true; break; }
+        }
+        if (found != _nvidiaRecorder) Log.Write("NVIDIA recorder " + (found ? "found: the island stays visible to screen capture" : "gone"));
+        return _nvidiaRecorder = found;
+    }
+
+    /// <summary>Keep the island out of screenshots / recordings? The user's choice, or automatic.</summary>
+    private bool HideFromCapture => _settings.CaptureHidden ?? !NvidiaRecorderRunning();
+
     private void ApplyCaptureExclusion()
     {
-        if (_hwnd == IntPtr.Zero || _excluded == _settings.HideFromCapture) return;
-        _excluded = _settings.HideFromCapture;
+        bool hide = HideFromCapture;
+        if (_hwnd == IntPtr.Zero || _excluded == hide) return;
+        _excluded = hide;
         if (!Native.SetWindowDisplayAffinity(_hwnd, _excluded == true ? Native.WDA_EXCLUDEFROMCAPTURE : 0))
             Log.Write("display affinity: not supported");
     }

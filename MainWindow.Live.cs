@@ -55,6 +55,7 @@ public partial class MainWindow
     private async Task InitNotificationsAsync()
     {
         if (!await _notifications.InitAsync()) Log.Write("notification listener: access not allowed");
+        if (NotificationMirror.CenterDisabled()) Log.Write("notification listener: the notification center is disabled by policy (DisableNotificationCenter): nothing to read");
         await _notifications.PollAsync(_settings.MirrorAllApps); // remember what's already there
     }
 
@@ -213,6 +214,12 @@ public partial class MainWindow
 
         if (_slowCount % 2 == 0 && _settings.MirrorNotifications) await PollNotificationsAsync();
         if (_slowCount % 900 == 0) _ = _calendar.RefreshAsync();
+        if (_slowCount % 30 == 0 && _settings.CaptureHidden == null)   // NVIDIA's recorder may start later
+        {
+            bool was = _excluded == true;
+            ApplyCaptureExclusion();
+            if (was != (_excluded == true)) { CaptureFrost(); UpdateGlassFill(); }
+        }
 
         bool systemVisible = _mode == Mode.Expanded && TabSystem.IsChecked == true;
         if ((_gameMode || systemVisible) && !_statsBusy)

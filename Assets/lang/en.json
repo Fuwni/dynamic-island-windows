@@ -511,5 +511,16 @@
  "Показывать Caps Lock": "Show Caps Lock",
  "Показывать смену раскладки": "Show keyboard layout changes",
  "Скрывать остров на скриншотах и демонстрации экрана": "Hide the island in screenshots and screen sharing",
- "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным": "When off, the island shows up in screenshots, recordings and Zoom/Discord, but the glass effect turns solid"
+ "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным": "When off, the island shows up in screenshots, recordings and Zoom/Discord, but the glass effect turns solid",
+ "Включаю счётчик FPS…": "Turning on the FPS counter…",
+ "FPS включён": "FPS is on",
+ "Выходить из Windows не нужно": "No need to sign out of Windows",
+ "Отчёт скопирован": "Report copied",
+ "Вставьте его в комментарии или в Telegram-канал": "Paste it in the comments or the Telegram channel",
+ "Центр уведомлений Windows отключён (обычно это делают программы-«твикеры»), поэтому Windows не хранит уведомления и Atoll их не видит. Включите его обратно в той же программе.": "The Windows notification center is turned off (usually by \"tweak\" tools), so Windows keeps no notifications and Atoll can't see them. Turn it back on in the same tool.",
+ "Windows не дал доступ к уведомлениям: «Параметры → Конфиденциальность → Уведомления» — разрешите приложениям доступ.": "Windows didn't allow access to notifications: Settings → Privacy → Notifications — allow apps to access them.",
+ "В Telegram Desktop включите «Настройки → Уведомления → Системные уведомления», иначе Telegram показывает свои окна, которые Windows не видит.": "In Telegram Desktop turn on Settings → Notifications → \"Use system notifications\", otherwise Telegram shows its own windows that Windows can't see.",
+ "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным. Пока работает запись NVIDIA, остров сам остаётся видимым — иначе она не пишет рабочий стол": "When off, the island shows up in screenshots, recordings and Zoom/Discord, but the glass turns solid. While NVIDIA's recorder runs, the island stays visible by itself — otherwise it won't record the desktop",
+ "Скопировать отчёт о плавности": "Copy smoothness report",
+ "Если остров дёргается — отправьте этот отчёт разработчику": "If the island stutters, send this report to the developer"
 }

@@ -511,5 +511,16 @@
  "Показывать Caps Lock": "Feststelltaste anzeigen",
  "Показывать смену раскладки": "Tastaturlayout-Wechsel anzeigen",
  "Скрывать остров на скриншотах и демонстрации экрана": "Insel in Screenshots und bei Bildschirmfreigabe ausblenden",
- "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным": "Wenn aus, ist die Insel in Screenshots, Aufnahmen und Zoom/Discord sichtbar, aber der Glaseffekt wird deckend"
+ "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным": "Wenn aus, ist die Insel in Screenshots, Aufnahmen und Zoom/Discord sichtbar, aber der Glaseffekt wird deckend",
+ "Включаю счётчик FPS…": "FPS-Zähler wird eingeschaltet…",
+ "FPS включён": "FPS ist an",
+ "Выходить из Windows не нужно": "Abmelden ist nicht nötig",
+ "Отчёт скопирован": "Bericht kopiert",
+ "Вставьте его в комментарии или в Telegram-канал": "Füge ihn in die Kommentare oder den Telegram-Kanal ein",
+ "Центр уведомлений Windows отключён (обычно это делают программы-«твикеры»), поэтому Windows не хранит уведомления и Atoll их не видит. Включите его обратно в той же программе.": "Das Windows-Benachrichtigungscenter ist ausgeschaltet (meist durch „Tweak“-Programme), daher speichert Windows keine Benachrichtigungen und Atoll sieht sie nicht. Schalte es im selben Programm wieder ein.",
+ "Windows не дал доступ к уведомлениям: «Параметры → Конфиденциальность → Уведомления» — разрешите приложениям доступ.": "Windows hat den Zugriff auf Benachrichtigungen nicht erlaubt: Einstellungen → Datenschutz → Benachrichtigungen — Apps den Zugriff erlauben.",
+ "В Telegram Desktop включите «Настройки → Уведомления → Системные уведомления», иначе Telegram показывает свои окна, которые Windows не видит.": "Schalte in Telegram Desktop Einstellungen → Benachrichtigungen → „Systembenachrichtigungen verwenden“ ein, sonst zeigt Telegram eigene Fenster, die Windows nicht sieht.",
+ "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным. Пока работает запись NVIDIA, остров сам остаётся видимым — иначе она не пишет рабочий стол": "Wenn aus, ist die Insel in Screenshots, Aufnahmen und Zoom/Discord sichtbar, aber das Glas wird deckend. Solange die NVIDIA-Aufnahme läuft, bleibt die Insel von selbst sichtbar — sonst nimmt sie den Desktop nicht auf",
+ "Скопировать отчёт о плавности": "Flüssigkeitsbericht kopieren",
+ "Если остров дёргается — отправьте этот отчёт разработчику": "Wenn die Insel ruckelt, schick diesen Bericht an den Entwickler"
 }

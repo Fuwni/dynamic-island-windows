@@ -50,7 +50,11 @@ public sealed class Settings
     /// <summary>The chat page in its large size (sign-in pages and captchas fit).</summary>
     public bool ChatLarge { get; set; }
     /// <summary>Keep the island out of screenshots, recordings and screen sharing (Zoom, Discord, OBS).</summary>
-    public bool HideFromCapture { get; set; } = true;
+    /// <remarks>
+    /// null = automatic: hidden, except while NVIDIA's recorder (ShadowPlay / NVIDIA app overlay) runs — it refuses
+    /// to record the desktop when any window hides itself ("Atoll prevents desktop recording").
+    /// </remarks>
+    public bool? CaptureHidden { get; set; }
     public bool ShowKeyboardLayout { get; set; } = true;
     /// <summary>The island stays where it is: no dragging, no swipe-away.</summary>
     public bool LockPosition { get; set; }

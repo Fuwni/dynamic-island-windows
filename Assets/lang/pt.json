@@ -511,5 +511,16 @@
  "Показывать Caps Lock": "Mostrar Caps Lock",
  "Показывать смену раскладки": "Mostrar troca de layout do teclado",
  "Скрывать остров на скриншотах и демонстрации экрана": "Ocultar a ilha em capturas e no compartilhamento de tela",
- "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным": "Se desligar, a ilha aparece em capturas, gravações e no Zoom/Discord, mas o efeito de vidro fica sólido"
+ "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным": "Se desligar, a ilha aparece em capturas, gravações e no Zoom/Discord, mas o efeito de vidro fica sólido",
+ "Включаю счётчик FPS…": "Ativando o contador de FPS…",
+ "FPS включён": "FPS ativado",
+ "Выходить из Windows не нужно": "Não é preciso sair do Windows",
+ "Отчёт скопирован": "Relatório copiado",
+ "Вставьте его в комментарии или в Telegram-канал": "Cole nos comentários ou no canal do Telegram",
+ "Центр уведомлений Windows отключён (обычно это делают программы-«твикеры»), поэтому Windows не хранит уведомления и Atoll их не видит. Включите его обратно в той же программе.": "A central de notificações do Windows está desativada (geralmente por programas de «otimização»), então o Windows não guarda notificações e o Atoll não as vê. Reative-a no mesmo programa.",
+ "Windows не дал доступ к уведомлениям: «Параметры → Конфиденциальность → Уведомления» — разрешите приложениям доступ.": "O Windows não permitiu acesso às notificações: Configurações → Privacidade → Notificações — permita o acesso aos apps.",
+ "В Telegram Desktop включите «Настройки → Уведомления → Системные уведомления», иначе Telegram показывает свои окна, которые Windows не видит.": "No Telegram Desktop ative Configurações → Notificações → «Usar notificações do sistema»; senão o Telegram mostra janelas próprias que o Windows não vê.",
+ "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным. Пока работает запись NVIDIA, остров сам остаётся видимым — иначе она не пишет рабочий стол": "Se desligar, a ilha aparece em capturas, gravações e no Zoom/Discord, mas o vidro fica sólido. Enquanto a gravação da NVIDIA roda, a ilha fica visível sozinha — senão ela não grava a área de trabalho",
+ "Скопировать отчёт о плавности": "Copiar relatório de fluidez",
+ "Если остров дёргается — отправьте этот отчёт разработчику": "Se a ilha travar, envie este relatório ao desenvolvedor"
 }

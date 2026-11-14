@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Session;
 
@@ -14,7 +15,9 @@ public sealed class FpsMeter : IDisposable
 {
     private static readonly Guid Dxgi = new("CA11C036-0102-4A2D-A6AD-F03CFED5D3C9");
     private static readonly Guid D3D9 = new("783ACA0A-790E-4D7F-8451-AA850511C6B9");
-    private const string SessionName = "AtollFps";
+    private readonly string _sessionName;
+
+    public FpsMeter(string sessionName = "AtollFps") => _sessionName = sessionName;
 
     private TraceEventSession? _session;
     private readonly Dictionary<int, Queue<DateTime>> _presents = [];
@@ -29,7 +32,7 @@ public sealed class FpsMeter : IDisposable
         if (_session != null) return true;
         try
         {
-            var session = new TraceEventSession(SessionName) { StopOnDispose = true };
+            var session = new TraceEventSession(_sessionName) { StopOnDispose = true };
             session.EnableProvider(Dxgi, TraceEventLevel.Informational);
             session.EnableProvider(D3D9, TraceEventLevel.Informational);
             session.Source.AllEvents += OnEvent;
@@ -81,6 +84,93 @@ public sealed class FpsMeter : IDisposable
             if ((DateTime.Now - newest).TotalSeconds > 3) return null;
             return q.Count(t => (newest - t).TotalSeconds <= 1);
         }
+    }
+
+    /// <summary>FPS of every process presenting right now (for the helper).</summary>
+    public Dictionary<int, int> All()
+    {
+        var pids = new List<int>();
+        lock (_lock) pids.AddRange(_presents.Keys);
+        var d = new Dictionary<int, int>();
+        foreach (var pid in pids) if (FpsOf(pid) is int f) d[pid] = f;
+        return d;
+    }
+
+    // ------------------------------------------------------------------ the helper: FPS right away, no sign-out
+
+    /// <summary>Where the elevated helper writes {pid: fps} twice a second.</summary>
+    public static string HelperFile => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DynamicIsland", "fps-helper.json");
+
+    /// <summary>
+    /// Started as administrator once (the same UAC prompt as granting access): adds the user to
+    /// "Performance Log Users" for the next sign-in, and meanwhile measures FPS itself and hands the numbers
+    /// to Atoll through a small file — so FPS works at once, without signing out. Ends with Atoll.
+    /// </summary>
+    public static void RunHelper(int parentPid)
+    {
+        Log.Write($"fps helper: started for {parentPid}");
+        try { AddToGroup(); } catch (Exception e) { Log.Write("fps helper: group: " + e.Message); }
+        using var meter = new FpsMeter("AtollFpsHelper");
+        if (!meter.Start()) { Log.Write($"fps helper: no access (denied={meter.AccessDenied})"); return; }
+        Process? parent;
+        try { parent = Process.GetProcessById(parentPid); } catch { Log.Write("fps helper: Atoll is gone"); return; }
+        Directory.CreateDirectory(Path.GetDirectoryName(HelperFile)!);
+        while (!parent.HasExited)
+        {
+            try
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(meter.All().ToDictionary(k => k.Key.ToString(), k => k.Value));
+                var tmp = HelperFile + ".tmp";
+                File.WriteAllText(tmp, json);
+                File.Move(tmp, HelperFile, true);
+            }
+            catch { }
+            Thread.Sleep(500);
+        }
+        try { File.Delete(HelperFile); } catch { }
+    }
+
+    /// <summary>FPS of a process from the helper's file, when the helper is running.</summary>
+    public static int? FromHelper(int pid)
+    {
+        try
+        {
+            var f = new FileInfo(HelperFile);
+            if (!f.Exists || (DateTime.UtcNow - f.LastWriteTimeUtc).TotalSeconds > 3) return null;
+            var d = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(File.ReadAllText(HelperFile));
+            return d != null && d.TryGetValue(pid.ToString(), out var v) ? v : null;
+        }
+        catch { return null; }
+    }
+
+    public static bool HelperAlive()
+    {
+        try { var f = new FileInfo(HelperFile); return f.Exists && (DateTime.UtcNow - f.LastWriteTimeUtc).TotalSeconds <= 3; }
+        catch { return false; }
+    }
+
+    /// <summary>One UAC prompt: start the helper as administrator.</summary>
+    public static bool StartHelper()
+    {
+        try
+        {
+            using var p = Process.Start(new ProcessStartInfo(Environment.ProcessPath!, $"--fps-helper {Environment.ProcessId}")
+            {
+                UseShellExecute = true, Verb = "runas", WindowStyle = ProcessWindowStyle.Hidden,
+            });
+            return p != null;
+        }
+        catch { return false; }   // the user said no
+    }
+
+    private static void AddToGroup()
+    {
+        var user = $"{Environment.UserDomainName}\\{Environment.UserName}";
+        var script = $"Add-LocalGroupMember -SID 'S-1-5-32-559' -Member '{user.Replace("'", "''")}' -ErrorAction SilentlyContinue";
+        using var p = Process.Start(new ProcessStartInfo("powershell.exe", $"-NoProfile -WindowStyle Hidden -Command \"{script}\"")
+        { UseShellExecute = false, CreateNoWindow = true });
+        p?.WaitForExit(30000);
     }
 
     /// <summary>
