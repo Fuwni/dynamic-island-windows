@@ -154,6 +154,7 @@ public partial class MainWindow
     private async void OnClipboardChanged()
     {
         if (IsPrivateClip()) return;
+        _copiedAt = DateTime.Now;   // the smart island opens on the clipboard right after you copy
         ClipItem? item = null;
         for (int attempt = 0; attempt < 3 && item == null; attempt++)
         {

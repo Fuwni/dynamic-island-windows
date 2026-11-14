@@ -28,6 +28,8 @@ public sealed class Settings
     /// <summary>Accent colour of the chosen theme ("" = the default green).</summary>
     public string AccentColor { get; set; } = "";
     public string ThemeId { get; set; } = "";
+    /// <summary>The animated scene of a season theme: spring, summer, autumn, winter (empty: none).</summary>
+    public string Scene { get; set; } = "";
     /// <summary>Your own photo inside the island (a copy is kept in the settings folder).</summary>
     public bool IslandPhoto { get; set; }
     /// <summary>1 = solid (readable). Kept for old settings files.</summary>
@@ -49,6 +51,12 @@ public sealed class Settings
     public bool ShowCapsLock { get; set; } = true;
     /// <summary>The chat page in its large size (sign-in pages and captchas fit).</summary>
     public bool ChatLarge { get; set; }
+    /// <summary>A Discord call as a little island to the right of the main one (instead of inside the pill).</summary>
+    public bool DiscordSidePill { get; set; } = true;
+    /// <summary>The smart island: opens on what matters now, learns your habits, keeps quiet while you type.</summary>
+    public bool SmartIsland { get; set; } = true;
+    /// <summary>How often each tab was used, per hour of the day (24 counts per tab). Stays on this PC.</summary>
+    public Dictionary<string, int[]> TabHabits { get; set; } = [];
     /// <summary>Keep the island out of screenshots, recordings and screen sharing (Zoom, Discord, OBS).</summary>
     /// <remarks>
     /// null = automatic: hidden, except while NVIDIA's recorder (ShadowPlay / NVIDIA app overlay) runs — it refuses

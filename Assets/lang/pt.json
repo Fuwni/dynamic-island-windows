@@ -522,5 +522,18 @@
  "В Telegram Desktop включите «Настройки → Уведомления → Системные уведомления», иначе Telegram показывает свои окна, которые Windows не видит.": "No Telegram Desktop ative Configurações → Notificações → «Usar notificações do sistema»; senão o Telegram mostra janelas próprias que o Windows não vê.",
  "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным. Пока работает запись NVIDIA, остров сам остаётся видимым — иначе она не пишет рабочий стол": "Se desligar, a ilha aparece em capturas, gravações e no Zoom/Discord, mas o vidro fica sólido. Enquanto a gravação da NVIDIA roda, a ilha fica visível sozinha — senão ela não grava a área de trabalho",
  "Скопировать отчёт о плавности": "Copiar relatório de fluidez",
- "Если остров дёргается — отправьте этот отчёт разработчику": "Se a ilha travar, envie este relatório ao desenvolvedor"
+ "Если остров дёргается — отправьте этот отчёт разработчику": "Se a ilha travar, envie este relatório ao desenvolvedor",
+ "Звонок в Discord · нажмите, чтобы открыть": "Chamada no Discord · clique para abrir",
+ "Звонок Discord — отдельным островком справа": "Chamada do Discord como uma ilhinha à direita",
+ "Весна": "Primavera",
+ "Лето": "Verão",
+ "Осень": "Outono",
+ "Зима": "Inverno",
+ "Привычки забыты": "Hábitos esquecidos",
+ "Остров начнёт учиться заново": "A ilha vai aprender de novo",
+ "Мало заряда — облегчённая графика": "Bateria fraca — gráficos leves",
+ "Эффекты вернутся, когда подключите зарядку": "Os efeitos voltam quando ligar o carregador",
+ "Умный остров": "Ilha inteligente",
+ "Открывается на том, что важно сейчас (таймер, звонок, скопированное, музыка) или на вкладке, которую вы обычно открываете в это время. Пока вы печатаете, не раскрывается от курсора, а сообщения ждут паузы. При низком заряде ноутбука включает облегчённую графику. Привычки хранятся только на этом ПК.": "Abre no que importa agora (um timer, uma chamada, algo copiado, a música) ou na aba que você costuma abrir nesse horário. Enquanto você digita, não abre sob o cursor, e as mensagens esperam uma pausa. Com pouca bateria no notebook, ativa gráficos leves. Os hábitos ficam só neste PC.",
+ "Забыть привычки": "Esquecer hábitos"
 }

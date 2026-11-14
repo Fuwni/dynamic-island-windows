@@ -2,6 +2,26 @@
 
 All notable changes to Atoll (formerly "Dynamic Island for Windows"). Русская версия каждого пункта — ниже английской.
 
+## 1.7.0 — 2026-11-14
+
+### Seasons
+- **Four animated season themes** (Settings → Appearance → Themes): spring flowers along the bottom and drifting petals; a summer beach with waves, a low sun and an umbrella the wind blows away now and then; autumn leaves falling and settling, warm light and a steaming cup; a cosy winter window with snow outside and a flickering candle. Kept to the edges so the text stays readable, quieter in the folded pill, about 0.3 % CPU, a still picture with light graphics.
+
+### Smart island
+- **Opens on what matters now**: a running timer, a Discord call, something you just copied, the music — or the tab you usually open at this time of day (it learns this on its own; the counts stay on this PC; *Forget habits* resets them).
+- **Keeps out of the way while you type**: it doesn't pop open under a resting cursor, and messenger notices wait for a pause.
+- **Low battery** (laptop, 20 % or less, not charging): light graphics turn on by themselves until you plug in.
+
+### Island
+- **Discord call as its own little island** to the right of the main one: who's talking, the call's length, a microphone button; a click brings Discord forward. The main island keeps the music or the time. Can be switched back in Settings → Behavior.
+- **Dragging follows the cursor directly**: the island sits where the cursor is each frame instead of trailing it on a spring (about 3× less lag; the throw after letting go stays soft).
+
+### По-русски
+- Четыре анимированные темы-сезона: весна, лето, осень, зима.
+- Умный остров: открывается на важном сейчас или на привычной вкладке, не мешает, пока печатаете, бережёт батарею.
+- Звонок Discord — отдельным островком справа.
+- Перетаскивание без отставания от курсора.
+
 ## 1.6.1 — 2026-11-14
 
 - **FPS in games without signing out**: one "Yes" in the Windows prompt and FPS shows at once. Until the next sign-in a small helper (running as administrator, ending with Atoll) measures it; after that Atoll reads it by itself.

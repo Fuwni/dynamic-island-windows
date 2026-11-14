@@ -68,7 +68,8 @@ public partial class MainWindow : Window
         _tick.Tick += (_, _) => OnTick();
         _gaze.Tick += (_, _) => UpdateGaze();
         _blink.Tick += (_, _) => Blink();
-        _expandDelay.Tick += (_, _) => { _expandDelay.Stop(); if (_mode == Mode.Compact && !_dragging) Expand(); };
+        // hover: not while typing (the cursor just happens to sit there), and on the tab that fits the moment
+        _expandDelay.Tick += (_, _) => { _expandDelay.Stop(); if (_mode == Mode.Compact && !_dragging && !Typing) OpenSmart(); };
         _collapseDelay.Tick += (_, _) => { _collapseDelay.Stop(); TryCollapse(); };
         _toastTimer.Tick += (_, _) => { _toastTimer.Stop(); if (_mode == Mode.Toast && !Island.IsMouseOver) SetMode(Mode.Compact); };
         _watch.Tick += (_, _) => WatchFullscreen();
@@ -106,6 +107,7 @@ public partial class MainWindow : Window
         InitControlCenter();
         InitApps();
         ApplyPhoto();
+        ApplyScene();
         ApplyIslandScale();
         InitClaude();
         InitRecording();
@@ -335,6 +337,124 @@ public partial class MainWindow : Window
                         Log.Write($"features: hide from capture={hide}: affinity=0x{aff:X}, frost covers={_frostCovers}");
                     }
                     Log.Write($"features: vpn app = {ControlCenter.VpnApp()?.Name ?? "none"}");
+                    Application.Current.Shutdown();
+                    return;
+                }
+                if (action == "smarttest")   // test: which tab the smart island picks, and messages waiting for a typing pause
+                {
+                    Settings.ReadOnly = true;
+                    _settings.SmartIsland = true;
+                    await Task.Delay(3000);
+                    string Pick() => SmartTab()?.Name ?? "(keep current)";
+                    _settings.TabHabits = new() { ["TabNotes"] = Enumerable.Repeat(4, 24).ToArray(), ["TabWeather"] = Enumerable.Repeat(1, 24).ToArray() };
+                    _closedAt = DateTime.MinValue; _copiedAt = DateTime.MinValue;
+                    Log.Write($"smarttest: habits (notes 4x weather) -> {Pick()}");
+                    _copiedAt = DateTime.Now;
+                    Log.Write($"smarttest: just copied -> {Pick()}");
+                    _copiedAt = DateTime.MinValue;
+                    _timer.Start();
+                    Log.Write($"smarttest: timer running -> {Pick()}");
+                    _timer.Reset();
+                    _closedAt = DateTime.Now;
+                    Log.Write($"smarttest: reopened right after closing -> {Pick()}");
+                    _closedAt = DateTime.MinValue;
+                    _settings.TabHabits = new();
+                    Log.Write($"smarttest: no habits, nothing going on -> {Pick()}");
+                    int shown = 0;
+                    _typedAt = DateTime.Now;
+                    WhenNotTyping(() => shown++);
+                    Log.Write($"smarttest: while typing: shown={shown}, waiting={_deferred.Count}");
+                    await Task.Delay(2600);
+                    Log.Write($"smarttest: after the pause: shown={shown}, waiting={_deferred.Count}");
+                    Application.Current.Shutdown();
+                    return;
+                }
+                if (action == "seasons")   // pictures of the four season themes, folded and open (with --cover)
+                {
+                    var dir = args.ElementAtOrDefault(r + 2) ?? System.IO.Path.GetTempPath();
+                    Island.IsHitTestVisible = false; _settings.ExpandOnHover = false;
+                    await Task.Delay(6000);
+                    foreach (var id in Views.SeasonView.Kinds)
+                    {
+                        ApplyThemePreset(BuiltInThemes.First(t => t.Id == id));
+                        _pinnedOpen = false; SetMode(Mode.Compact);
+                        await Task.Delay(2500); Snap(dir, $"season-{id}-compact");
+                        TabMusic.IsChecked = true; _pinnedOpen = true; Expand();
+                        await Task.Delay(4200); Snap(dir, $"season-{id}-open");
+                    }
+                    // how much the scene costs: CPU time of this process over 10 s, open, with and without it
+                    var proc = System.Diagnostics.Process.GetCurrentProcess();
+                    foreach (var on in new[] { true, false })
+                    {
+                        if (!on) { _settings.Scene = ""; ApplyScene(); }
+                        await Task.Delay(1000);
+                        proc.Refresh(); var c0 = proc.TotalProcessorTime;
+                        await Task.Delay(10000);
+                        proc.Refresh();
+                        Log.Write($"seasons: scene {(on ? "winter on" : "off")}: CPU {(proc.TotalProcessorTime - c0).TotalMilliseconds / 10000 / Environment.ProcessorCount * 100:0.0}% of the PC");
+                    }
+                    Application.Current.Shutdown();
+                    return;
+                }
+                if (action == "discordpill")   // pictures of the Discord call island (with --cover)
+                {
+                    var dir = args.ElementAtOrDefault(r + 2) ?? System.IO.Path.GetTempPath();
+                    Island.IsHitTestVisible = false; _settings.ExpandOnHover = false;
+                    _liveDemo = true;
+                    await Task.Delay(6000);
+                    void Shot(string name)
+                    {
+                        var rtb = new RenderTargetBitmap((int)Root.ActualWidth, (int)Root.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+                        rtb.Render(Root);
+                        CaptureService.SavePng(rtb, System.IO.Path.Combine(dir, name + ".png"));
+                    }
+                    SetMode(Mode.Compact);
+                    _demoDiscord = true;
+                    await Task.Delay(1500); Shot("call-compact");
+                    ShowKeyPill("\uE84A", L.T("Caps Lock включён"), null, Color.FromRgb(0xFF, 0x9F, 0x0A));
+                    await Task.Delay(400); Shot("call-and-caps");
+                    TabMusic.IsChecked = true; _pinnedOpen = true; Expand(); await Task.Delay(1500);
+                    Shot("call-open");
+                    _pinnedOpen = false; SetMode(Mode.Compact); _demoDiscord = false;
+                    await Task.Delay(1200); Shot("call-ended");
+                    Log.Write($"discordpill: lives = {string.Join(",", _liveIds)}");
+                    Application.Current.Shutdown();
+                    return;
+                }
+                if (action == "dragtest")   // test: how far behind the cursor the dragged island is
+                {
+                    Settings.ReadOnly = true;
+                    _settings.ExpandOnHover = false;
+                    await Task.Delay(4000);
+                    var home = new Point(Left, Top);
+                    foreach (var spring in new[] { true, false })
+                    {
+                        DragOnSpring = spring;
+                        var speed = new Vector(1200, 0);   // a brisk drag
+                        var from = CursorDip();
+                        _testCursor = (from, speed, DateTime.UtcNow);
+                        _pressCursor = from; _pressWindow = new Point(Left, Top);
+                        _pressed = true; _dragging = true; _posActive = true;
+                        _px.Snap(Left); _py.Snap(Top);
+                        _px.Stiffness = _py.Stiffness = 1500; _px.Damping = _py.Damping = 72;
+                        StartRendering();
+                        var lags = new List<double>();
+                        EventHandler f = (_, _) =>
+                        {
+                            var (tx, ty) = DragTarget(CursorDip());
+                            lags.Add(tx - _px.Value);
+                            if (spring) { _px.Target = tx; _py.Target = ty; }   // what the mouse events did before
+                        };
+                        CompositionTarget.Rendering += f;
+                        await Task.Delay(700);
+                        CompositionTarget.Rendering -= f;
+                        _testCursor = null; _pressed = false; _dragging = false;
+                        var steady = lags.Skip(lags.Count / 3).ToList();
+                        Log.Write($"dragtest: {(spring ? "spring (old)" : "direct (new)")}: behind the cursor by {steady.Average():0.0} px on average, at most {lags.Max():0.0} px ({steady.Average() / speed.X * 1000:0} ms at {speed.X} px/s)");
+                        _px.Stiffness = _py.Stiffness = 560; _px.Damping = _py.Damping = 38;
+                        MoveWindow(home.X, home.Y);
+                        await Task.Delay(600);
+                    }
                     Application.Current.Shutdown();
                     return;
                 }
@@ -1024,8 +1144,21 @@ public partial class MainWindow : Window
     private Point _pressCursor, _pressWindow;
     private readonly List<(DateTime T, Point P)> _samples = new();
 
+    /// <summary>Test: the old way (the window trails the cursor on a spring while dragging).</summary>
+    private bool DragOnSpring;
+    /// <summary>Test: a made-up cursor moving at this speed (DIP per second) from this point, since this time.</summary>
+    private (Point From, Vector Speed, DateTime Since)? _testCursor;
+
+    /// <summary>Where the window goes for a cursor position while dragging.</summary>
+    private (double X, double Y) DragTarget(Point c)
+    {
+        var d = c - _pressCursor;
+        return (_pressWindow.X + d.X, _pressWindow.Y + (_settings.Docked ? Math.Min(0, d.Y) : d.Y));
+    }
+
     private Point CursorDip()
     {
+        if (_testCursor is { } tc) return tc.From + tc.Speed * (DateTime.UtcNow - tc.Since).TotalSeconds;
         Native.GetCursorPos(out var p);
         return new Point(p.X / Dpi, p.Y / Dpi);
     }
@@ -1099,10 +1232,8 @@ public partial class MainWindow : Window
         _samples.Add((DateTime.Now, c));
         if (_samples.Count > 16) _samples.RemoveAt(0);
 
-        // the window floats after the cursor on a spring
-        _px.Target = _pressWindow.X + d.X;
-        // docked: slides along the top edge only (pulling up still hides it)
-        _py.Target = _pressWindow.Y + (_settings.Docked ? Math.Min(0, d.Y) : d.Y);
+        // the window follows the cursor (each frame, see UpdateLiquid); docked: along the top edge only
+        (_px.Target, _py.Target) = DragTarget(c);
 
         if (Liquid)
         {
@@ -1165,7 +1296,7 @@ public partial class MainWindow : Window
         // easter egg: poking a character shows one of seven emotions
         if (TryEmote(e)) return;
         // plain click on the compact pill opens it
-        if (_mode == Mode.Compact) Expand();
+        if (_mode == Mode.Compact) OpenSmart();
     }
 
     // ================================================================ hide / show

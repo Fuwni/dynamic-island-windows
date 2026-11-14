@@ -199,6 +199,9 @@ public partial class MainWindow
         ShadowHost.Clip = outside;
         FrostHost.Clip = g;
         PhotoHost.Clip = g;
+        Season.Clip = g;
+        Season.Width = Math.Max(1, width);
+        Season.Height = Math.Max(1, Island.Height);
         PhotoImage.Width = Math.Max(1, width);
         PhotoImage.Height = Math.Max(1, Island.Height);
         Canvas.SetLeft(Frost, width / 2 - _frostHalf);

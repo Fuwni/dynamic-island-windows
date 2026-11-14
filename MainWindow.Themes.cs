@@ -15,10 +15,15 @@ namespace DynamicIsland;
 /// </summary>
 public partial class MainWindow
 {
-    public sealed record ThemePreset(string Id, string Name, bool Dark, string Island, string Accent, string Aura);
+    public sealed record ThemePreset(string Id, string Name, bool Dark, string Island, string Accent, string Aura, string Scene = "");
 
     private static readonly ThemePreset[] BuiltInThemes =
     [
+        // the seasons: animated scenes inside the island
+        new("spring", "Весна", true, "#1B2A22", "#FF7EB6", "none", "spring"),
+        new("summer", "Лето", true, "#0D2638", "#FFC94D", "none", "summer"),
+        new("autumn", "Осень", true, "#2A1A0F", "#FF8A3D", "none", "autumn"),
+        new("winter", "Зима", true, "#0E1626", "#9FD3FF", "none", "winter"),
         new("midnight", "Полночь", true, "#000000", "#30D158", "none"),
         new("graphite", "Графит", true, "#1C1C1E", "#0A84FF", "mono"),
         new("ocean", "Океан", true, "#0F2A44", "#4CB8FF", "ocean"),
@@ -58,9 +63,20 @@ public partial class MainWindow
             Child = new Border { Width = 5, Height = 5, CornerRadius = new CornerRadius(3), Background = new SolidColorBrush(accent), HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(7, 0, 0, 0) },
         };
         bool current = _settings.ThemeId == t.Id;
+        FrameworkElement inside = pill;
+        if (t.Scene.Length > 0)
+        {
+            var scene = new Views.SeasonView { Kind = t.Scene, Width = 92, Height = 54, IsHitTestVisible = false };
+            for (int i = 0; i < 40; i++) scene.Step(0.05);   // a moment into the scene, not its empty first frame
+            var grid = new Grid { ClipToBounds = true };
+            grid.Children.Add(scene);
+            grid.Children.Add(pill);
+            grid.Clip = new RectangleGeometry(new Rect(0, 0, 92, 54), 12, 12);
+            inside = grid;
+        }
         var card = new Border
         {
-            Width = 96, Height = 58, CornerRadius = new CornerRadius(14), Background = new SolidColorBrush(bg), Child = pill,
+            Width = 96, Height = 58, CornerRadius = new CornerRadius(14), Background = new SolidColorBrush(bg), Child = inside,
             BorderThickness = new Thickness(2), BorderBrush = current ? new SolidColorBrush(accent) : new SolidColorBrush(Color.FromArgb(0x30, 0x80, 0x80, 0x80)),
             Cursor = System.Windows.Input.Cursors.Hand, ToolTip = name,
         };
@@ -82,7 +98,9 @@ public partial class MainWindow
         _settings.IslandColor = t.Island;
         _settings.AccentColor = t.Accent;
         _settings.Aura = t.Aura;
+        _settings.Scene = t.Scene;
         _settings.Save();
+        ApplyScene();
         ApplyTheme();
         ApplyThemeLocal();
         ApplyGlass();

@@ -83,6 +83,8 @@
           <Image x:Name="PhotoImage" Stretch="UniformToFill"/>
         </Canvas>
         <Path x:Name="IslandShape" Fill="{DynamicResource IslandBg}" Stroke="{DynamicResource GlassRim}" StrokeThickness="1"/>
+        <!-- the animated season (spring, summer, autumn, winter themes) -->
+        <v:SeasonView x:Name="Season" Visibility="Collapsed" IsHitTestVisible="False"/>
         <Path x:Name="IslandShine" Fill="{DynamicResource GlassShine}" IsHitTestVisible="False"/>
         <!-- idle shimmer: coloured light seeping into the island from its lower edge (clipped to the shape) -->
         <Canvas x:Name="AuraHost" Visibility="Collapsed">
@@ -1127,6 +1129,11 @@
                 <Border Style="{StaticResource Tile}" Margin="0,0,0,10">
                   <StackPanel>
                     <CheckBox x:Name="HoverSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Раскрывать при наведении"/>
+                    <CheckBox x:Name="SmartSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Умный остров"/>
+                    <TextBlock Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,-4,0,6"
+                               Text="Открывается на том, что важно сейчас (таймер, звонок, скопированное, музыка) или на вкладке, которую вы обычно открываете в это время. Пока вы печатаете, не раскрывается от курсора, а сообщения ждут паузы. При низком заряде ноутбука включает облегчённую графику. Привычки хранятся только на этом ПК."/>
+                    <Button Style="{StaticResource GhostPill}" HorizontalAlignment="Left" Padding="12,6" Margin="0,0,0,10"
+                            Content="Забыть привычки" Click="ResetHabits_Click"/>
                     <TextBlock Text="Прятать остров поверх программ" FontSize="13" Margin="0,6,0,6"/>
                     <WrapPanel x:Name="HideAppChips"/>
                     <TextBlock x:Name="HideAppsEmpty" Style="{StaticResource Muted}" Text="Например, игры без полного экрана или программы для созвонов" TextWrapping="Wrap" Margin="0,0,0,6"/>
@@ -1137,6 +1144,7 @@
                     <CheckBox x:Name="LockSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Закрепить на месте (не перетаскивать)"/>
                     <CheckBox x:Name="CapsSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Показывать Caps Lock"/>
                     <CheckBox x:Name="LayoutSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Показывать смену раскладки"/>
+                    <CheckBox x:Name="DiscordSideSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Звонок Discord — отдельным островком справа"/>
                     <CheckBox x:Name="CaptureSwitch" Style="{StaticResource Switch}" Click="Behavior_Click" Content="Скрывать остров на скриншотах и демонстрации экрана"/>
                     <TextBlock Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,-4,0,8"
                                Text="Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным. Пока работает запись NVIDIA, остров сам остаётся видимым — иначе она не пишет рабочий стол"/>

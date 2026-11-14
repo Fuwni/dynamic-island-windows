@@ -192,9 +192,11 @@ public partial class MainWindow
         HandDrawnSwitch.IsChecked = _settings.HandDrawn;
         GameStatsSwitch.IsChecked = _settings.GameStats;
         LockSwitch.IsChecked = _settings.LockPosition;
+        SmartSwitch.IsChecked = _settings.SmartIsland;
         FillHideAppPicker();
         CapsSwitch.IsChecked = _settings.ShowCapsLock;
         LayoutSwitch.IsChecked = _settings.ShowKeyboardLayout;
+        DiscordSideSwitch.IsChecked = _settings.DiscordSidePill;
         CaptureSwitch.IsChecked = HideFromCapture;
         ScaleSlider.Value = Math.Clamp(_settings.IslandScale, 80, 130);
         ScaleValue.Text = $"{_settings.IslandScale}%";
@@ -305,8 +307,10 @@ public partial class MainWindow
         _settings.HideInFullscreen = FullscreenSwitch.IsChecked == true;
         _settings.GameStats = GameStatsSwitch.IsChecked == true;
         _settings.LockPosition = LockSwitch.IsChecked == true;
+        _settings.SmartIsland = SmartSwitch.IsChecked == true;
         _settings.ShowCapsLock = CapsSwitch.IsChecked == true;
         _settings.ShowKeyboardLayout = LayoutSwitch.IsChecked == true;
+        _settings.DiscordSidePill = DiscordSideSwitch.IsChecked == true;
         if (HideFromCapture != (CaptureSwitch.IsChecked == true))
         {
             _settings.CaptureHidden = CaptureSwitch.IsChecked == true;

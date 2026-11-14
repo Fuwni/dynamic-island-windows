@@ -63,6 +63,7 @@ public partial class MainWindow
 
     private void UpdateLive()
     {
+        WatchTyping();
         _timer.Tick();
         UpdateEyesVisibility();
 
@@ -89,7 +90,7 @@ public partial class MainWindow
                 lives.Add(("focus", "\uE708", L.F("Не беспокоить · {0}:{1:00}", (int)left.TotalMinutes, left.Seconds), -1,
                            new SolidColorBrush(Color.FromRgb(0x5E, 0x5C, 0xE6))));
             }
-            if (_discordInCall)
+            if (_discordInCall && !DiscordBeside)
                 lives.Add(("discord", "\uE7F6",
                            _audio.MicMuted == true ? L.T("Discord · микрофон выкл") : _discordSpeaking ? L.T("Discord · говорят") : L.T("Discord · в канале"),
                            _discordSpeaking ? 1 : 0, new SolidColorBrush(Color.FromRgb(0x58, 0x65, 0xF2))));
@@ -113,6 +114,7 @@ public partial class MainWindow
         _liveIds = lives.Select(l => l.Id).ToList();
         if (pick.Id != null) { icon = pick.Icon; text = pick.Text; ring = pick.Ring; ringBrush = pick.Brush; }
         UpdateLiveDots(pick.Id);
+        UpdateDiscordPill();
 
         LiveSlot.Visibility = icon != null ? Visibility.Visible : Visibility.Collapsed;
         if (icon != null)
@@ -214,6 +216,8 @@ public partial class MainWindow
 
         if (_slowCount % 2 == 0 && _settings.MirrorNotifications) await PollNotificationsAsync();
         if (_slowCount % 900 == 0) _ = _calendar.RefreshAsync();
+        TrackHabits();
+        if (_slowCount % 30 == 1) WatchBattery();
         if (_slowCount % 30 == 0 && _settings.CaptureHidden == null)   // NVIDIA's recorder may start later
         {
             bool was = _excluded == true;
@@ -239,8 +243,10 @@ public partial class MainWindow
             _unread++;
             if (FocusMode.IsOn) continue; // quiet, only the counter grows
             Brush? badge = m.Logo != null ? new ImageBrush(m.Logo) { Stretch = Stretch.UniformToFill } : null;
-            ShowToast(m.Logo != null ? "" : "", m.Title, string.IsNullOrEmpty(m.Body) ? m.App : m.Body,
-                () => FocusApp(m.App), badge, ms: 5000);
+            var msg = m;
+            // the smart island holds messages while you type and shows them at the first pause
+            WhenNotTyping(() => ShowToast(msg.Logo != null ? "" : "", msg.Title, string.IsNullOrEmpty(msg.Body) ? msg.App : msg.Body,
+                () => FocusApp(msg.App), badge, ms: 5000));
         }
     }
 

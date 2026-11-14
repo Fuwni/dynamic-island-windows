@@ -37,7 +37,7 @@ public partial class MainWindow
     /// Light graphics: on weak PCs every effect is a full redraw of a see-through window on the CPU.
     /// Default: on when the graphics card is not fully accelerated or there are 4 logical cores or fewer.
     /// </summary>
-    private bool Lite => _settings.LiteGraphics ?? (AutoLite || _slowPcSeen);
+    private bool Lite => _settings.LiteGraphics ?? (AutoLite || _slowPcSeen || _batterySaver);
 
     // the island watches its own animations: if many frames come late, light graphics switch on by themselves
     private bool _slowPcSeen;
@@ -256,8 +256,19 @@ public partial class MainWindow
 
         if (_posActive)
         {
-            _px.Step(dt);
-            _py.Step(dt);
+            if (_dragging && !DragOnSpring)
+            {
+                // while the hand holds it, the island sits exactly where the cursor is *now* (read this frame,
+                // not at the last mouse event) — a spring here trails the cursor by tens of pixels
+                var (tx, ty) = DragTarget(CursorDip());
+                _px.Target = tx; _py.Target = ty;
+                _px.Snap(tx); _py.Snap(ty);
+            }
+            else
+            {
+                _px.Step(dt);
+                _py.Step(dt);
+            }
             if (_hwnd != IntPtr.Zero)
             {
                 var dpi = VisualTreeHelper.GetDpi(this);

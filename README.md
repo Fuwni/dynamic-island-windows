@@ -30,7 +30,7 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 ## Contents
 
-- [What's new in 1.6](#whats-new-in-16)
+- [What's new in 1.7](#whats-new-in-17)
 - [Features](#features)
 - [Install (2 minutes, no admin rights)](#install)
 - [How to use it](#how-to-use-it)
@@ -43,7 +43,14 @@ notes, a calendar, notifications and a little character that lives in the pill �
 
 ---
 
-## What's new in 1.6
+## What's new in 1.7
+
+- 🌸☀️🍂❄️ **Season themes**: animated spring, summer, autumn and winter scenes inside the island.
+- 🧠 **Smart island**: opens on what matters now or on your usual tab, stays quiet while you type, saves battery.
+- 🎧 **Discord call** as its own little island beside the main one.
+- 🖐️ **Dragging** follows the cursor without lag.
+
+### Earlier, in 1.6
 
 - 🛠️ **1.6.1**: FPS in games without signing out, weather without a VPN, Caps Lock / layout no longer fold the island, NVIDIA recording works, a smoothness report.
 - 📏 **Island size** from 80 to 130 %, and **lock in place** so it can't be dragged.

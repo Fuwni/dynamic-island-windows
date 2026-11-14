@@ -522,5 +522,18 @@
  "В Telegram Desktop включите «Настройки → Уведомления → Системные уведомления», иначе Telegram показывает свои окна, которые Windows не видит.": "Schalte in Telegram Desktop Einstellungen → Benachrichtigungen → „Systembenachrichtigungen verwenden“ ein, sonst zeigt Telegram eigene Fenster, die Windows nicht sieht.",
  "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным. Пока работает запись NVIDIA, остров сам остаётся видимым — иначе она не пишет рабочий стол": "Wenn aus, ist die Insel in Screenshots, Aufnahmen und Zoom/Discord sichtbar, aber das Glas wird deckend. Solange die NVIDIA-Aufnahme läuft, bleibt die Insel von selbst sichtbar — sonst nimmt sie den Desktop nicht auf",
  "Скопировать отчёт о плавности": "Flüssigkeitsbericht kopieren",
- "Если остров дёргается — отправьте этот отчёт разработчику": "Wenn die Insel ruckelt, schick diesen Bericht an den Entwickler"
+ "Если остров дёргается — отправьте этот отчёт разработчику": "Wenn die Insel ruckelt, schick diesen Bericht an den Entwickler",
+ "Звонок в Discord · нажмите, чтобы открыть": "Discord-Anruf · zum Öffnen klicken",
+ "Звонок Discord — отдельным островком справа": "Discord-Anruf als kleine Insel rechts",
+ "Весна": "Frühling",
+ "Лето": "Sommer",
+ "Осень": "Herbst",
+ "Зима": "Winter",
+ "Привычки забыты": "Gewohnheiten vergessen",
+ "Остров начнёт учиться заново": "Die Insel lernt von vorn",
+ "Мало заряда — облегчённая графика": "Akku schwach — leichte Grafik",
+ "Эффекты вернутся, когда подключите зарядку": "Effekte kommen zurück, wenn du das Ladegerät ansteckst",
+ "Умный остров": "Smarte Insel",
+ "Открывается на том, что важно сейчас (таймер, звонок, скопированное, музыка) или на вкладке, которую вы обычно открываете в это время. Пока вы печатаете, не раскрывается от курсора, а сообщения ждут паузы. При низком заряде ноутбука включает облегчённую графику. Привычки хранятся только на этом ПК.": "Öffnet sich mit dem, was gerade wichtig ist (Timer, Anruf, Kopiertes, Musik) oder mit dem Tab, den du um diese Zeit meist öffnest. Beim Tippen klappt sie unter dem Cursor nicht auf, und Nachrichten warten auf eine Pause. Bei schwachem Laptop-Akku schaltet sie auf leichte Grafik. Gewohnheiten bleiben nur auf diesem PC.",
+ "Забыть привычки": "Gewohnheiten vergessen"
 }

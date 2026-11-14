@@ -522,5 +522,18 @@
  "В Telegram Desktop включите «Настройки → Уведомления → Системные уведомления», иначе Telegram показывает свои окна, которые Windows не видит.": "In Telegram Desktop turn on Settings → Notifications → \"Use system notifications\", otherwise Telegram shows its own windows that Windows can't see.",
  "Если выключить, остров будет виден на скриншотах, записи и в Zoom/Discord, но эффект стекла станет сплошным. Пока работает запись NVIDIA, остров сам остаётся видимым — иначе она не пишет рабочий стол": "When off, the island shows up in screenshots, recordings and Zoom/Discord, but the glass turns solid. While NVIDIA's recorder runs, the island stays visible by itself — otherwise it won't record the desktop",
  "Скопировать отчёт о плавности": "Copy smoothness report",
- "Если остров дёргается — отправьте этот отчёт разработчику": "If the island stutters, send this report to the developer"
+ "Если остров дёргается — отправьте этот отчёт разработчику": "If the island stutters, send this report to the developer",
+ "Звонок в Discord · нажмите, чтобы открыть": "Discord call · click to open",
+ "Звонок Discord — отдельным островком справа": "Discord call as a small island on the right",
+ "Весна": "Spring",
+ "Лето": "Summer",
+ "Осень": "Autumn",
+ "Зима": "Winter",
+ "Привычки забыты": "Habits forgotten",
+ "Остров начнёт учиться заново": "The island will start learning again",
+ "Мало заряда — облегчённая графика": "Low battery — light graphics",
+ "Эффекты вернутся, когда подключите зарядку": "Effects come back when you plug in the charger",
+ "Умный остров": "Smart island",
+ "Открывается на том, что важно сейчас (таймер, звонок, скопированное, музыка) или на вкладке, которую вы обычно открываете в это время. Пока вы печатаете, не раскрывается от курсора, а сообщения ждут паузы. При низком заряде ноутбука включает облегчённую графику. Привычки хранятся только на этом ПК.": "Opens on what matters now (a timer, a call, something you copied, the music) or on the tab you usually open at this time. While you type it doesn't pop open under the cursor, and messages wait for a pause. On low laptop battery it switches to light graphics. Habits stay on this PC only.",
+ "Забыть привычки": "Forget habits"
 }
