@@ -1,0 +1,36 @@
+/* VK's ads inside the island's WebView2 — what people usually install VK Styles for.
+   Themes and fonts aren't covered here, only the ads. */
+[data-ad],
+[data-testid="ads_banner"],
+.ads_promoted,
+.wall_post_ads,
+._post_ads,
+.promoted_post,
+.promoted,
+[class*="Promoted"],
+[class*="promoted"],
+[class*="ads_promoted"],
+.ad_banner,
+.ads_banner,
+.left_ads,
+.right_ads,
+.ads_ad_rows,
+.audio_ads,
+.music_promo_block,
+#ads_ads,
+#ads_banner,
+.vkuiPromoBanner,
+[class*="PromoBanner"],
+[class*="promo_banner"] {
+    display: none !important;
+}
+
+/* «Реклама» in the recommendations and the sticky banners */
+.post--promoted,
+.post_ads,
+[data-testid="promoted"],
+[aria-label="Реклама"],
+.fixed_banner,
+.ads_sticky {
+    display: none !important;
+}

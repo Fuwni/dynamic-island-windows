@@ -324,6 +324,9 @@ public partial class MainWindow
                 Log.Write("music: web: " + e.ProcessFailedKind);
                 if (e.ProcessFailedKind == CoreWebView2ProcessFailedKind.BrowserProcessExited && _musicWeb == web) Dispatcher.BeginInvoke(CloseMusicSite);
             };
+            // the site's shim and styles, strictly before the first navigation
+            await MusicWebExtras.AttachAsync(core, site.Id);
+            if (_musicWeb != web) return;
             core.Navigate(_musicStartUrl);
         }
         catch (Exception ex)

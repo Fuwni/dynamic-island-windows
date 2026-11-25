@@ -59,6 +59,8 @@
 
   <ItemGroup>
     <None Update="Assets\claude-hook.ps1" CopyToOutputDirectory="PreserveNewest" />
+    <!-- шимы сайтов для встроенного плеера (ВК): правятся без пересборки, копия пользователя главнее -->
+    <None Update="Assets\music-extras\*" CopyToOutputDirectory="PreserveNewest" />
     <Resource Include="Assets\icon.ico" />
     <EmbeddedResource Include="Assets\lang\*.json" />
     <EmbeddedResource Include="CHANGELOG.md" LogicalName="DynamicIsland.CHANGELOG.md" />
