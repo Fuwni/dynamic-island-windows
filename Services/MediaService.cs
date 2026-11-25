@@ -109,6 +109,7 @@ public sealed class MediaService
     /// <summary>Diagnostics: every 10 seconds (and on a change) note which media sessions Windows has.</summary>
     private void LogSessions()
     {
+        if (!MusicWebExtras.Debug) return;   // diagnostics only: a log line is a disk write
         if (_manager == null || (DateTime.Now - _sessionsLogged).TotalSeconds < 10) return;
         _sessionsLogged = DateTime.Now;
         try

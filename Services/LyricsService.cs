@@ -101,8 +101,9 @@ public sealed partial class LyricsService
 
             _cache[cacheKey] = result;
             ToDisk(cacheKey, result);
-            Log.Write($"lyrics: {artist} — {title} (dur {(int)duration.TotalSeconds}): " +
-                      (result == null ? "not found" : result.Synced ? "found, time-synced" : "found, plain text"));
+            if (MusicWebExtras.Debug)
+                Log.Write($"lyrics: {artist} — {title} (dur {(int)duration.TotalSeconds}): " +
+                          (result == null ? "not found" : result.Synced ? "found, time-synced" : "found, plain text"));
             return result;
         }
         catch (Exception e)

@@ -533,27 +533,9 @@
                 lastSentPos = pos;
             } catch (e) {}
         }
-        // every 30 seconds a full slice of what playback actually lives on
+        // playback that stands still while it says it plays is worth a line, the rest is not
         if (playing() && pos === stuckPos) { if (++stuckTicks === 15) report('POSITION STUCK at ' + pos.toFixed(1) + ' | src ' + posSource); }
         else { stuckTicks = 0; stuckPos = pos; }
-
-        if (++posTicks % 30 === 0) {
-            var el = audioEl();
-            var bits = ['pos ' + pos.toFixed(1) + '/' + dur, 'src ' + posSource, 'playing ' + playing()];
-            try {
-                if (typeof player.getCurrentProgressTime === 'function') bits.push('progTime ' + JSON.stringify(player.getCurrentProgressTime()));
-                if (typeof player.getListenedTime === 'function') bits.push('listened ' + player.getListenedTime());
-                if (typeof player.getVolume === 'function') bits.push('vol ' + player.getVolume());
-            } catch (e) {}
-            if (el) {
-                bits.push('el t=' + (el.currentTime || 0).toFixed(1) + ' paused=' + el.paused + ' muted=' + el.muted +
-                          ' rs=' + el.readyState + ' src=' + String(el.src || '').slice(0, 40));
-                try { bits.push('drift ' + ((Number(player.getListenedTime() || 0)) - el.currentTime).toFixed(1)); } catch (e) {}
-            }
-            else bits.push('el none');
-            report('state: ' + bits.join(' | '));
-            posTicks = 0;
-        }
     }
 
     // ---------------- ads ----------------

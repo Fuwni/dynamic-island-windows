@@ -16,6 +16,13 @@ public static class MusicWebExtras
     public static string UserFolder => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DynamicIsland", "music-extras");
 
+    /// <summary>
+    /// Verbose diagnostics (the shim's reports, the session list): every line is a disk write, so they are
+    /// off unless asked for — ATOLL_DEBUG=1 or a file named `debug` in the user's music-extras folder.
+    /// </summary>
+    public static bool Debug { get; } = Environment.GetEnvironmentVariable("ATOLL_DEBUG") == "1"
+        || File.Exists(Path.Combine(UserFolder, "debug"));
+
     /// <summary>Ad hosts that are never fetched; ad-hosts.txt in the same folder appends to this list.</summary>
     private static readonly string[] DefaultAdHosts =
     [
@@ -65,13 +72,16 @@ public static class MusicWebExtras
             {
                 BlockAds(core);
 
-                // the shim reports what it sees (track, cover, position) into log.txt: no DevTools needed
-                core.Settings.IsWebMessageEnabled = true;
-                core.WebMessageReceived += (_, e) =>
+                // the shim's reports go into log.txt, and every one is a disk write: only for diagnostics
+                if (Debug)
                 {
-                    try { Log.Write($"{siteId} shim: " + e.TryGetWebMessageAsString()); }
-                    catch (Exception ex) { Log.Write($"{siteId} shim: " + ex.GetType().Name); }
-                };
+                    core.Settings.IsWebMessageEnabled = true;
+                    core.WebMessageReceived += (_, e) =>
+                    {
+                        try { Log.Write($"{siteId} shim: " + e.TryGetWebMessageAsString()); }
+                        catch (Exception ex) { Log.Write($"{siteId} shim: " + ex.GetType().Name); }
+                    };
+                }
             }
 
             var js = Read(siteId, ".js");
