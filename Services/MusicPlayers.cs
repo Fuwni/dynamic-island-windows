@@ -28,6 +28,8 @@ public static class MusicPlayers
         new("soundcloud", "SoundCloud", "https://soundcloud.com/", "https://soundcloud.com/search?q={0}", "https://soundcloud.com/you/sets"),
         new("deezer", "Deezer", "https://www.deezer.com/", "https://www.deezer.com/search/{0}", "https://www.deezer.com/profile/me/playlists"),
         new("apple", "Apple Music", "https://music.apple.com/", "https://music.apple.com/search?term={0}", "https://music.apple.com/library/all-playlists"),
+        // VK doesn't report to Windows media controls: its shim and the ad cleanup live in Assets/music-extras/vk.js and vk.css
+        new("vk", "VK Музыка", "https://vk.com/audio", "https://vk.com/audio?q={0}", "https://vk.com/audio"),
         new("radio", "Радио"),
         new("files", "Свои файлы"),
     ];
@@ -37,6 +39,7 @@ public static class MusicPlayers
     [
         "youtube.com", "spotify.com", "soundcloud.com", "deezer.com", "music.apple.com",
         "accounts.google.com", "appleid.apple.com", "idmsa.apple.com", "www.facebook.com",
+        "vk.com", "vk.ru",   // signing in goes through id.vk.com, which is under .vk.com
     ];
 
     /// <summary>The source with this id; the first one when it is unknown.</summary>
