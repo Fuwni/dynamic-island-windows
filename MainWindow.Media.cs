@@ -302,10 +302,18 @@ public partial class MainWindow
         _lyricIndex = index;
 
         // the folded island: the new line springs in, and the island springs to its width at that very moment
-        if (lyrics.Synced && index >= 0 && lines[index].Text.Length > 0)
+        if (index >= 0 && lines[index].Text.Length > 0)
         {
-            var next = index + 1 < lines.Count ? lines[index + 1].Time : lines[index].Time + TimeSpan.FromSeconds(4);
-            Karaoke.SetLine(lines[index].Text, lines[index].Time, next);
+            // no timestamps (LRCLIB/NetEase returned plain text): spread the lines evenly over the
+            // track, so the folded island still shows words — approximate, but not empty
+            var total = m.Duration > TimeSpan.Zero ? m.Duration : TimeSpan.FromSeconds(lines.Count * 4.0);
+            var step = TimeSpan.FromTicks(Math.Max(1, total.Ticks / Math.Max(1, lines.Count)));
+            var start = lyrics.Synced ? lines[index].Time : TimeSpan.FromTicks(step.Ticks * index);
+            var next = lyrics.Synced
+                ? (index + 1 < lines.Count ? lines[index + 1].Time : lines[index].Time + TimeSpan.FromSeconds(4))
+                : TimeSpan.FromTicks(step.Ticks * (index + 1));
+            if (!lyrics.Synced) Karaoke.Sync(at, m.IsPlaying);
+            Karaoke.SetLine(lines[index].Text, start, next);
             if (Karaoke.IsVisible && _mode == Mode.Compact && !_hidden && !_editMode)
             {
                 CompactView.InvalidateMeasure();   // the line's new width counts now, not after the next layout pass
