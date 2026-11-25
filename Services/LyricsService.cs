@@ -45,17 +45,22 @@ public sealed partial class LyricsService
         if (title.Length == 0) return null;
 
         var cacheKey = $"v2|{artist}\n{title}\n{Math.Round(duration.TotalSeconds / 2)}".ToLowerInvariant();
-        if (_cache.TryGetValue(cacheKey, out var cached)) return cached;
-        if (FromDisk(cacheKey) is { } disk) { _cache[cacheKey] = disk.Lyrics; return disk.Lyrics; }
-        if (DateTime.Now < _pauseUntil) return null;   // asked to slow down: not now, not cached
+
+        // a time-synced result is final, but plain text of an older lookup is worth another try:
+        // it may now be found synced by a source added later (only not-found entries expire on disk)
+        Lyrics? cachedLyrics = null;
+        if (_cache.TryGetValue(cacheKey, out var inMemory)) cachedLyrics = inMemory;
+        else if (FromDisk(cacheKey) is { } disk) { cachedLyrics = disk.Lyrics; _cache[cacheKey] = cachedLyrics; }
+        if (cachedLyrics is { Synced: true }) return cachedLyrics;
+        if (DateTime.Now < _pauseUntil) return cachedLyrics;   // asked to slow down: not now, not cached
 
         try
         {
-            Lyrics? result = null;
+            Lyrics? result = cachedLyrics;
             double seconds = Math.Round(duration.TotalSeconds);
 
             // 1) exact match (artist + title + duration within ±2 s on LRCLIB's side; album helps)
-            if (artist.Length > 0 && duration > TimeSpan.Zero)
+            if (result == null && artist.Length > 0 && duration > TimeSpan.Zero)
             {
                 var url = $"https://lrclib.net/api/get?track_name={E(title)}&artist_name={E(artist)}&duration={seconds}" +
                           (album.Length > 0 ? $"&album_name={E(album)}" : "");
@@ -158,9 +163,17 @@ public sealed partial class LyricsService
     /// <summary>A NetEase search hit: its id, title, artist and length in seconds.</summary>
     internal readonly record struct NetEaseSong(long Id, string Name, string Artist, double Seconds);
 
+    /// <summary>Both names are the same title once case, ё/е, punctuation and spacing are ignored.</summary>
+    internal static bool SameTitle(string a, string b)
+    {
+        static string N(string s) => new(s.ToLowerInvariant().Replace('ё', 'е').Where(char.IsLetterOrDigit).ToArray());
+        var x = N(a);
+        return x.Length > 0 && x == N(b);
+    }
+
     /// <summary>
-    /// Which NetEase hit belongs to this track: the same artist (a title alone would bring someone else's
-    /// words), a matching title and, when the length is known, a length within 5 s. 0 — none fits.
+    /// Which NetEase hit belongs to this track: the same artist, the same title and, when the length is
+    /// known, a length within 5 s. 0 — none fits.
     /// </summary>
     internal static long PickNetEase(IEnumerable<NetEaseSong> songs, string artist, string title, TimeSpan duration)
     {
@@ -170,8 +183,10 @@ public sealed partial class LyricsService
         {
             if (duration > TimeSpan.Zero && s.Seconds > 0 && Math.Abs(s.Seconds - duration.TotalSeconds) > 5) continue;
             if (!SameArtist(s.Artist, artist)) continue;
-            int score = (SameArtist(s.Name, title) ? 2 : 0) + 1;
-            if (score < 3 || score <= bestScore) continue;
+            // titles are compared exactly (normalised): a longer «Sayonara (Live)» is another recording
+            if (!SameTitle(s.Name, title)) continue;
+            int score = 2 + 1;
+            if (score <= bestScore) continue;
             bestScore = score;
             bestId = s.Id;
         }

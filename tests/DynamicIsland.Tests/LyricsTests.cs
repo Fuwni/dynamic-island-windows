@@ -395,4 +395,21 @@ public class NetEasePickTests
         LyricsService.NetEaseSong[] songs = [new(4, "Sayonara", "Enemy Inside", 290)];
         Assert.Equal(4, LyricsService.PickNetEase(songs, "Enemy Inside", "Sayonara", TimeSpan.Zero));
     }
+
+    [Fact]
+    public void SkipsALongerTitleOfTheSameArtist()
+    {
+        // «Sayonara (Live)» by the right artist is another recording: its timings would drift
+        LyricsService.NetEaseSong[] songs = [new(5, "Sayonara (Live)", "Enemy Inside", 164)];
+        Assert.Equal(0, LyricsService.PickNetEase(songs, "Enemy Inside", "Sayonara", Len));
+    }
+
+    [Fact]
+    public void TitleComparisonIgnoresCasePunctuationAndSpacing()
+    {
+        Assert.True(LyricsService.SameTitle("Sayonara", "SAYONARA"));
+        Assert.True(LyricsService.SameTitle("Гореть как звёзды", "гореть, как звезды!"));
+        Assert.False(LyricsService.SameTitle("Sayonara", "Sayonara (Live)"));
+        Assert.False(LyricsService.SameTitle("Sayonara", ""));
+    }
 }

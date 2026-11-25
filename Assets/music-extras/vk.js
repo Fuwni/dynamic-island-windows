@@ -283,21 +283,22 @@
         return false;
     }
 
-    function setHandlers(p) {
+    function setHandlers() {
         if (handlersSet || !navigator.mediaSession) return;
         handlersSet = true;
         var ms = navigator.mediaSession;
         var h = {
-            play: function () { try { p.play(); } catch (e) {} },
-            pause: function () { try { p.pause(); } catch (e) {} },
-            previoustrack: function () { try { p.playPrev(); } catch (e) {} },
-            nexttrack: function () { try { p.playNext(); } catch (e) {} }
+            // the live player, not the one that happened to exist when Windows registered the controls
+            play: function () { try { player && player.play(); } catch (e) {} },
+            pause: function () { try { player && player.pause(); } catch (e) {} },
+            previoustrack: function () { try { player && player.playPrev(); } catch (e) {} },
+            nexttrack: function () { try { player && player.playNext(); } catch (e) {} }
         };
         Object.keys(h).forEach(function (k) { try { ms.setActionHandler(k, h[k]); } catch (e) {} });
         try {
             ms.setActionHandler('seekto', function (d) {
                 if (!d || typeof d.seekTime !== 'number') return;
-                try { p.seekToTime(d.seekTime); } catch (e) {}
+                try { player && player.seekToTime(d.seekTime); } catch (e) {}
                 // after a seek the old sources lie: drop the choice and report the target position at once
                 chosenSrc = '';
                 needTimeline = true;
@@ -451,7 +452,7 @@
 
     function updateCore() {
         if (!navigator.mediaSession) return;
-        setHandlers(player);
+        setHandlers();
 
         var t = track();
         if (!t) {
