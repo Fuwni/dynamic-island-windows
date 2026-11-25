@@ -103,9 +103,47 @@ public sealed class MediaService
         }
     }
 
+    private DateTime _sessionsLogged = DateTime.MinValue;
+    private string _sessionsLast = "";
+
+    /// <summary>Diagnostics: every 10 seconds (and on a change) note which media sessions Windows has.</summary>
+    private void LogSessions()
+    {
+        if (!MusicWebExtras.Debug) return;   // diagnostics only: a log line is a disk write
+        if (_manager == null || (DateTime.Now - _sessionsLogged).TotalSeconds < 10) return;
+        _sessionsLogged = DateTime.Now;
+        try
+        {
+            var line = string.Join("; ", _manager.GetSessions().Select(s =>
+            {
+                var state = "?";
+                try { state = s.GetPlaybackInfo().PlaybackStatus.ToString(); } catch { }
+                return $"{s.SourceAppUserModelId ?? "?"}={state}";
+            }));
+            if (line == _sessionsLast) return;
+            _sessionsLast = line;
+            Log.Write("media sessions: " + (line.Length == 0 ? "NONE" : line));
+        }
+        catch (Exception ex) { Log.Write("media sessions: " + ex.GetType().Name); }
+    }
+
     /// <summary>Call ~once a second: picks up AIMP / Winamp when no modern player is active.</summary>
     public void PollLegacy()
     {
+        LogSessions();
+
+        // the session we hold may be gone (the player closed, the page reloaded): take the live one,
+        // otherwise the island says "play something" forever while a track plays in a new session
+        if (_manager != null && _session != null && _appId.Length > 0)
+        {
+            try
+            {
+                if (_manager.GetSessions().All(s => s.SourceAppUserModelId != _appId) && _manager.GetCurrentSession() is { } alive)
+                    Attach(alive);
+            }
+            catch (Exception ex) { Log.Write("media: stale: " + ex.GetType().Name); }
+        }
+
         // Windows' "current" session can be a paused tab while another app plays - follow the one that plays
         if (_chosen.Length > 0 && _manager != null)
         {

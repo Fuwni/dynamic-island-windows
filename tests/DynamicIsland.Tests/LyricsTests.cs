@@ -357,3 +357,59 @@ public class KaraokeLightTests
         Assert.True(darkMax <= 80, $"unsung part reaches {darkMax} (a gradient restarted inside the line)");
     }
 }
+
+public class NetEasePickTests
+{
+    private static readonly TimeSpan Len = TimeSpan.FromSeconds(164);
+
+    [Fact]
+    public void RequiresTheSameArtist()
+    {
+        // the title matches, the artist does not: someone else's words must never be shown
+        LyricsService.NetEaseSong[] songs = [new(1, "Sayonara", "Another Band", 164)];
+        Assert.Equal(0, LyricsService.PickNetEase(songs, "Enemy Inside", "Sayonara", Len));
+    }
+
+    [Fact]
+    public void TakesTheRightTrack()
+    {
+        LyricsService.NetEaseSong[] songs =
+        [
+            new(1, "Sayonara", "Another Band", 164),
+            new(2, "Sayonara", "Enemy Inside", 164),
+        ];
+        Assert.Equal(2, LyricsService.PickNetEase(songs, "Enemy Inside", "Sayonara", Len));
+    }
+
+    [Fact]
+    public void SkipsAnotherVersionOfTheRightTrack()
+    {
+        // same artist and title, but a live version a minute longer: it would be out of sync
+        LyricsService.NetEaseSong[] songs = [new(3, "Sayonara", "Enemy Inside", 290)];
+        Assert.Equal(0, LyricsService.PickNetEase(songs, "Enemy Inside", "Sayonara", Len));
+    }
+
+    [Fact]
+    public void LengthIsIgnoredWhenUnknown()
+    {
+        LyricsService.NetEaseSong[] songs = [new(4, "Sayonara", "Enemy Inside", 290)];
+        Assert.Equal(4, LyricsService.PickNetEase(songs, "Enemy Inside", "Sayonara", TimeSpan.Zero));
+    }
+
+    [Fact]
+    public void SkipsALongerTitleOfTheSameArtist()
+    {
+        // «Sayonara (Live)» by the right artist is another recording: its timings would drift
+        LyricsService.NetEaseSong[] songs = [new(5, "Sayonara (Live)", "Enemy Inside", 164)];
+        Assert.Equal(0, LyricsService.PickNetEase(songs, "Enemy Inside", "Sayonara", Len));
+    }
+
+    [Fact]
+    public void TitleComparisonIgnoresCasePunctuationAndSpacing()
+    {
+        Assert.True(LyricsService.SameTitle("Sayonara", "SAYONARA"));
+        Assert.True(LyricsService.SameTitle("Гореть как звёзды", "гореть, как звезды!"));
+        Assert.False(LyricsService.SameTitle("Sayonara", "Sayonara (Live)"));
+        Assert.False(LyricsService.SameTitle("Sayonara", ""));
+    }
+}

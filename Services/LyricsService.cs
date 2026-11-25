@@ -45,17 +45,22 @@ public sealed partial class LyricsService
         if (title.Length == 0) return null;
 
         var cacheKey = $"v2|{artist}\n{title}\n{Math.Round(duration.TotalSeconds / 2)}".ToLowerInvariant();
-        if (_cache.TryGetValue(cacheKey, out var cached)) return cached;
-        if (FromDisk(cacheKey) is { } disk) { _cache[cacheKey] = disk.Lyrics; return disk.Lyrics; }
-        if (DateTime.Now < _pauseUntil) return null;   // asked to slow down: not now, not cached
+
+        // a time-synced result is final, but plain text of an older lookup is worth another try:
+        // it may now be found synced by a source added later (only not-found entries expire on disk)
+        Lyrics? cachedLyrics = null;
+        if (_cache.TryGetValue(cacheKey, out var inMemory)) cachedLyrics = inMemory;
+        else if (FromDisk(cacheKey) is { } disk) { cachedLyrics = disk.Lyrics; _cache[cacheKey] = cachedLyrics; }
+        if (cachedLyrics is { Synced: true }) return cachedLyrics;
+        if (DateTime.Now < _pauseUntil) return cachedLyrics;   // asked to slow down: not now, not cached
 
         try
         {
-            Lyrics? result = null;
+            Lyrics? result = cachedLyrics;
             double seconds = Math.Round(duration.TotalSeconds);
 
             // 1) exact match (artist + title + duration within ±2 s on LRCLIB's side; album helps)
-            if (artist.Length > 0 && duration > TimeSpan.Zero)
+            if (result == null && artist.Length > 0 && duration > TimeSpan.Zero)
             {
                 var url = $"https://lrclib.net/api/get?track_name={E(title)}&artist_name={E(artist)}&duration={seconds}" +
                           (album.Length > 0 ? $"&album_name={E(album)}" : "");
@@ -86,8 +91,19 @@ public sealed partial class LyricsService
                 }
             }
 
+            // 3) NetEase: ready-made time-synced LRC, including Russian tracks LRCLIB doesn't have.
+            // Asked also when LRCLIB had plain text only: a karaoke line beats a wall of words.
+            if (result == null || !result.Synced)
+            {
+                var synced = await FromNetEaseAsync(artist, title, duration);
+                if (synced != null) result = synced;
+            }
+
             _cache[cacheKey] = result;
             ToDisk(cacheKey, result);
+            if (MusicWebExtras.Debug)
+                Log.Write($"lyrics: {artist} — {title} (dur {(int)duration.TotalSeconds}): " +
+                          (result == null ? "not found" : result.Synced ? "found, time-synced" : "found, plain text"));
             return result;
         }
         catch (Exception e)
@@ -96,6 +112,91 @@ public sealed partial class LyricsService
             return null; // network problem: don't cache, try again next time
         }
     }
+
+    /// <summary>
+    /// NetEase Cloud Music: its open search has many ready-made LRC files with timestamps (including Russian
+    /// tracks missing from LRCLIB). Only a title+artist match within ±5 s of the track's length is taken.
+    /// </summary>
+    private async Task<Lyrics?> FromNetEaseAsync(string artist, string title, TimeSpan duration)
+    {
+        try
+        {
+            var query = (MainArtist(artist) + " " + title).Trim();
+            if (title.Length == 0) return null;
+
+            using var search = await TryGetJsonAsync($"https://music.163.com/api/search/get?s={E(query)}&type=1&limit=10");
+            if (search == null) return null;
+            if (!search.RootElement.TryGetProperty("result", out var found) || found.ValueKind != JsonValueKind.Object) return null;
+            if (!found.TryGetProperty("songs", out var songs) || songs.ValueKind != JsonValueKind.Array) return null;
+
+            var found2 = new List<NetEaseSong>();
+            foreach (var s in songs.EnumerateArray())
+            {
+                if (!s.TryGetProperty("id", out var id) || id.ValueKind != JsonValueKind.Number) continue;
+                long songId;
+                try { songId = id.GetInt64(); } catch { continue; }   // one odd id must not drop every result
+                var name = s.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
+                var who = "";
+                if (s.TryGetProperty("artists", out var artists) && artists.ValueKind == JsonValueKind.Array && artists.GetArrayLength() > 0)
+                    who = artists[0].TryGetProperty("name", out var an) ? an.GetString() ?? "" : "";
+                var ms = s.TryGetProperty("duration", out var d) && d.ValueKind == JsonValueKind.Number ? d.GetDouble() : 0;
+                found2.Add(new NetEaseSong(songId, name, who, ms / 1000.0));
+            }
+
+            var bestId = PickNetEase(found2, artist, title, duration);
+            if (bestId == 0) return null;
+
+            using var doc = await TryGetJsonAsync($"https://music.163.com/api/song/lyric?id={bestId}&lv=1&kv=1&tv=1");
+            if (doc == null || !doc.RootElement.TryGetProperty("lrc", out var lrc) || lrc.ValueKind != JsonValueKind.Object) return null;
+            var text = lrc.TryGetProperty("lyric", out var t) && t.ValueKind == JsonValueKind.String ? t.GetString() ?? "" : "";
+            if (text.Length == 0) return null;
+
+            var lines = ParseLrc(CreditsLine().Replace(text, ""))
+                .Where(l => l.Text.Trim(' ', '.', '-', '…', '　').Length > 0)
+                .ToList();
+            if (lines.Count == 0) return null;
+            Log.Write($"lyrics: netease: {artist} — {title}: {lines.Count} time-synced lines");
+            return new Lyrics(lines, true);
+        }
+        catch (Exception e) { Log.Write("lyrics: netease: " + e.Message); return null; }
+    }
+
+    /// <summary>A NetEase search hit: its id, title, artist and length in seconds.</summary>
+    internal readonly record struct NetEaseSong(long Id, string Name, string Artist, double Seconds);
+
+    /// <summary>Both names are the same title once case, ё/е, punctuation and spacing are ignored.</summary>
+    internal static bool SameTitle(string a, string b)
+    {
+        static string N(string s) => new(s.ToLowerInvariant().Replace('ё', 'е').Where(char.IsLetterOrDigit).ToArray());
+        var x = N(a);
+        return x.Length > 0 && x == N(b);
+    }
+
+    /// <summary>
+    /// Which NetEase hit belongs to this track: the same artist, the same title and, when the length is
+    /// known, a length within 5 s. 0 — none fits.
+    /// </summary>
+    internal static long PickNetEase(IEnumerable<NetEaseSong> songs, string artist, string title, TimeSpan duration)
+    {
+        long bestId = 0;
+        int bestScore = 0;
+        foreach (var s in songs)
+        {
+            if (duration > TimeSpan.Zero && s.Seconds > 0 && Math.Abs(s.Seconds - duration.TotalSeconds) > 5) continue;
+            if (!SameArtist(s.Artist, artist)) continue;
+            // titles are compared exactly (normalised): a longer «Sayonara (Live)» is another recording
+            if (!SameTitle(s.Name, title)) continue;
+            int score = 2 + 1;
+            if (score <= bestScore) continue;
+            bestScore = score;
+            bestId = s.Id;
+        }
+        return bestId;
+    }
+
+    /// <summary>NetEase LRC credits lines: «作词 : …», «作曲 : …» and the other titles.</summary>
+    [GeneratedRegex(@"^\s*\[[^\]]*\]\s*(作词|作曲|编曲|制作|混音|母带|录音|和声|吉他|贝斯|鼓|键盘|出品|监制|统筹|发行|词|曲|OP|SP)\s*[:：].*$", RegexOptions.Multiline)]
+    private static partial Regex CreditsLine();
 
     private async Task<JsonDocument?> TryGetJsonAsync(string url)
     {
@@ -106,7 +207,11 @@ public sealed partial class LyricsService
             _pauseUntil = DateTime.Now + wait + TimeSpan.FromSeconds(Random.Shared.NextDouble() * wait.TotalSeconds * 0.3);
             throw new HttpRequestException($"LRCLIB asks to wait {wait.TotalSeconds:0} s");
         }
-        if (!response.IsSuccessStatusCode) return null;
+        if (!response.IsSuccessStatusCode)
+        {
+            Log.Write($"lyrics: HTTP {(int)response.StatusCode} {url}");
+            return null;
+        }
         return JsonDocument.Parse(await response.Content.ReadAsStringAsync());
     }
 
