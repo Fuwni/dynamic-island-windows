@@ -123,22 +123,21 @@ public sealed partial class LyricsService
             if (!search.RootElement.TryGetProperty("result", out var found) || found.ValueKind != JsonValueKind.Object) return null;
             if (!found.TryGetProperty("songs", out var songs) || songs.ValueKind != JsonValueKind.Array) return null;
 
-            long bestId = 0;
-            int bestScore = 0;
+            var found2 = new List<NetEaseSong>();
             foreach (var s in songs.EnumerateArray())
             {
+                if (!s.TryGetProperty("id", out var id) || id.ValueKind != JsonValueKind.Number) continue;
+                long songId;
+                try { songId = id.GetInt64(); } catch { continue; }   // one odd id must not drop every result
                 var name = s.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
                 var who = "";
                 if (s.TryGetProperty("artists", out var artists) && artists.ValueKind == JsonValueKind.Array && artists.GetArrayLength() > 0)
                     who = artists[0].TryGetProperty("name", out var an) ? an.GetString() ?? "" : "";
                 var ms = s.TryGetProperty("duration", out var d) && d.ValueKind == JsonValueKind.Number ? d.GetDouble() : 0;
-                if (duration > TimeSpan.Zero && ms > 0 && Math.Abs(ms / 1000.0 - duration.TotalSeconds) > 5) continue;
-                int score = (SameArtist(name, title) ? 2 : 0) + (SameArtist(who, artist) ? 1 : 0);
-                if (score < 2 || score <= bestScore) continue;
-                if (!s.TryGetProperty("id", out var id) || id.ValueKind != JsonValueKind.Number) continue;
-                bestScore = score;
-                bestId = id.GetInt64();
+                found2.Add(new NetEaseSong(songId, name, who, ms / 1000.0));
             }
+
+            var bestId = PickNetEase(found2, artist, title, duration);
             if (bestId == 0) return null;
 
             using var doc = await TryGetJsonAsync($"https://music.163.com/api/song/lyric?id={bestId}&lv=1&kv=1&tv=1");
@@ -154,6 +153,29 @@ public sealed partial class LyricsService
             return new Lyrics(lines, true);
         }
         catch (Exception e) { Log.Write("lyrics: netease: " + e.Message); return null; }
+    }
+
+    /// <summary>A NetEase search hit: its id, title, artist and length in seconds.</summary>
+    internal readonly record struct NetEaseSong(long Id, string Name, string Artist, double Seconds);
+
+    /// <summary>
+    /// Which NetEase hit belongs to this track: the same artist (a title alone would bring someone else's
+    /// words), a matching title and, when the length is known, a length within 5 s. 0 — none fits.
+    /// </summary>
+    internal static long PickNetEase(IEnumerable<NetEaseSong> songs, string artist, string title, TimeSpan duration)
+    {
+        long bestId = 0;
+        int bestScore = 0;
+        foreach (var s in songs)
+        {
+            if (duration > TimeSpan.Zero && s.Seconds > 0 && Math.Abs(s.Seconds - duration.TotalSeconds) > 5) continue;
+            if (!SameArtist(s.Artist, artist)) continue;
+            int score = (SameArtist(s.Name, title) ? 2 : 0) + 1;
+            if (score < 3 || score <= bestScore) continue;
+            bestScore = score;
+            bestId = s.Id;
+        }
+        return bestId;
     }
 
     /// <summary>NetEase LRC credits lines: «作词 : …», «作曲 : …» and the other titles.</summary>

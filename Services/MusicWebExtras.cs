@@ -107,6 +107,9 @@ public static class MusicWebExtras
 
     /// <summary>CSS as a script that appends a style element: WebView2 has no CSS injection of its own.</summary>
     internal static string CssInjector(string css) =>
-        "(function(){try{var s=document.createElement('style');s.textContent=" + JsonSerializer.Serialize(css) +
-        ";document.documentElement.appendChild(s);}catch(e){}})();";
+        "(function(){var css=" + JsonSerializer.Serialize(css) + ";" +
+        "function put(){try{var s=document.createElement('style');s.textContent=css;" +
+        "(document.head||document.documentElement).appendChild(s);}catch(e){}}" +
+        "if(document.head||document.documentElement)put();else document.addEventListener('DOMContentLoaded',put,{once:true});" +
+        "})();";
 }

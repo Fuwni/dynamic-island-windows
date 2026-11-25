@@ -290,13 +290,18 @@ public partial class MainWindow
         var at = LyricsPosition();
         int index;
         if (lyrics.Synced) index = LyricsService.LineAt(lines, at + TimeSpan.FromMilliseconds(200));
-        else
+        else if (m.Duration > TimeSpan.Zero)
         {
-            double frac = m.Duration > TimeSpan.Zero ? at.TotalSeconds / m.Duration.TotalSeconds : 0;
+            double frac = at.TotalSeconds / m.Duration.TotalSeconds;
             index = Math.Clamp((int)(frac * lines.Count), 0, lines.Count - 1);
         }
+        else
+        {
+            index = Math.Clamp((int)(at.TotalSeconds / 4), 0, lines.Count - 1);   // no length: a line every 4 s
+        }
 
-        if (lyrics.Synced) Karaoke.Sync(at, m.IsPlaying);
+        // also for plain text: without this the line keeps sliding while the player is paused
+        Karaoke.Sync(at, m.IsPlaying);
         if (index == _lyricIndex) return;
         bool forward = index > _lyricIndex && _lyricIndex != int.MinValue;
         _lyricIndex = index;
@@ -312,7 +317,6 @@ public partial class MainWindow
             var next = lyrics.Synced
                 ? (index + 1 < lines.Count ? lines[index + 1].Time : lines[index].Time + TimeSpan.FromSeconds(4))
                 : TimeSpan.FromTicks(step.Ticks * (index + 1));
-            if (!lyrics.Synced) Karaoke.Sync(at, m.IsPlaying);
             Karaoke.SetLine(lines[index].Text, start, next);
             if (Karaoke.IsVisible && _mode == Mode.Compact && !_hidden && !_editMode)
             {
