@@ -23,7 +23,7 @@ public static class LegacyPlayers
     private static IntPtr Winamp => Native.FindWindow("Winamp v1.x", null);
     private static IntPtr AimpRemote => Native.FindWindow("AIMP2_RemoteInfo", "AIMP2_RemoteInfo");
 
-    public static Track? Detect()
+    public static Track? Detect(bool skipAimp = false)
     {
         var wa = Winamp;
         if (wa != IntPtr.Zero)
@@ -59,11 +59,14 @@ public static class LegacyPlayers
             }
         }
 
-        var aimp = WindowTitles("AIMP").FirstOrDefault();
-        if (aimp != null && aimp.Length > 0 && !aimp.StartsWith("AIMP", StringComparison.OrdinalIgnoreCase))
+        if (!skipAimp)
         {
-            var (artist, song) = Split(aimp);
-            return new Track("AIMP", artist, song, true);
+            var aimp = WindowTitles("AIMP").FirstOrDefault();
+            if (aimp != null && aimp.Length > 0 && !aimp.StartsWith("AIMP", StringComparison.OrdinalIgnoreCase))
+            {
+                var (artist, song) = Split(aimp);
+                return new Track("AIMP", artist, song, true);
+            }
         }
         return null;
     }

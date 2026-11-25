@@ -37,9 +37,10 @@ public sealed record MediaSnapshot(
 /// Reads "now playing" from any app that reports to Windows media controls
 /// (Spotify, Яндекс Музыка, AIMP, browsers, etc.) and controls playback.
 /// </summary>
-public sealed class MediaService
+public sealed class MediaService : IDisposable
 {
     private readonly object _lock = new();
+    private readonly AimpRemote _aimp = new();
     private GlobalSystemMediaTransportControlsSessionManager? _manager;
     private GlobalSystemMediaTransportControlsSession? _session;
 
@@ -49,30 +50,57 @@ public sealed class MediaService
     private bool _playing;
     private TimeSpan _position, _duration;
     private DateTimeOffset _positionAt;
+    private bool _useAimp;
 
     public event Action? Changed;
+
+    private static bool IsAimpSmtc(string? aumid) =>
+        !string.IsNullOrEmpty(aumid) && aumid.Contains("aimp", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>A session the user picked: followed even while another one plays (until it goes away).</summary>
     private string _chosen = "";
 
+    public void SetHostWindow(IntPtr hwnd) => _aimp.SetListenerWindow(hwnd);
+
+    public bool HandleWindowMessage(int msg, IntPtr wParam, IntPtr lParam) =>
+        _aimp.HandleWindowMessage(msg, wParam, lParam);
+
     /// <summary>Every app reporting to Windows media controls now: its media id, a name to show, whether it plays.</summary>
     public IReadOnlyList<(string AppId, string Name, bool Playing)> Sessions()
     {
-        if (_manager == null) return [];
-        try
+        var list = new List<(string AppId, string Name, bool Playing)>();
+        bool hasAimp = _aimp.IsConnected && _aimp.Current is { HasTrack: true };
+        if (_manager != null)
         {
-            return _manager.GetSessions().Select(s => (s.SourceAppUserModelId ?? "", PrettyAppName(s.SourceAppUserModelId ?? ""),
-                s.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)).ToList();
+            try
+            {
+                foreach (var s in _manager.GetSessions())
+                {
+                    var id = s.SourceAppUserModelId ?? "";
+                    if (hasAimp && IsAimpSmtc(id)) continue;
+                    list.Add((id, PrettyAppName(id),
+                        s.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing));
+                }
+            }
+            catch (Exception e) { Log.Write("media sessions: " + e.Message); }
         }
-        catch (Exception e) { Log.Write("media sessions: " + e.Message); return []; }
+        if (hasAimp && _aimp.Current is { } aimp)
+            list.Add((AimpRemote.AppId, "AIMP", aimp.IsPlaying));
+        return list;
     }
 
     /// <summary>Follow this app's session (the widget's switcher).</summary>
     public void Choose(string appId)
     {
+        if (appId == AimpRemote.AppId && _aimp.IsConnected)
+        {
+            lock (_lock) { _chosen = AimpRemote.AppId; _useAimp = true; }
+            Changed?.Invoke();
+            return;
+        }
         var s = _manager?.GetSessions().FirstOrDefault(x => x.SourceAppUserModelId == appId);
         if (s == null) return;
-        _chosen = appId;
+        lock (_lock) { _chosen = appId; _useAimp = false; }
         Attach(s);
     }
 
@@ -81,7 +109,9 @@ public sealed class MediaService
     {
         var list = Sessions();
         if (list.Count < 2) return;
-        int i = list.ToList().FindIndex(x => x.AppId == _appId);
+        string curId;
+        lock (_lock) curId = _useAimp ? AimpRemote.AppId : _appId;
+        int i = list.ToList().FindIndex(x => x.AppId == curId);
         Choose(list[(i + 1) % list.Count].AppId);
     }
 
@@ -91,6 +121,11 @@ public sealed class MediaService
         {
             lock (_lock)
             {
+                if (_useAimp && _aimp.Current is { HasTrack: true } aimp)
+                {
+                    return new MediaSnapshot(aimp.Title, aimp.Artist, "AIMP", AimpRemote.AppId, aimp.Art,
+                        aimp.IsPlaying, aimp.Position, aimp.PositionUpdatedAt, aimp.Duration) { Album = aimp.Album };
+                }
                 if (_session == null)
                 {
                     var l = _legacy;
@@ -106,25 +141,57 @@ public sealed class MediaService
     /// <summary>Call ~once a second: picks up AIMP / Winamp when no modern player is active.</summary>
     public void PollLegacy()
     {
-        // Windows' "current" session can be a paused tab while another app plays - follow the one that plays
-        if (_chosen.Length > 0 && _manager != null)
+        _aimp.Poll();
+
+        if (_chosen == AimpRemote.AppId && !_aimp.IsConnected) _chosen = "";
+        else if (_chosen.Length > 0 && _chosen != AimpRemote.AppId && _manager != null)
         {
             try { if (_manager.GetSessions().All(x => x.SourceAppUserModelId != _chosen)) _chosen = ""; }
             catch { _chosen = ""; }
         }
-        if (_manager != null && !_playing && _chosen.Length == 0)
+
+        var aimp = _aimp.Current;
+        bool aimpHasTrack = _aimp.IsConnected && aimp is { HasTrack: true };
+
+        if (_chosen.Length == 0)
         {
-            try
+            if (!_useAimp && aimpHasTrack && (aimp!.IsPlaying && (!_playing || IsAimpSmtc(_appId)) || _session == null || IsAimpSmtc(_appId)))
             {
-                var playing = _manager.GetSessions().FirstOrDefault(s =>
-                    s.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing);
-                if (playing != null && playing != _session) Attach(playing);
+                lock (_lock) _useAimp = true;
+                Changed?.Invoke();
+                return;
             }
-            catch (Exception ex) { Log.Error("media: sessions", ex); }
+            if (_useAimp && aimp is not { IsPlaying: true } && _manager != null)
+            {
+                try
+                {
+                    var playing = _manager.GetSessions().FirstOrDefault(s =>
+                        !IsAimpSmtc(s.SourceAppUserModelId) &&
+                        s.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing);
+                    if (playing != null)
+                    {
+                        lock (_lock) _useAimp = false;
+                        Attach(playing);
+                        return;
+                    }
+                }
+                catch (Exception ex) { Log.Error("media: sessions", ex); }
+            }
+            if (!_useAimp && _manager != null && !_playing)
+            {
+                try
+                {
+                    var playing = _manager.GetSessions().FirstOrDefault(s =>
+                        !(aimpHasTrack && IsAimpSmtc(s.SourceAppUserModelId)) &&
+                        s.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing);
+                    if (playing != null && playing != _session) Attach(playing);
+                }
+                catch (Exception ex) { Log.Error("media: sessions", ex); }
+            }
         }
 
-        if (_session != null) { _legacy = null; return; }
-        var now = LegacyPlayers.Detect();
+        if (_useAimp || _session != null) { _legacy = null; return; }
+        var now = LegacyPlayers.Detect(skipAimp: _aimp.IsConnected);
         if (now != _legacy)
         {
             _legacy = now;
@@ -132,28 +199,97 @@ public sealed class MediaService
         }
     }
 
-    /// <summary>Windows gave us its media sessions (false: the media API is not available on this system).</summary>
-    public bool Ready => _manager != null;
+    /// <summary>Windows gave us its media sessions or AIMP is connected.</summary>
+    public bool Ready => _manager != null || _aimp.IsConnected;
 
     public async Task InitAsync()
     {
+        _aimp.Changed += OnAimpChanged;
+        _aimp.Poll();
+
         _manager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
         _manager.CurrentSessionChanged += (m, _) =>
         {
-            // don't jump away from something that plays to a paused session
+            if (_chosen == AimpRemote.AppId && _aimp.IsConnected) return;
             var cur = m.GetCurrentSession();
             if (_chosen.Length > 0 && _session != null && cur?.SourceAppUserModelId != _chosen) return;
+            if (_useAimp && _aimp.Current is { IsPlaying: true })
+            {
+                if (cur == null || IsAimpSmtc(cur.SourceAppUserModelId) ||
+                    cur.GetPlaybackInfo().PlaybackStatus != GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
+                    return;
+                lock (_lock) _useAimp = false;
+            }
             if (_playing && _session != null && cur != null && cur != _session &&
                 cur.GetPlaybackInfo().PlaybackStatus != GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing) return;
+            if (_aimp.IsConnected && _aimp.Current is { HasTrack: true } && cur != null && IsAimpSmtc(cur.SourceAppUserModelId))
+            {
+                lock (_lock) _useAimp = true;
+                Changed?.Invoke();
+                return;
+            }
             Attach(cur);
         };
-        Attach(_manager.GetCurrentSession());
+        var initial = _manager.GetCurrentSession();
+        if (_useAimp && (initial == null || IsAimpSmtc(initial.SourceAppUserModelId) ||
+            initial.GetPlaybackInfo().PlaybackStatus != GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing))
+        {
+            return;
+        }
+        Attach(initial);
+    }
+
+    public void Dispose()
+    {
+        _aimp.Changed -= OnAimpChanged;
+        _aimp.Dispose();
+    }
+
+    private void OnAimpChanged()
+    {
+        var aimp = _aimp.Current;
+        bool connected = _aimp.IsConnected;
+        bool hasTrack = connected && aimp is { HasTrack: true };
+        bool notify = false;
+
+        lock (_lock)
+        {
+            if (!hasTrack)
+            {
+                if (_chosen == AimpRemote.AppId && !connected) _chosen = "";
+                if (_useAimp)
+                {
+                    _useAimp = false;
+                    notify = true;
+                }
+            }
+            else if (_chosen == AimpRemote.AppId)
+            {
+                _useAimp = true;
+                notify = true;
+            }
+            else if (_chosen.Length == 0)
+            {
+                if (_useAimp)
+                {
+                    notify = true;
+                }
+                else if (aimp!.IsPlaying && (!_playing || IsAimpSmtc(_appId)) || _session == null || IsAimpSmtc(_appId))
+                {
+                    _useAimp = true;
+                    notify = true;
+                }
+            }
+        }
+
+        if (notify) Changed?.Invoke();
     }
 
     private void Attach(GlobalSystemMediaTransportControlsSession? session)
     {
         lock (_lock)
         {
+            _useAimp = false;
             if (_session != null)
             {
                 _session.MediaPropertiesChanged -= OnPropertiesChanged;
@@ -189,14 +325,32 @@ public sealed class MediaService
 
     private void OnPlaybackChanged(GlobalSystemMediaTransportControlsSession s, PlaybackInfoChangedEventArgs e)
     {
-        lock (_lock) { if (s == _session) ReadPlayback(s); }
-        Changed?.Invoke();
+        bool changed = false;
+        lock (_lock)
+        {
+            if (s == _session)
+            {
+                ReadPlayback(s);
+                if (_useAimp && _chosen.Length == 0 && _playing && !IsAimpSmtc(_appId) && _aimp.Current is not { IsPlaying: true })
+                    _useAimp = false;
+                changed = !_useAimp;
+            }
+        }
+        if (changed) Changed?.Invoke();
     }
 
     private void OnTimelineChanged(GlobalSystemMediaTransportControlsSession s, TimelinePropertiesChangedEventArgs e)
     {
-        lock (_lock) { if (s == _session) ReadTimeline(s); }
-        Changed?.Invoke();
+        bool changed = false;
+        lock (_lock)
+        {
+            if (s == _session)
+            {
+                ReadTimeline(s);
+                changed = !_useAimp;
+            }
+        }
+        if (changed) Changed?.Invoke();
     }
 
     /// <summary>Diagnostics: what the player reports right now, untouched.</summary>
@@ -216,12 +370,24 @@ public sealed class MediaService
     private bool _canRepeat;
 
     /// <summary>The player's repeat mode (null when it doesn't tell) and whether it lets us change it.</summary>
-    public Windows.Media.MediaPlaybackAutoRepeatMode? Repeat { get { lock (_lock) return _session != null ? _repeat : null; } }
-    public bool CanRepeat { get { lock (_lock) return _session != null && _canRepeat; } }
+    public Windows.Media.MediaPlaybackAutoRepeatMode? Repeat
+    {
+        get
+        {
+            lock (_lock)
+            {
+                if (_useAimp && _aimp.Current is { HasTrack: true } aimp)
+                    return aimp.Repeat ? Windows.Media.MediaPlaybackAutoRepeatMode.Track : Windows.Media.MediaPlaybackAutoRepeatMode.None;
+                return _session != null ? _repeat : null;
+            }
+        }
+    }
+    public bool CanRepeat { get { lock (_lock) return (_useAimp && _aimp.IsConnected) || (_session != null && _canRepeat); } }
 
     /// <summary>Off → whole list → this track → off. Players that don't support it simply ignore the request.</summary>
     public async Task CycleRepeat()
     {
+        if (_useAimp && _aimp.IsConnected) { _aimp.CycleRepeat(); return; }
         try
         {
             var s = _session;
@@ -282,6 +448,7 @@ public sealed class MediaService
             if (props == null) return;
             var art = props.Thumbnail != null ? await LoadArtAsync(props.Thumbnail) : null;
 
+            bool notify;
             lock (_lock)
             {
                 if (s != _session) return;
@@ -289,8 +456,9 @@ public sealed class MediaService
                 _artist = props.Artist ?? "";
                 _album = props.AlbumTitle ?? "";
                 _art = art;
+                notify = !_useAimp;
             }
-            Changed?.Invoke();
+            if (notify) Changed?.Invoke();
         }
         catch { /* player refused or closed */ }
     }
@@ -324,7 +492,8 @@ public sealed class MediaService
     {
         try
         {
-            if (_session != null) await _session.TryTogglePlayPauseAsync();
+            if (_useAimp && _aimp.IsConnected) _aimp.PlayPause();
+            else if (_session != null) await _session.TryTogglePlayPauseAsync();
             else if (_legacy != null) LegacyPlayers.PlayPause(_legacy);
         }
         catch (Exception ex) { Log.Write("media: play/pause: " + ex.GetType().Name + ": " + ex.Message); }
@@ -334,7 +503,8 @@ public sealed class MediaService
     {
         try
         {
-            if (_session != null) await _session.TrySkipNextAsync();
+            if (_useAimp && _aimp.IsConnected) _aimp.Next();
+            else if (_session != null) await _session.TrySkipNextAsync();
             else if (_legacy != null) LegacyPlayers.Next(_legacy);
         }
         catch (Exception ex) { Log.Write("media: next: " + ex.GetType().Name + ": " + ex.Message); }
@@ -344,7 +514,8 @@ public sealed class MediaService
     {
         try
         {
-            if (_session != null) await _session.TrySkipPreviousAsync();
+            if (_useAimp && _aimp.IsConnected) _aimp.Previous();
+            else if (_session != null) await _session.TrySkipPreviousAsync();
             else if (_legacy != null) LegacyPlayers.Previous(_legacy);
         }
         catch (Exception ex) { Log.Write("media: previous: " + ex.GetType().Name + ": " + ex.Message); }
@@ -355,6 +526,11 @@ public sealed class MediaService
 
     public async Task Seek(TimeSpan position)
     {
+        if (_useAimp && _aimp.IsConnected)
+        {
+            _aimp.Seek(position);
+            return;
+        }
         if (_session != null && IsOwn(_appId)) 
         {
             if (OwnSeek?.Invoke(position) != true) return;
@@ -371,6 +547,11 @@ public sealed class MediaService
     /// <summary>Pause this app's session, whichever one the island shows.</summary>
     public async Task Pause(string appId)
     {
+        if (appId == AimpRemote.AppId && _aimp.IsConnected)
+        {
+            _aimp.Pause();
+            return;
+        }
         try
         {
             foreach (var s in _manager?.GetSessions() ?? [])

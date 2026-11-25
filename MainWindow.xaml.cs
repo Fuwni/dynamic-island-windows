@@ -3291,6 +3291,7 @@ public partial class MainWindow : Window
         Native.SetWindowLong(_hwnd, Native.GWL_EXSTYLE, Native.GetWindowLong(_hwnd, Native.GWL_EXSTYLE) | Native.WS_EX_TOOLWINDOW);
 
         HwndSource.FromHwnd(_hwnd)!.AddHook(WndProc);
+        _media.SetHostWindow(_hwnd);
         WatchWidgetPause();
         // the frosted glass photographs the screen behind the island: without this the island would
         // photograph itself (the glass turned opaque a second after opening). Also keeps it out of screenshots.
@@ -3373,6 +3374,7 @@ public partial class MainWindow : Window
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
+        if (_media.HandleWindowMessage(msg, wParam, lParam)) { handled = true; return new IntPtr(1); }
         if (msg == WidgetPause.WM_POWERBROADCAST && wParam.ToInt32() == WidgetPause.PBT_POWERSETTINGCHANGE) { OnPowerSetting(lParam); return IntPtr.Zero; }
         if (msg == Native.WM_CLIPBOARDUPDATE)
         {
@@ -3409,6 +3411,7 @@ public partial class MainWindow : Window
         for (int id = 1; id <= 7; id++) Native.UnregisterHotKey(_hwnd, id);
         Native.RemoveClipboardFormatListener(_hwnd);
         _sideToast?.Close();
+        _media.Dispose();
         ShutdownChat();
         ShutdownMusicPlayer();
         _settings.Save();
