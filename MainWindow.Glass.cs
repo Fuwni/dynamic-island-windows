@@ -26,7 +26,7 @@ public partial class MainWindow
     /// strength). The glass's picture reaches that much lower: cut at the island's own bottom, its blur faded to
     /// 0.81 at the tip of a drip and the dripping part looked thinner than the rest.
     /// </summary>
-    private double DripRoom => Liquid && _settings.MusicWaves && !_settings.Docked ? Math.Ceiling(10.2 * LiquidK) : 0;
+    private double DripRoom => Liquid && _settings.MusicWaves && !Attached ? Math.Ceiling(10.2 * LiquidK) : 0;
     private double _frostHalf = 200, _frostHeight = 80;
     private byte[]? _frostPixels;
     private long _frostSig;
@@ -116,8 +116,16 @@ public partial class MainWindow
         }
 
         Color A(double a) => Color.FromArgb((byte)Math.Round(Math.Clamp(a, 0, 1) * 255), c.R, c.G, c.B);
-        var fill = new LinearGradientBrush { StartPoint = new Point(0.5, 0), EndPoint = new Point(0.5, 1) };
-        fill.GradientStops.Add(new GradientStop(A((liquid || pane) && !_settings.Docked ? body : 1), 0));          // the top meets the screen edge: solid
+        // from the edge it is attached to outward (folded on a side, the pill lies along that edge)
+        var (fillFrom, fillTo) = _edge switch
+        {
+            Edge.Bottom when !_inBar => (new Point(0.5, 1), new Point(0.5, 0)),
+            Edge.Left when _mode == Mode.Compact => (new Point(0, 0.5), new Point(1, 0.5)),
+            Edge.Right when _mode == Mode.Compact => (new Point(1, 0.5), new Point(0, 0.5)),
+            _ => (new Point(0.5, 0), new Point(0.5, 1)),
+        };
+        var fill = new LinearGradientBrush { StartPoint = fillFrom, EndPoint = fillTo };
+        fill.GradientStops.Add(new GradientStop(A((liquid || pane) && !TopNotch ? body : 1), 0));          // the top edge of the screen meets it: solid
         fill.GradientStops.Add(new GradientStop(A(body), 0.14));
         fill.GradientStops.Add(new GradientStop(A(body), 0.5));
         fill.GradientStops.Add(new GradientStop(A(bottom), 1));
@@ -812,9 +820,9 @@ public partial class MainWindow
 
     private void RefreshLookControls()
     {
-        foreach (var card in new[] { StyleDocked, StyleFloating })
+        foreach (var card in new[] { StyleDocked, StyleFloating, StyleSide, StyleTaskbar })
         {
-            bool on = ((string)card.Tag == "dock") == _settings.Docked;
+            bool on = (string)card.Tag == PlacementTag;
             if (on) card.SetResourceReference(Border.BorderBrushProperty, "AccentBlue");
             else card.BorderBrush = Brushes.Transparent;
         }
@@ -838,9 +846,7 @@ public partial class MainWindow
 
     private void StyleCard_Click(object sender, MouseButtonEventArgs e)
     {
-        _settings.Docked = (string)((FrameworkElement)sender).Tag == "dock";
-        ApplyDock(animate: true);
-        SavePosition();
+        SetPlacement((string)((FrameworkElement)sender).Tag);
         RefreshLookControls();
         PlayChromatic(5);
     }

@@ -57,6 +57,13 @@
       <Border.ContextMenu>
         <ContextMenu x:Name="IslandMenu">
           <MenuItem Header="Виджеты на рабочем столе…" Click="EditWidgets_Click"><MenuItem.Icon><TextBlock FontFamily="{StaticResource IconFont}" FontSize="14" Text="&#xE8A9;"/></MenuItem.Icon></MenuItem>
+          <MenuItem x:Name="PlacementMenu" Header="Положение" SubmenuOpened="PlacementMenu_Opened"><MenuItem.Icon><TextBlock FontFamily="{StaticResource IconFont}" FontSize="14" Text="&#xE8A0;"/></MenuItem.Icon>
+            <MenuItem Header="Сверху у края" Tag="dock" Click="PlacementItem_Click"/>
+            <MenuItem Header="Плавающий" Tag="float" Click="PlacementItem_Click"/>
+            <MenuItem Header="Слева" Tag="left" Click="PlacementItem_Click"/>
+            <MenuItem Header="Справа" Tag="right" Click="PlacementItem_Click"/>
+            <MenuItem Header="На панели задач" Tag="taskbar" Click="PlacementItem_Click"/>
+          </MenuItem>
           <MenuItem Header="Изменить размер…" Click="EditSize_Click"><MenuItem.Icon><TextBlock FontFamily="{StaticResource IconFont}" FontSize="14" Text="&#xE740;"/></MenuItem.Icon></MenuItem>
           <MenuItem Header="Выровнять по центру" Click="ResetPosition_Click"><MenuItem.Icon><TextBlock FontFamily="{StaticResource IconFont}" FontSize="14" Text="&#xE8E3;"/></MenuItem.Icon></MenuItem>
           <MenuItem Header="Сменить тему" InputGestureText="Ctrl+Alt+T" Click="ToggleTheme_Click"><MenuItem.Icon><TextBlock FontFamily="{StaticResource IconFont}" FontSize="14" Text="&#xE790;"/></MenuItem.Icon></MenuItem>
@@ -1036,7 +1043,7 @@
                   <StackPanel>
                     <TextBlock Style="{StaticResource Caption}" Text="СТИЛЬ"/>
                     <UniformGrid Columns="2" Margin="0,10,0,0">
-                      <Border x:Name="StyleDocked" Tag="dock" CornerRadius="16" BorderThickness="2" Padding="8" Margin="0,0,5,0"
+                      <Border x:Name="StyleDocked" Tag="dock" CornerRadius="16" BorderThickness="2" Padding="8" Margin="0,0,5,10"
                               Background="{DynamicResource ChipBg}" Cursor="Hand" MouseLeftButtonUp="StyleCard_Click">
                         <StackPanel>
                           <Border Height="58" CornerRadius="10" ClipToBounds="True">
@@ -1059,7 +1066,7 @@
                           <TextBlock Text="Вырастает из края экрана" Style="{StaticResource Muted}" FontSize="10.5" Margin="2,1,0,0"/>
                         </StackPanel>
                       </Border>
-                      <Border x:Name="StyleFloating" Tag="float" CornerRadius="16" BorderThickness="2" Padding="8" Margin="5,0,0,0"
+                      <Border x:Name="StyleFloating" Tag="float" CornerRadius="16" BorderThickness="2" Padding="8" Margin="5,0,0,10"
                               Background="{DynamicResource ChipBg}" Cursor="Hand" MouseLeftButtonUp="StyleCard_Click">
                         <StackPanel>
                           <Border Height="58" CornerRadius="10" ClipToBounds="True">
@@ -1072,6 +1079,39 @@
                           </Border>
                           <TextBlock Text="Плавающий" FontSize="12.5" FontWeight="SemiBold" Margin="2,8,0,0"/>
                           <TextBlock Text="Пилюля чуть ниже края" Style="{StaticResource Muted}" FontSize="10.5" Margin="2,1,0,0"/>
+                        </StackPanel>
+                      </Border>
+                      <Border x:Name="StyleSide" Tag="side" CornerRadius="16" BorderThickness="2" Padding="8" Margin="0,0,5,0"
+                              Background="{DynamicResource ChipBg}" Cursor="Hand" MouseLeftButtonUp="StyleCard_Click">
+                        <StackPanel>
+                          <Border Height="58" CornerRadius="10" ClipToBounds="True">
+                            <Border.Background>
+                              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#3B3F8F" Offset="0"/><GradientStop Color="#6A4BC4" Offset="1"/>
+                              </LinearGradientBrush>
+                            </Border.Background>
+                            <Border Width="14" Height="42" Background="Black" CornerRadius="0,7,7,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                          </Border>
+                          <TextBlock Text="Сбоку" FontSize="12.5" FontWeight="SemiBold" Margin="2,8,0,0"/>
+                          <TextBlock Text="Стоит вдоль левого или правого края" Style="{StaticResource Muted}" FontSize="10.5" Margin="2,1,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                      </Border>
+                      <Border x:Name="StyleTaskbar" Tag="taskbar" CornerRadius="16" BorderThickness="2" Padding="8" Margin="5,0,0,0"
+                              Background="{DynamicResource ChipBg}" Cursor="Hand" MouseLeftButtonUp="StyleCard_Click">
+                        <StackPanel>
+                          <Border Height="58" CornerRadius="10" ClipToBounds="True">
+                            <Border.Background>
+                              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#3B3F8F" Offset="0"/><GradientStop Color="#6A4BC4" Offset="1"/>
+                              </LinearGradientBrush>
+                            </Border.Background>
+                            <Grid>
+                              <Border Height="10" Background="#B0161626" VerticalAlignment="Bottom"/>
+                              <Border Width="72" Height="15" Background="Black" CornerRadius="7.5,7.5,0,0" VerticalAlignment="Bottom" Margin="0,0,0,10"/>
+                            </Grid>
+                          </Border>
+                          <TextBlock Text="У панели задач" FontSize="12.5" FontWeight="SemiBold" Margin="2,8,0,0"/>
+                          <TextBlock Text="Стоит прямо в панели задач, в свободном месте" Style="{StaticResource Muted}" FontSize="10.5" Margin="2,1,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                       </Border>
                     </UniformGrid>

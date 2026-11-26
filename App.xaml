@@ -760,6 +760,7 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="MenuItem">
+            <Grid>
             <Border x:Name="Row" CornerRadius="10" Padding="9,0,12,0" Height="34" Background="Transparent">
               <Grid>
                 <Grid.ColumnDefinitions>
@@ -773,9 +774,22 @@
                                   TextBlock.FontSize="14" Opacity="0.85"/>
                 <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
                 <TextBlock Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="18,0,0,0" VerticalAlignment="Center" Foreground="#99FFFFFF" FontSize="12"/>
+                <!-- an item with items of its own: an arrow, and its own small menu beside it -->
+                <TextBlock x:Name="Arrow" Grid.Column="2" Text="&#xE76C;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="10"
+                           Margin="18,0,0,0" VerticalAlignment="Center" Opacity="0.7" Visibility="Collapsed"/>
               </Grid>
             </Border>
+            <Popup x:Name="PART_Popup" Placement="Right" HorizontalOffset="6" VerticalOffset="-7" AllowsTransparency="True" Focusable="False"
+                   PopupAnimation="Fade" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}">
+              <Border Padding="6" CornerRadius="16" MinWidth="190" Background="#F2202028" BorderBrush="#40FFFFFF" BorderThickness="1">
+                <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True"/>
+              </Border>
+            </Popup>
+            </Grid>
             <ControlTemplate.Triggers>
+              <Trigger Property="Role" Value="SubmenuHeader">
+                <Setter TargetName="Arrow" Property="Visibility" Value="Visible"/>
+              </Trigger>
               <Trigger Property="IsHighlighted" Value="True">
                 <Setter TargetName="Row" Property="Background" Value="#0A84FF"/>
                 <Setter TargetName="IconHost" Property="Opacity" Value="1"/>

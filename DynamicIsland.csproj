@@ -16,7 +16,7 @@
     <!-- the demo and test fields are set only by the runs compiled in Debug; in a release build they stay empty -->
     <NoWarn Condition="'$(Configuration)' == 'Release'">$(NoWarn);CS0649</NoWarn>
 
-    <Version>2.1.1</Version>
+    <Version>2.2.0</Version>
     <Product>Atoll</Product>
     <AssemblyTitle>Atoll</AssemblyTitle>
     <Description>Atoll, a Dynamic Island-style island for Windows: music, lyrics, weather, timers, screenshots, chat and more at the top of the screen.</Description>

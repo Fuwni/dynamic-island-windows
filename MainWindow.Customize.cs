@@ -36,6 +36,7 @@ public partial class MainWindow
         _pinnedOpen = false;
         if (_mode != Mode.Compact) SetMode(Mode.Compact);
         _editMode = true;
+        FollowEdge(animate: true);   // on the taskbar it rises a little: room for the grips under it
 
         if (_editLayer == null)
         {
@@ -63,17 +64,17 @@ public partial class MainWindow
             _gripRight.DragDelta += (_, _) =>
             {
                 // the pill stays centred, so it grows on both sides: twice the cursor's way keeps the edge under it
-                double dx = CursorDip().X - _gripStart.X;
+                double dx = Vertical ? CursorDip().Y - _gripStart.Y : CursorDip().X - _gripStart.X;   // upright on a side: along its length
                 int extra = (int)Math.Round(Math.Clamp(_gripStartExtra + 2 * dx / UiScale, PillExtraMin, PillExtraMax));
                 if (extra == _settings.PillExtra) return;
                 _settings.PillExtra = extra;
-                MorphTo(new Size(CompactWidth, CompactHeight));
+                MorphTo(PillSize(CompactWidth));
                 PlaceEditGrips();
             };
             _gripBottom = Grip(Cursors.SizeNS);
             _gripBottom.DragDelta += (_, _) =>
             {
-                double dy = CursorDip().Y - _gripStart.Y;
+                double dy = Vertical ? (CursorDip().X - _gripStart.X) * (_edge == Edge.Left ? 1 : -1) : CursorDip().Y - _gripStart.Y;
                 int scale = (int)Math.Round(Math.Clamp(_gripStartScale + dy / CompactHeight * 100, 80, 130));
                 if (scale == _settings.IslandScale) return;
                 _settings.IslandScale = scale;
@@ -128,6 +129,7 @@ public partial class MainWindow
     {
         if (!_editMode) return;
         _editMode = false;
+        FollowEdge(animate: true);
         _editTimer.Stop();
         PreviewKeyDown -= EditMode_KeyDown;
         if (_editLayer != null) _editLayer.Visibility = Visibility.Collapsed;
@@ -142,7 +144,7 @@ public partial class MainWindow
         _settings.Save();
         ApplyIslandScale();
         ScaleSlider.Value = 100;
-        if (_mode == Mode.Compact) MorphTo(new Size(CompactWidth, CompactHeight));
+        if (_mode == Mode.Compact) MorphTo(PillSize(CompactWidth));
         if (_editMode) PlaceEditGrips();
     }
 
@@ -156,19 +158,32 @@ public partial class MainWindow
         double w = Island.ActualWidth * UiScale, h = Island.ActualHeight * UiScale;
 
         _editOutline!.Width = w + 8; _editOutline.Height = h + 8;
-        _editOutline.RadiusX = _editOutline.RadiusY = (h + 8) / 2;
+        _editOutline.RadiusX = _editOutline.RadiusY = (Math.Min(w, h) + 8) / 2;
         Canvas.SetLeft(_editOutline, tl.X - 4); Canvas.SetTop(_editOutline, tl.Y - 4);
 
-        _gripRight!.Width = 14; _gripRight.Height = Math.Max(22, h - 6);
-        Canvas.SetLeft(_gripRight, tl.X + w + 5); Canvas.SetTop(_gripRight, tl.Y + (h - _gripRight.Height) / 2);
-
-        _gripBottom!.Height = 14; _gripBottom.Width = Math.Clamp(w * 0.36, 44, 120);
-        Canvas.SetLeft(_gripBottom, tl.X + (w - _gripBottom.Width) / 2); Canvas.SetTop(_gripBottom, tl.Y + h + 5);
+        if (Vertical)
+        {
+            // upright on a side: the length grip below it, the size grip on its free side
+            _gripRight!.Width = Math.Max(22, w - 6); _gripRight.Height = 14; _gripRight.Cursor = Cursors.SizeNS;
+            Canvas.SetLeft(_gripRight, tl.X + (w - _gripRight.Width) / 2); Canvas.SetTop(_gripRight, tl.Y + h + 5);
+            _gripBottom!.Width = 14; _gripBottom.Height = Math.Clamp(h * 0.36, 44, 120); _gripBottom.Cursor = Cursors.SizeWE;
+            Canvas.SetLeft(_gripBottom, _edge == Edge.Left ? tl.X + w + 5 : tl.X - 19); Canvas.SetTop(_gripBottom, tl.Y + (h - _gripBottom.Height) / 2);
+        }
+        else
+        {
+            _gripRight!.Width = 14; _gripRight.Height = Math.Max(22, h - 6); _gripRight.Cursor = Cursors.SizeWE;
+            Canvas.SetLeft(_gripRight, tl.X + w + 5); Canvas.SetTop(_gripRight, tl.Y + (h - _gripRight.Height) / 2);
+            _gripBottom!.Height = 14; _gripBottom.Width = Math.Clamp(w * 0.36, 44, 120); _gripBottom.Cursor = Cursors.SizeNS;
+            Canvas.SetLeft(_gripBottom, tl.X + (w - _gripBottom.Width) / 2); Canvas.SetTop(_gripBottom, tl.Y + h + 5);
+        }
 
         _editInfo!.Text = L.F("Тяните за край · размер {0}%, ширина {1}", _settings.IslandScale, (_settings.PillExtra >= 0 ? "+" : "") + _settings.PillExtra);
         _editBar!.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         double by = tl.Y + h + 28;
-        Canvas.SetLeft(_editBar, Math.Max(0, tl.X + (w - _editBar.DesiredSize.Width) / 2)); Canvas.SetTop(_editBar, by);
+        double bx = tl.X + (w - _editBar.DesiredSize.Width) / 2;
+        if (_edge == Edge.Left) bx = Math.Max(bx, tl.X);   // nothing is drawn past the edge it is attached to
+        if (_edge == Edge.Right) bx = Math.Min(bx, tl.X + w - _editBar.DesiredSize.Width);
+        Canvas.SetLeft(_editBar, Math.Max(0, bx)); Canvas.SetTop(_editBar, by);
         if (by + _editBar.DesiredSize.Height + 6 > Root.ActualHeight) GrowWindow(by + _editBar.DesiredSize.Height + 10);
     }
 
@@ -407,7 +422,7 @@ public partial class MainWindow
         if (!Equals(FontFamily.Source, font.Source))
         {
             FontFamily = font;
-            if (_mode == Mode.Compact) Dispatcher.BeginInvoke(() => { if (_mode == Mode.Compact) MorphTo(new Size(CompactWidth, CompactHeight)); }, DispatcherPriority.Loaded);
+            if (_mode == Mode.Compact) Dispatcher.BeginInvoke(() => { if (_mode == Mode.Compact) MorphTo(PillSize(CompactWidth)); }, DispatcherPriority.Loaded);
             else Remeasure();
         }
         UpdateShape(false);     // the corners

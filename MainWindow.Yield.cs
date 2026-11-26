@@ -114,7 +114,7 @@ public partial class MainWindow
     {
         if (app == _frontApp) return;
         _frontApp = app;
-        if (!_settings.PlacePerApp || _dragging || _hidden || _editMode) return;
+        if (!_settings.PlacePerApp || _settings.Attach != "" || _dragging || _hidden || _editMode) return;
         string? slot = app != null && _settings.AppPlaces.ContainsKey(app) ? app : null;
         if (slot == _placeOwner) return;
         _placeOwner = slot;
@@ -122,7 +122,7 @@ public partial class MainWindow
     }
 
     /// <summary>A drag begins: the place it ends at belongs to the program in front (or is the usual one).</summary>
-    private void OnDragStarted() => _placeOwner = _settings.PlacePerApp ? _frontApp : null;
+    private void OnDragStarted() => _placeOwner = _settings.PlacePerApp && _settings.Attach == "" ? _frontApp : null;
 
     private (double Cx, double Top) PlaceOf(string? slot) =>
         slot != null && _settings.AppPlaces.TryGetValue(slot, out var at) && at.Length == 2
@@ -131,13 +131,8 @@ public partial class MainWindow
 
     private void FloatToPlace()
     {
-        var (cx, top) = PlaceOf(_placeOwner);
-        _px.Snap(Left);
-        _py.Snap(Top);
-        _px.Target = cx - Width / 2;
-        _py.Target = _settings.Docked ? MonitorTop() : top;
-        _posActive = true;
-        StartRendering();
+        UpdateEdge();
+        FollowEdge(animate: true);
     }
 
     /// <summary>"Align to centre" while a program has its own place: forget that place, back to the usual one.</summary>

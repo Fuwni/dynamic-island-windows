@@ -309,7 +309,7 @@ public partial class MainWindow
                 break;
             case "pillextra": // pillextra 120: as if the right grip were pulled
                 _settings.PillExtra = int.Parse(arg);
-                if (_mode == Mode.Compact) MorphTo(new Size(CompactWidth, CompactHeight));
+                if (_mode == Mode.Compact) MorphTo(PillSize(CompactWidth));
                 break;
             case "layoutpage":    // Settings > Layout
                 _pinnedOpen = true;
