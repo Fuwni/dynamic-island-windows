@@ -219,6 +219,27 @@ public partial class MainWindow
         else UpdateShape(false);
     }
 
+    /// <summary>
+    /// The island's offset out of its edge (showing, hiding, after a move to another screen) points away from that
+    /// edge: down from the top, up out of the taskbar, right from the left side, left from the right one.
+    /// </summary>
+    private void ShiftIsland()
+    {
+        double o = _y.Value;
+        var (x, y) = _edge switch
+        {
+            Edge.Left => (o, 0.0),
+            Edge.Right => (-o, 0.0),
+            Edge.Bottom => (0.0, -o),
+            _ => (0.0, o),
+        };
+        IslandShift.X = _bodyX.Value + x;
+        IslandShift.Y = _bodyY.Value + y;
+    }
+
+    /// <summary>How far it goes into its edge to be out of sight.</summary>
+    private double AwayDistance(double more) => (Vertical ? Island.ActualWidth : Island.ActualHeight) + IslandTopMargin + more;
+
     /// <summary>The outline is drawn as if attached to the top edge, then turned to its own edge.</summary>
     private Geometry OnEdge(Geometry g, double w, double h)
     {
@@ -479,6 +500,24 @@ public partial class MainWindow
             await Fold(); Check($"floating at the {name}, folded again: back, its place unchanged", Inside(Isl(), wa) && _settings.CenterX == x && _settings.Top == y);
         }
 
+        // the wheel over the open island goes through its tabs, one per notch, and stops at the ends
+        {
+            await Open();
+            var seen = new List<string>();
+            void Wheel(int delta) => TabStrip.RaiseEvent(new System.Windows.Input.MouseWheelEventArgs(System.Windows.Input.Mouse.PrimaryDevice, 0, delta) { RoutedEvent = UIElement.PreviewMouseWheelEvent });
+            string Cur() => Tabs.First(t => t.IsChecked == true).Name;
+            var order = PageTabs.Append(TabSettings).Where(t => t.Visibility == Visibility.Visible).Select(t => t.Name).ToList();
+            TabHome.IsChecked = true; await Task.Delay(300);
+            Wheel(-120); await Task.Delay(300); seen.Add(Cur());
+            Wheel(-60); await Task.Delay(200); seen.Add(Cur());
+            Wheel(-60); await Task.Delay(300); seen.Add(Cur());
+            Wheel(120); await Task.Delay(300); seen.Add(Cur());
+            Wheel(120); Wheel(120); await Task.Delay(300); seen.Add(Cur());
+            Check($"wheel over the open island: {string.Join(" → ", seen)} (tabs: {string.Join(", ", order.Take(4))}…)",
+                order.Count > 2 && seen[0] == order[1] && seen[1] == order[1] && seen[2] == order[2] && seen[3] == order[1] && seen[4] == order[0]);
+            await Fold();
+        }
+
         // the notch at the top edge, far right
         await Put("", true, b.Right / k, b.Top / k);
         Check("top edge, far right, folded: touching the top, whole on the screen", Inside(Isl(), b) && Math.Abs(Isl().Top - b.Top) < 2);
@@ -516,8 +555,10 @@ public partial class MainWindow
         // hidden and shown again on a side
         HideIsland(animate: true); await Task.Delay(1300);
         Check($"left side, hidden: the handle at the top of the screen, no clip ({Handle.IsVisible}, {Root.Clip == null})", Handle.IsVisible && Root.Clip == null && Math.Abs(Top * k - b.Top) < 2);
-        ShowIsland(); await Task.Delay(1800);
-        Check("left side, shown again: flush with the edge", Math.Abs(Isl().Left - wa.Left) < 2);
+        ShowIsland(); await Task.Delay(60);
+        double sx = IslandShift.X, sy = IslandShift.Y;
+        await Task.Delay(1740);
+        Check($"left side, shown again: comes out of the left edge (shift {sx:0},{sy:0}), then flush with it", sx < -5 && Math.Abs(sy) < 1 && Math.Abs(Isl().Left - wa.Left) < 2);
 
         // in the taskbar: a pill in the bar at the height of its buttons, grows up out of it, rises for the size grips, fades for Start
         await Put("taskbar", false, BarSpot(new Point(b.Left / k + 50, b.Bottom / k - 30)), b.Bottom / k - 30);

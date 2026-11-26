@@ -323,8 +323,7 @@ public partial class MainWindow
         _reach.Step(dt);
         _lean.Step(dt);
         _leadX.Step(dt); _leadY.Step(dt); _bodyX.Step(dt); _bodyY.Step(dt);
-        IslandShift.X = _bodyX.Value;
-        IslandShift.Y = _y.Value + _bodyY.Value;
+        ShiftIsland();
         bool shapeMoving = Liquid && (_ripple > 0 || playing || _audioLevel > 0);
         bool reactive = _settings.Reactive && !Lite && _mode == Mode.Compact &&
                         (playing || _audioLevel > 0 || !_reach.IsSettled || _reach.Value > 0.01 || !_lean.IsSettled || PullMoving || PullVisible);

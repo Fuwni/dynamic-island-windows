@@ -164,8 +164,8 @@ public partial class MainWindow
         }
         _settings.Save();
         ClampPosition();
-        // it drops in from above, like after being hidden
-        _y.Snap(-(Island.ActualHeight + IslandTopMargin + 30));
+        // it drops in out of its edge, like after being hidden
+        _y.Snap(-AwayDistance(30));
         _y.Target = 0;
         Kick(3);
         StartRendering();

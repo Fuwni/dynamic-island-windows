@@ -3518,7 +3518,7 @@ public partial class MainWindow : Window
         double shownH = _h.Value;
         if (_hShrinking && shownH < _h.Target) shownH = _h.Target - 8 * Math.Tanh((_h.Target - shownH) / 8);
         Island.Height = Math.Max(20, shownH);
-        IslandShift.Y = _y.Value + _bodyY.Value;
+        ShiftIsland();
         FollowEdge();   // near the screen's edge (or attached to one) the island opens inward: the window moves with its size
 
         bool liquid = StepLiquid(dt);
@@ -4055,9 +4055,34 @@ public partial class MainWindow : Window
 
     private void Island_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
+        if (_mode == Mode.Expanded) { WheelTabs(e); return; }
         if (_mode != Mode.Compact) return;
         SwitchLive(e.Delta < 0 ? 1 : -1);
         e.Handled = true;
+    }
+
+    private int _wheelSum;
+
+    /// <summary>
+    /// The open island: the wheel goes through its tabs (down: the next one). A list that can scroll, a slider, a text box
+    /// or the equaliser under the cursor keep the wheel for themselves. A touchpad's small steps add up to one notch.
+    /// </summary>
+    private void WheelTabs(MouseWheelEventArgs e)
+    {
+        for (var d = e.OriginalSource as DependencyObject; d != null && d != Island; d = d is Visual or System.Windows.Media.Media3D.Visual3D ? VisualTreeHelper.GetParent(d) : LogicalTreeHelper.GetParent(d))
+        {
+            if (d is Slider or ComboBox or TextBoxBase or Views.EqView) return;
+            if (d is ScrollViewer sv && (sv.ScrollableHeight > 0.5 || sv.ScrollableWidth > 0.5)) return;
+        }
+        e.Handled = true;
+        _wheelSum += e.Delta;
+        if (Math.Abs(_wheelSum) < 120) return;
+        int step = _wheelSum < 0 ? 1 : -1;
+        _wheelSum = 0;
+        var tabs = PageTabs.Append(TabSettings).Where(t => t.Visibility == Visibility.Visible).ToList();
+        int i = tabs.FindIndex(t => t.IsChecked == true), j = Math.Clamp(i + step, 0, tabs.Count - 1);
+        if (i < 0 || j == i) { Kick(1.2); return; }   // the first or the last tab: a nudge, no wrap-around
+        tabs[j].IsChecked = true;
     }
 
     private void Island_PreviewMouseMove(object sender, MouseEventArgs e)
@@ -4180,13 +4205,13 @@ public partial class MainWindow : Window
 
         if (!animate) { Finish(); return; }
 
-        // a drop being pulled up: stretch thin, then zip away
+        // a drop being pulled into its edge: stretch thin, then zip away
         if (Liquid)
         {
-            _sx.Target = 0.8;
-            _sy.Target = 1.25;
+            _sx.Target = Vertical ? 1.25 : 0.8;
+            _sy.Target = Vertical ? 0.8 : 1.25;
         }
-        _y.Target = -(Island.ActualHeight + IslandTopMargin + 40);
+        _y.Target = -AwayDistance(40);
         _y.Velocity = -900;
         Kick(4);
         StartRendering();
@@ -4206,11 +4231,11 @@ public partial class MainWindow : Window
             _placeOwner = _frontApp != null && _settings.AppPlaces.ContainsKey(_frontApp) ? _frontApp : null;
         ClampPosition();
         Island.Visibility = Visibility.Visible;
-        _y.Snap(-(Island.ActualHeight + IslandTopMargin + 30));
+        _y.Snap(-AwayDistance(30));
         _y.Target = 0;
-        // drops back in (with waves on: squashes on "landing" and wobbles)
-        _sx.Snap(Liquid ? 0.85 : 1);
-        _sy.Snap(Liquid ? 1.2 : 1);
+        // drops back in out of its edge (with waves on: squashes on "landing" and wobbles)
+        _sx.Snap(Liquid ? (Vertical ? 1.2 : 0.85) : 1);
+        _sy.Snap(Liquid ? (Vertical ? 0.85 : 1.2) : 1);
         _sx.Target = _sy.Target = 1;
         Kick(5);
         StartRendering();
