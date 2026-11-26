@@ -1147,5 +1147,13 @@
  "Курсор пролетает по острову (в игре, по пути к вкладкам) — остров становится прозрачным и пропускает клики к окну под ним. Задержите на нём курсор или упритесь в верхний край — и он вернётся. В играх на весь экран не мешает совсем.": "Fliegt der Mauszeiger über die Insel (in einem Spiel, auf dem Weg zu den Tabs), wird sie durchsichtig und lässt Klicks zum Fenster darunter durch. Lass den Zeiger auf ihr ruhen oder schieb ihn an den oberen Rand, dann kommt sie zurück. In Vollbildspielen stört sie gar nicht.",
  "Своё место для каждой программы": "Eigener Platz für jedes Programm",
  "Передвиньте остров, пока программа впереди, — он запомнит это место и будет сам уезжать туда, когда она впереди. «Выровнять по центру» в меню острова возвращает этой программе обычное место.": "Verschieb die Insel, während ein Programm vorne ist – sie merkt sich den Platz und gleitet von selbst dorthin, sobald das Programm vorne ist. „Zentrieren“ im Inselmenü gibt diesem Programm den üblichen Platz zurück.",
- "Яндекс Музыка": "Yandex Music"
+ "Яндекс Музыка": "Yandex Music",
+ "Сбоку": "Seitlich",
+ "Стоит вдоль левого или правого края": "Steht am linken oder rechten Rand",
+ "У панели задач": "An der Taskleiste",
+ "Сидит на панели задач и растёт вверх": "Sitzt auf der Taskleiste und wächst nach oben",
+ "Положение": "Position",
+ "Сверху у края": "Am oberen Rand",
+ "Слева": "Links",
+ "На панели задач": "Auf der Taskleiste"
 }

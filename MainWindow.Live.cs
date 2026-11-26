@@ -133,7 +133,7 @@ public partial class MainWindow
             }
             if (_lastMedia?.IsPlaying == true)
             {
-                string? karaoke = _settings.Karaoke && _currentLyrics?.Synced == true && LyricCur.Text is { Length: > 0 } line && line != "♪" ? line : null;   // the whole line: the island grows to fit it
+                string? karaoke = _settings.Karaoke && !Vertical && _currentLyrics?.Synced == true && LyricCur.Text is { Length: > 0 } line && line != "♪" ? line : null;   // the whole line: the island grows to fit it
                 lives.Add(("music", null, karaoke, -1, ringBrush));   // the cover, the equaliser and the eyes
             }
         }
@@ -180,9 +180,10 @@ public partial class MainWindow
 
         if (_mode == Mode.Compact && !_hidden)
         {
-            double w = CompactWidth;
+            var want = PillSize(CompactWidth);
+            double len = Vertical ? want.Height : want.Width, now = Vertical ? _h.Target : _w.Target;
             // the digits of the game pill change all the time: it grows for them, but doesn't shrink for every one
-            if (w > _w.Target + 3 || w < _w.Target - (pick.Id == "game" ? 24 : 3)) MorphTo(new Size(w, CompactHeight));
+            if (len > now + 3 || len < now - (pick.Id == "game" ? 24 : 3) || Math.Abs((Vertical ? _w.Target : _h.Target) - CompactHeight) > 1) MorphTo(want);
         }
 
         if (_mode == Mode.Expanded && TabTimer.IsChecked == true) UpdateTimerPage();
@@ -206,7 +207,7 @@ public partial class MainWindow
     private void UpdateLiveDots(string? current)
     {
         LiveDots.Children.Clear();
-        LiveDots.Visibility = _liveIds.Count > 1 && _mode == Mode.Compact ? Visibility.Visible : Visibility.Collapsed;
+        LiveDots.Visibility = _liveIds.Count > 1 && _mode == Mode.Compact && !Vertical ? Visibility.Visible : Visibility.Collapsed;
         if (_liveIds.Count < 2) return;
         foreach (var id in _liveIds)
         {

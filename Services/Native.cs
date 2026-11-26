@@ -160,6 +160,18 @@ internal static class Native
         return false;
     }
 
+    [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string cls, string? title);
+
+    /// <summary>The taskbars: the main one and one per other screen (when Windows shows the taskbar on all screens).</summary>
+    public static IEnumerable<IntPtr> Taskbars()
+    {
+        var main = FindWindowEx(IntPtr.Zero, IntPtr.Zero, "Shell_TrayWnd", null);
+        if (main != IntPtr.Zero) yield return main;
+        for (var h = FindWindowEx(IntPtr.Zero, IntPtr.Zero, "Shell_SecondaryTrayWnd", null); h != IntPtr.Zero; h = FindWindowEx(IntPtr.Zero, h, "Shell_SecondaryTrayWnd", null))
+            yield return h;
+    }
+
     public static void KeepTopmost(IntPtr h)
     {
         const uint SWP_NOSIZE = 0x1, SWP_NOMOVE = 0x2, SWP_NOACTIVATE = 0x10, SWP_NOOWNERZORDER = 0x200;

@@ -86,7 +86,7 @@ public partial class MainWindow
     private void UpdateReach(Native.POINT cursor)
     {
         double bump = 0, vx = 0, vy = 0;
-        if (_settings.Reactive && !_gameFront && _mode == Mode.Compact && !_dragging && !_hidden && !_editMode && Island.IsVisible)
+        if (_settings.Reactive && !_gameFront && (_edge is Edge.Free or Edge.Top) && _mode == Mode.Compact && !_dragging && !_hidden && !_editMode && Island.IsVisible)
         {
             Point tl;
             try { tl = Island.PointToScreen(new Point(0, 0)); }
@@ -121,7 +121,7 @@ public partial class MainWindow
         }
         // the body goes part of the way; attached to the screen edge it stays put, and floating it never
         // climbs higher than the gap above it
-        double follow = _settings.Docked ? 0 : 0.42;
+        double follow = Attached ? 0 : 0.42;
         double bx = vx * follow, by = Math.Max(-Math.Max(0, IslandTopMargin - 2), vy * follow);
         bool changed = Math.Abs(_leadX.Target - vx) + Math.Abs(_leadY.Target - vy) > 0.3 || Math.Abs(_reach.Target - bump) > 0.05;
         _reach.Target = bump;
@@ -307,12 +307,7 @@ public partial class MainWindow
             }
             else { Left = _px.Value; Top = _py.Value; }
             if (FrostHost.IsVisible) { PlaceFrost(Island.ActualWidth, Island.ActualHeight); CaptureFrost(); }   // the glass's picture stays where it was taken
-            if (!_dragging && _px.IsSettled && _py.IsSettled)
-            {
-                _posActive = false;
-                ClampPosition();
-                SavePosition();
-            }
+            if (!_dragging && _px.IsSettled && _py.IsSettled) _posActive = false;
         }
 
         bool playing = _lastMedia?.IsPlaying == true && !_hidden && !_fullscreenHidden && !_gameFront && _settings.MusicWaves;
@@ -340,7 +335,7 @@ public partial class MainWindow
 
     private double Radius(double h)
     {
-        double full = _settings.Docked ? Math.Min(h / 2, h <= 60 ? 15 : 28) : Math.Min(h / 2, 32);   // 32: Morph island's largest radius
+        double full = Attached ? Math.Min(h / 2, h <= 60 ? 15 : 28) : Math.Min(h / 2, 32);   // 32: Morph island's largest radius
         // the user's choice, from a pill down to nearly square corners
         return Math.Max(Math.Min(4, h / 2), full * Math.Clamp(_settings.Roundness, 0, 100) / 100.0);
     }
@@ -371,20 +366,22 @@ public partial class MainWindow
     {
         double w = Island.Width, h = Island.Height;
         if (double.IsNaN(w) || double.IsNaN(h) || w < 2 || h < 2) return;
-        double r = Radius(h);
+        // drawn as if attached to the top edge, then turned to its own edge (upright on a side)
+        double fw = Vertical ? h : w, fh = Vertical ? w : h;
+        double r = Radius(fh);
 
-        // reactive bulge of the lower edge: towards the cursor, or a gentle wandering swell with the music
-        double bump = 0, bumpX = w / 2;
+        // reactive bulge of the free edge: towards the cursor, or a gentle wandering swell with the music
+        double bump = 0, bumpX = fw / 2;
         if (_settings.Reactive && !Lite && _mode == Mode.Compact)
         {
-            if (PullVisible) bump = -1; // handled by FlowGeometry below
-            else if (_audioLevel > 0.02) { bump = _audioLevel * 5.5; bumpX = w / 2 + Math.Sin(_dripPhase * 0.6) * w * 0.22; }
+            if (PullVisible && (_edge is Edge.Free or Edge.Top)) bump = -1; // handled by FlowGeometry below
+            else if (_audioLevel > 0.02) { bump = _audioLevel * 5.5; bumpX = fw / 2 + Math.Sin(_dripPhase * 0.6) * fw * 0.22; }
         }
 
         // the lead point's own movement, on top of what the whole island already moved by
-        Geometry g = bump < 0 ? FlowGeometry(w, h, r, _settings.Docked, _pullPoint, new Vector(_leadX.Value - _bodyX.Value, _leadY.Value - _bodyY.Value))
-                   : liquid && !_settings.Docked ? LiquidGeometry(w, h, r)
-                   : PillGeometry(w, h, r, _settings.Docked, bumpX, bump);
+        Geometry g = bump < 0 ? FlowGeometry(w, h, r, _edge == Edge.Top, _pullPoint, new Vector(_leadX.Value - _bodyX.Value, _leadY.Value - _bodyY.Value))
+                   : liquid && !Attached ? LiquidGeometry(w, h, r)
+                   : OnEdge(PillGeometry(fw, fh, r, Attached, bumpX, bump), w, h);
         g.Freeze();
         IslandShape.Data = g;
         IslandShine.Data = g;

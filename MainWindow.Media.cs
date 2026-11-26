@@ -309,7 +309,7 @@ public partial class MainWindow
             if (Karaoke.IsVisible && _mode == Mode.Compact && !_hidden && !_editMode)
             {
                 CompactView.InvalidateMeasure();   // the line's new width counts now, not after the next layout pass
-                MorphTo(new Size(CompactWidth, CompactHeight));
+                MorphTo(PillSize(CompactWidth));
                 _w.Stiffness = 230; _w.Damping = 19;   // livelier than usual: a little past the size and back
                 Kick(0.7);
             }

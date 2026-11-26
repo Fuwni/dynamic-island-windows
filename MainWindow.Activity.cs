@@ -144,7 +144,8 @@ public partial class MainWindow
         if (Forms.Screen.AllScreens.Length < 2) return;
         double dpi = Dpi;
         var cur = Forms.Screen.FromPoint(Forms.Cursor.Position);
-        var mine = Forms.Screen.FromPoint(new System.Drawing.Point((int)((Left + Width / 2) * dpi), (int)((Top + 20) * dpi)));
+        var c = IslandCenter();
+        var mine = Forms.Screen.FromPoint(new System.Drawing.Point((int)(c.X * dpi), (int)(c.Y * dpi)));
         if (cur.DeviceName == mine.DeviceName) { _otherMonitor = ""; return; }
         var now = DateTime.Now;
         if (_otherMonitor != cur.DeviceName) { _otherMonitor = cur.DeviceName; _otherMonitorSince = now; return; }
@@ -152,11 +153,17 @@ public partial class MainWindow
         _otherMonitor = "";
 
         // the same spot on the other screen: as far from its left edge (as a share of its width), as far from its top
-        double share = ((Left + Width / 2) * dpi - mine.Bounds.Left) / Math.Max(1, mine.Bounds.Width);
-        double down = Math.Clamp(Top * dpi - mine.Bounds.Top, 0, Math.Max(0, cur.Bounds.Height - 160));
-        MoveWindow((cur.Bounds.Left + share * cur.Bounds.Width) / dpi - Width / 2, (cur.Bounds.Top + down) / dpi);
+        double sx = (c.X * dpi - mine.Bounds.Left) / Math.Max(1, mine.Bounds.Width), sy = (c.Y * dpi - mine.Bounds.Top) / Math.Max(1, mine.Bounds.Height);
+        var at = new System.Windows.Point((cur.Bounds.Left + sx * cur.Bounds.Width) / dpi, (cur.Bounds.Top + sy * cur.Bounds.Height) / dpi);
+        if (_settings.Attach != "") _settings.AttachAt = [at.X, at.Y];   // the same edge there, as far along it
+        else
+        {
+            double top = (cur.Bounds.Top + Math.Clamp(Top * dpi - mine.Bounds.Top, 0, Math.Max(0, cur.Bounds.Height - 160))) / dpi;
+            if (_placeOwner != null) _settings.AppPlaces[_placeOwner] = [at.X, top];
+            else { _settings.CenterX = at.X; _settings.Top = top; }
+        }
+        _settings.Save();
         ClampPosition();
-        SavePosition();
         // it drops in from above, like after being hidden
         _y.Snap(-(Island.ActualHeight + IslandTopMargin + 30));
         _y.Target = 0;

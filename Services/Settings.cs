@@ -230,6 +230,10 @@ public sealed class Settings
     public bool PlacePerApp { get; set; }
     /// <summary>Process name (lower case) → [centre x, top] in DIPs.</summary>
     public Dictionary<string, double[]> AppPlaces { get; set; } = [];
+    /// <summary>Attached to a side ("left", "right") or to the taskbar ("taskbar"); "" floats or sits at the top edge (Docked).</summary>
+    public string Attach { get; set; } = "";
+    /// <summary>Attached: the island's centre when it was put there (DIP): which screen, and where along the edge.</summary>
+    public double[]? AttachAt { get; set; }
 
     // Home tab, "build it yourself"
     public bool HomeActions { get; set; } = true;

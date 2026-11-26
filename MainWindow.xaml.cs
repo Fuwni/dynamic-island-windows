@@ -18,7 +18,7 @@ public partial class MainWindow : Window
     private enum Mode { Compact, Expanded, Toast, Claude, Drop, Command }
 
     /// <summary>Floating pill keeps a small gap; docked it grows straight out of the screen edge.</summary>
-    private double IslandTopMargin => _settings.Docked ? 0 : 8;
+    private double IslandTopMargin => _edge == Edge.Free ? 8 : 0;
     private const double CompactHeight = 36;
 
     private readonly Settings _settings = Settings.Current;
@@ -2955,6 +2955,8 @@ public partial class MainWindow : Window
                     Application.Current.Shutdown();
                     return;
                 }
+                if (action == "edgeshot") { await RunEdgeShotsAsync(args[r + 2]); return; }
+                if (action == "edgetest") { await RunEdgeTestAsync(); return; }
                 if (action == "glassbench")   // test (2.1): what the glass costs and how often its picture changes: glassbench liquid|plain [mag]
                 {
                     Settings.ReadOnly = true;
@@ -3437,12 +3439,10 @@ public partial class MainWindow : Window
     /// <summary>Switch between the floating pill and the notch attached to the top edge.</summary>
     private void ApplyDock(bool animate)
     {
-        Island.Margin = new Thickness(0, IslandTopMargin, 0, 0);
-        ShadowHost.Margin = Island.Margin;
-        if (_settings.Docked && !_hidden) MoveWindow(Left, MonitorTop());
-        if (Island.ActualWidth > 0) Island_SizeChanged(this, null!);
-        UpdateShape(false);
+        UpdateEdge();
+        ApplyEdgeLayout();
         if (animate && _mode != Mode.Compact) MorphTo(TargetSize(_mode));
+        if (!animate) FollowEdge();
     }
 
     /// <summary>Jump the window (no floating) and keep the position springs in sync.</summary>
@@ -3455,24 +3455,13 @@ public partial class MainWindow : Window
         _py.Snap(top);
     }
 
+    /// <summary>Straight to where the island belongs (its place, fitted onto its screen for its size now).</summary>
     private void ClampPosition()
     {
-        double minX = SystemParameters.VirtualScreenLeft, maxX = minX + SystemParameters.VirtualScreenWidth;
-        double minY = SystemParameters.VirtualScreenTop, maxY = minY + SystemParameters.VirtualScreenHeight;
-        double cx = Math.Clamp(Left + Width / 2, minX + 110, maxX - 110);
-        MoveWindow(cx - Width / 2, Math.Clamp(Top, minY, maxY - 80));
-    }
-
-    private void SavePosition()
-    {
-        // moved while a program with its own place was in front (or floated to that place): it is that program's place
-        if (_placeOwner != null) _settings.AppPlaces[_placeOwner] = [Left + Width / 2, Top];
-        else
-        {
-            _settings.CenterX = Left + Width / 2;
-            _settings.Top = Top;
-        }
-        _settings.Save();
+        UpdateEdge();
+        var (x, y) = PlaceFor(IslandW, IslandH);
+        MoveWindow(x, y);
+        ClipToEdge();
     }
 
     private void ResetPosition_Click(object sender, RoutedEventArgs e) => AlignIsland();
@@ -3482,19 +3471,19 @@ public partial class MainWindow : Window
     {
         if (_hidden) ShowIsland();
         if (_settings.PlacePerApp && ForgetAppPlace()) return;
-        var screen = Forms.Screen.FromPoint(new System.Drawing.Point((int)(Left + Width / 2), (int)(Top + 20)));
-        var dpi = VisualTreeHelper.GetDpi(this);
-        double cx = (screen.Bounds.Left + screen.Bounds.Width / 2.0) / dpi.DpiScaleX;
-        double top = screen.Bounds.Top / dpi.DpiScaleY;
-        _settings.CenterX = screen.Primary ? null : cx;
-        _settings.Top = screen.Primary ? null : top;
+        UpdateEdge();
+        double cx = _edgeScreen.Left + _edgeScreen.Width / 2, cy = _edgeArea.Top + _edgeArea.Height / 2;
+        if (_settings.Attach is "left" or "right" or "taskbar" && _settings.AttachAt is { Length: 2 } at)
+            _settings.AttachAt = _settings.Attach == "taskbar" ? [cx, at[1]] : [at[0], cy];   // the middle of its edge
+        else
+        {
+            var a = Anchor();
+            bool primary = Forms.Screen.FromPoint(new System.Drawing.Point((int)(a.X * Dpi), (int)(a.Y * Dpi))).Primary;
+            _settings.CenterX = primary ? null : cx;
+            _settings.Top = primary ? null : _edgeScreen.Top;
+        }
         _settings.Save();
-        _px.Snap(Left);
-        _py.Snap(Top);
-        _px.Target = cx - Width / 2;
-        _py.Target = _settings.Docked ? MonitorTop() : top;
-        _posActive = true;
-        StartRendering();
+        FollowEdge(animate: true);
         Kick(3);
     }
 
@@ -3530,6 +3519,7 @@ public partial class MainWindow : Window
         if (_hShrinking && shownH < _h.Target) shownH = _h.Target - 8 * Math.Tanh((_h.Target - shownH) / 8);
         Island.Height = Math.Max(20, shownH);
         IslandShift.Y = _y.Value + _bodyY.Value;
+        FollowEdge();   // near the screen's edge (or attached to one) the island opens inward: the window moves with its size
 
         bool liquid = StepLiquid(dt);
 
@@ -3577,6 +3567,7 @@ public partial class MainWindow : Window
             MoveWindow(cx - w / 2, Top);
         }
         GrowWindow();
+        if (IsLoaded) ClampPosition();
         ShrinkWindowToPill();
     }
 
@@ -3748,11 +3739,16 @@ public partial class MainWindow : Window
 
     private void Island_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        double r = Radius(Island.ActualHeight);
-        // docked: square at the top (flush with the screen edge), round only at the bottom
-        IslandContent.Clip = _settings.Docked
-            ? new RectangleGeometry(new Rect(0, -r, Island.ActualWidth, Island.ActualHeight + r), r, r)
-            : new RectangleGeometry(new Rect(0, 0, Island.ActualWidth, Island.ActualHeight), r, r);
+        double w = Island.ActualWidth, h = Island.ActualHeight, r = Radius(Vertical ? w : h);
+        // attached: square on the edge's side (flush with it), round only on the others
+        IslandContent.Clip = new RectangleGeometry(_edge switch
+        {
+            Edge.Top => new Rect(0, -r, w, h + r),
+            Edge.Bottom => new Rect(0, 0, w, h + r),
+            Edge.Left => new Rect(-r, 0, w + r, h),
+            Edge.Right => new Rect(0, 0, w + r, h),
+            _ => new Rect(0, 0, w, h),
+        }, r, r);
         if (!_rendering) UpdateShape(false);
     }
 
@@ -3765,12 +3761,14 @@ public partial class MainWindow : Window
         {
             var vis = CompactView.Visibility;
             CompactView.Visibility = Visibility.Visible;
-            CompactView.Measure(new Size(double.PositiveInfinity, CompactHeight));
+            // upright on a side: its length is its height
+            CompactView.Measure(Vertical ? new Size(CompactHeight, double.PositiveInfinity) : new Size(double.PositiveInfinity, CompactHeight));
+            double need = Vertical ? CompactView.DesiredSize.Height : CompactView.DesiredSize.Width;
             CompactView.Visibility = vis;
             // what the content needs, plus what the user pulled the edge out (or in) by
             // (a sung line may be long: the island goes as wide as it needs, up to what fits beside the screen centre)
             double max = Karaoke.Visibility == Visibility.Visible ? 760 : 440;
-            return Math.Max(140, Math.Clamp(CompactView.DesiredSize.Width + 8, 200, max) + Math.Clamp(_settings.PillExtra, PillExtraMin, PillExtraMax));
+            return Math.Max(140, Math.Clamp(need + 8, 200, max) + Math.Clamp(_settings.PillExtra, PillExtraMin, PillExtraMax));
         }
     }
 
@@ -3815,7 +3813,7 @@ public partial class MainWindow : Window
                 return new Size(DropView.Width + 32, DropView.DesiredSize.Height + 30);
             }
             default:
-                return new Size(CompactWidth, CompactHeight);
+                return PillSize(CompactWidth);
         }
     }
 
@@ -3830,6 +3828,7 @@ public partial class MainWindow : Window
         var old = _mode;
         _mode = mode;
         if (mode == Mode.Expanded && old != Mode.Expanded) HomeMissed.Refresh(fold: true);
+        if (Vertical && (mode == Mode.Compact) != (old == Mode.Compact)) UpdateGlassFill();   // on a side the folded pill shades across, the open island down
 
         var views = new Dictionary<Mode, FrameworkElement>
         {
@@ -4000,7 +3999,7 @@ public partial class MainWindow : Window
     private (double X, double Y) DragTarget(Point c)
     {
         var d = c - _pressCursor;
-        return (_pressWindow.X + d.X, _pressWindow.Y + (_settings.Docked ? Math.Min(0, d.Y) : d.Y));
+        return Rubber(_pressWindow.X + d.X, _pressWindow.Y + (_edge == Edge.Top ? Math.Min(0, d.Y) : d.Y));
     }
 
     private Point CursorDip()
@@ -4127,19 +4126,14 @@ public partial class MainWindow : Window
 
             // upward flick, or dragged above the screen edge → hide
             double screenTop = SystemParameters.VirtualScreenTop;
-            if (_py.Target + IslandTopMargin < screenTop - 12 || (v.Y < -900 && _py.Target < _pressWindow.Y - 15))
+            if (_py.Target + IslandTopMargin < screenTop - 12 || (_edge is Edge.Free or Edge.Top && v.Y < -900 && _py.Target < _pressWindow.Y - 15))
             {
                 HideIsland(animate: true);
                 return;
             }
 
-            // a little momentum, then it settles where it lands
-            double minX = SystemParameters.VirtualScreenLeft, maxX = minX + SystemParameters.VirtualScreenWidth;
-            double cx = Math.Clamp(_px.Target + Width / 2 + v.X * 0.07, minX + 110, maxX - 110);
-            _px.Target = cx - Width / 2;
-            _py.Target = _settings.Docked
-                ? MonitorTop()
-                : Math.Clamp(_py.Target + v.Y * 0.05, screenTop, screenTop + SystemParameters.VirtualScreenHeight - 80);
+            // a little momentum, then it settles where it lands (on a side or the taskbar: at that edge)
+            DropAt(v);
             StartRendering();
             if (!Island.IsMouseOver && _mode == Mode.Expanded) _collapseDelay.Start();
             return;
@@ -4170,17 +4164,15 @@ public partial class MainWindow : Window
         UpdateAuraVisibility();
         _posActive = false;
         _settings.Hidden = true;
-        if (_placeOwner == null)   // at a program's place: that one is kept already, the usual one stays
-        {
-            if (Top > SystemParameters.VirtualScreenTop + 1) _settings.Top = Top; // remember where it was
-            _settings.CenterX = Left + Width / 2;
-        }
         _settings.Save();
 
         void Finish()
         {
             Island.Visibility = Visibility.Hidden;
-            MoveWindow(Left, MonitorTop());
+            // the handle waits at the top of the screen (from a side or the taskbar: at its middle)
+            double cx = _edge is Edge.Free or Edge.Top ? Left + Width / 2 : _edgeScreen.Left + _edgeScreen.Width / 2;
+            MoveWindow(cx - Width / 2, _edgeScreen.Top);
+            ClipToEdge();
             Handle.Visibility = Visibility.Visible;
             Reveal(Handle, 0.6, 0);
         }
@@ -4209,13 +4201,8 @@ public partial class MainWindow : Window
         _settings.Save();
 
         Handle.Visibility = Visibility.Collapsed;
-        if (_settings.PlacePerApp)   // another program may have come to the front meanwhile
-        {
+        if (_settings.PlacePerApp && _settings.Attach == "")   // another program may have come to the front meanwhile
             _placeOwner = _frontApp != null && _settings.AppPlaces.ContainsKey(_frontApp) ? _frontApp : null;
-            var (cx, top) = PlaceOf(_placeOwner);
-            MoveWindow(cx - Width / 2, top);
-        }
-        else MoveWindow(Left, _settings.Top ?? MonitorTop());
         ClampPosition();
         Island.Visibility = Visibility.Visible;
         _y.Snap(-(Island.ActualHeight + IslandTopMargin + 30));
@@ -4336,6 +4323,7 @@ public partial class MainWindow : Window
         // a menu of ours is open: pulling the island to the very top now would put it over that menu
         if (!fs && !_dragging && _menusOpen == 0 && !(_gameFront && Native.IsAbove(_hwnd, fg))) Native.KeepTopmost(_hwnd);
         if (!fs) WatchFrontApp(fg);
+        WatchScreenEdge();
     }
 
     // ================================================================ clock & eyes
@@ -4394,6 +4382,7 @@ public partial class MainWindow : Window
     private void UpdateGaze()
     {
         if (!IsLoaded || _hidden || _fullscreenHidden) return;
+        WatchEdge();
         _gazeTicks++;
         Native.GetCursorPos(out var cursor);
         if (_fakeCursor is Native.POINT fake) cursor = fake;   // screenshots / tests
