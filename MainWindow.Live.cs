@@ -183,9 +183,11 @@ public partial class MainWindow
             var want = PillSize(CompactWidth);
             double len = Vertical ? want.Height : want.Width, now = Vertical ? _h.Target : _w.Target;
             // the digits of the game pill change all the time: it grows for them, but doesn't shrink for every one
-            if (len > now + 3 || len < now - (pick.Id == "game" ? 24 : 3) || Math.Abs((Vertical ? _w.Target : _h.Target) - CompactHeight) > 1) MorphTo(want);
+            double thick = Vertical ? want.Width : want.Height, nowThick = Vertical ? _w.Target : _h.Target;
+            if (len > now + 3 || len < now - (pick.Id == "game" ? 24 : 3) || Math.Abs(thick - nowThick) > 1) MorphTo(want);
         }
 
+        FitUprightText();
         if (_mode == Mode.Expanded && TabTimer.IsChecked == true) UpdateTimerPage();
     }
 

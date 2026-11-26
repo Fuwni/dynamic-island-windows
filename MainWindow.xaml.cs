@@ -3762,14 +3762,14 @@ public partial class MainWindow : Window
         {
             var vis = CompactView.Visibility;
             CompactView.Visibility = Visibility.Visible;
-            // upright on a side: its length is its height
-            CompactView.Measure(Vertical ? new Size(CompactHeight, double.PositiveInfinity) : new Size(double.PositiveInfinity, CompactHeight));
+            // a column on a side: its length is its height
+            CompactView.Measure(Vertical ? new Size(SidePillWidth, double.PositiveInfinity) : new Size(double.PositiveInfinity, CompactHeight));
             double need = Vertical ? CompactView.DesiredSize.Height : CompactView.DesiredSize.Width;
             CompactView.Visibility = vis;
             // what the content needs, plus what the user pulled the edge out (or in) by
             // (a sung line may be long: the island goes as wide as it needs, up to what fits beside the screen centre)
             double max = Karaoke.Visibility == Visibility.Visible ? 760 : 440;
-            return Math.Max(140, Math.Clamp(need + 8, 200, max) + Math.Clamp(_settings.PillExtra, PillExtraMin, PillExtraMax));
+            return Math.Max(Vertical ? 100 : 140, Math.Clamp(need + 8, Vertical ? 100 : 200, max) + Math.Clamp(_settings.PillExtra, PillExtraMin, PillExtraMax));
         }
     }
 

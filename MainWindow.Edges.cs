@@ -35,8 +35,11 @@ public partial class MainWindow
     private double IslandW => (double.IsNaN(Island.Width) ? Island.ActualWidth : Island.Width) * UiScale;
     private double IslandH => (double.IsNaN(Island.Height) ? Island.ActualHeight : Island.Height) * UiScale;
 
+    /// <summary>The folded pill on a side: this wide (its content stands upright in a column, never turned on its side).</summary>
+    private const double SidePillWidth = 46;
+
     /// <summary>The folded pill's outline for this length: upright on a side.</summary>
-    private Size PillSize(double length) => Vertical ? new Size(CompactHeight, Math.Min(length, 360)) : new Size(_inBar ? Math.Min(length, 440) : length, CompactHeight);
+    private Size PillSize(double length) => Vertical ? new Size(SidePillWidth, Math.Min(length, 360)) : new Size(_inBar ? Math.Min(length, 440) : length, CompactHeight);
 
     /// <summary>No room for a sung line: upright on a side, or in the taskbar beside its buttons.</summary>
     private bool NoKaraokeHere => Vertical || _inBar;
@@ -199,10 +202,7 @@ public partial class MainWindow
     /// <summary>What changes with the edge: the folded content turns upright on a side, and the island squeezes toward its edge.</summary>
     private void ApplyEdgeLayout()
     {
-        bool v = Vertical;
-        CompactView.LayoutTransform = v ? new RotateTransform(_edge == Edge.Left ? -90 : 90) : Transform.Identity;
-        CompactView.VerticalAlignment = v ? VerticalAlignment.Stretch : VerticalAlignment.Top;
-        CompactView.Margin = v ? new Thickness(0, 15, 0, 15) : new Thickness(15, 0, 15, 0);
+        StandUpright(Vertical);
         Island.RenderTransformOrigin = _edge switch
         {
             Edge.Left => new Point(0, 0.5),
@@ -239,6 +239,80 @@ public partial class MainWindow
 
     /// <summary>How far it goes into its edge to be out of sight.</summary>
     private double AwayDistance(double more) => (Vertical ? Island.ActualWidth : Island.ActualHeight) + IslandTopMargin + more;
+
+    // ---------------------------------------------------------------- the folded pill on a side
+
+    private bool _upright;
+    private readonly Dictionary<FrameworkElement, (Thickness Margin, HorizontalAlignment Align)> _rowLook = [];
+
+    /// <summary>
+    /// On a side the folded pill is a column: the character, the cover, the time and the dots stand one under another,
+    /// the right way up (text turned on its side is hard to read). Along a top or bottom edge, a row again.
+    /// </summary>
+    private void StandUpright(bool on)
+    {
+        if (on == _upright) return;
+        _upright = on;
+        var g = CompactView;
+        if (on)
+        {
+            g.ColumnDefinitions.Clear();
+            foreach (var h in new[] { GridLength.Auto, new GridLength(1, GridUnitType.Star), GridLength.Auto }) g.RowDefinitions.Add(new System.Windows.Controls.RowDefinition { Height = h });
+        }
+        else
+        {
+            g.RowDefinitions.Clear();
+            foreach (var w in new[] { GridLength.Auto, new GridLength(1, GridUnitType.Star), GridLength.Auto }) g.ColumnDefinitions.Add(new System.Windows.Controls.ColumnDefinition { Width = w });
+        }
+        foreach (UIElement child in g.Children)
+        {
+            int slot = on ? System.Windows.Controls.Grid.GetColumn(child) : System.Windows.Controls.Grid.GetRow(child);
+            System.Windows.Controls.Grid.SetRow(child, on ? slot : 0);
+            System.Windows.Controls.Grid.SetColumn(child, on ? 0 : slot);
+        }
+        g.Height = on ? double.NaN : CompactHeight;
+        g.VerticalAlignment = on ? VerticalAlignment.Stretch : VerticalAlignment.Top;
+        g.HorizontalAlignment = on ? HorizontalAlignment.Center : HorizontalAlignment.Stretch;
+        g.Margin = on ? new Thickness(0, 12, 0, 12) : new Thickness(15, 0, 15, 0);
+        g.LayoutTransform = Transform.Identity;
+
+        // every row of things becomes a column (the equaliser's bars stay side by side): gaps turn from across to down
+        void Turn(DependencyObject d)
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(d); i++)
+            {
+                if (VisualTreeHelper.GetChild(d, i) is not FrameworkElement e) continue;
+                if (e is System.Windows.Controls.StackPanel sp && sp != EqBars && sp != Eyes) sp.Orientation = on ? System.Windows.Controls.Orientation.Vertical : System.Windows.Controls.Orientation.Horizontal;
+                if (on)
+                {
+                    _rowLook[e] = (e.Margin, e.HorizontalAlignment);
+                    var m = e.Margin;
+                    e.Margin = new Thickness(m.Top, m.Left, m.Bottom, m.Right);
+                    e.HorizontalAlignment = HorizontalAlignment.Center;
+                }
+                else if (_rowLook.TryGetValue(e, out var was)) { e.Margin = was.Margin; e.HorizontalAlignment = was.Align; }
+                if (e != EqBars && e is not Views.CharacterView && e is not Views.KaraokeView) Turn(e);
+            }
+        }
+        Turn(g);
+        if (!on) _rowLook.Clear();
+        CompactTime.FontSize = on ? 12 : 13;
+        CompactTime.TextAlignment = on ? TextAlignment.Center : TextAlignment.Left;
+        FitUprightText();
+    }
+
+    /// <summary>In the column only a short text fits: the time (also out of "10:42 · Tue 26"); a longer one gives way to its icon.</summary>
+    private void FitUprightText()
+    {
+        if (!_upright || Karaoke.Visibility == Visibility.Visible) return;
+        string t = CompactTime.Text ?? "";
+        if (t.Length > 6)
+        {
+            var m = System.Text.RegularExpressions.Regex.Match(t, @"\d{1,2}:\d{2}");
+            if (m.Success) { CompactTime.Text = m.Value; t = m.Value; }
+        }
+        CompactTime.Visibility = t.Length is > 0 and <= 6 ? Visibility.Visible : Visibility.Collapsed;
+    }
 
     /// <summary>The outline is drawn as if attached to the top edge, then turned to its own edge.</summary>
     private Geometry OnEdge(Geometry g, double w, double h)
@@ -532,6 +606,10 @@ public partial class MainWindow
             await Put(side, false, side == "left" ? b.Left / k + 40 : b.Right / k - 40, wa.Bottom / k - 20);
             var r = Isl();
             Check($"{side} side, folded: upright, flush with the edge, whole on the screen", Flush(r) && r.Height > r.Width * 2 && Inside(r, wa));
+            var tt = CompactTime.TransformToAncestor(Island).TransformBounds(new Rect(CompactTime.RenderSize));
+            var ct = Character.TransformToAncestor(Island).TransformBounds(new Rect(Character.RenderSize));
+            Check($"{side} side, folded: a column the right way up: the character above the time ({ct.Top:0} < {tt.Top:0}), the time not turned and inside ({tt.Width:0}x{tt.Height:0} in {Island.ActualWidth:0})",
+                  CompactView.LayoutTransform.Value.IsIdentity && ct.Bottom <= tt.Top + 1 && tt.Width > tt.Height && tt.Right <= Island.ActualWidth + 0.5 && tt.Left >= -0.5 && CompactTime.IsVisible);
             Check($"{side} side: nothing drawn past the edge (clip {Root.Clip?.Bounds})", Root.Clip != null);
             await Open(); r = Isl(); Check($"{side} side, open: flush, whole on the screen", Flush(r) && Inside(r, wa) && r.Width > r.Height);
             await Fold(); r = Isl(); Check($"{side} side, folded again: upright and flush", Flush(r) && r.Height > r.Width * 2);
