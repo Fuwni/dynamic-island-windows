@@ -2,6 +2,22 @@
 
 All notable changes to Atoll (formerly "Dynamic Island for Windows"). Русская версия каждого пункта — ниже английской.
 
+## 2.2.0 — 2026-11-26
+
+- **The island never goes past the screen's edge.** Pushed against a side (or low on the screen), it used to open partly off the screen. Now it opens inward and goes back to its place when it folds; the place you chose never moves. Dragged, it gives way softly at the edge instead of sliding off.
+- **On a side.** Settings → Appearance → "On a side", or the island's menu → Position → Left / Right: a narrow column along the edge, its content the right way up (the character, the cover, the time). It opens outward from the edge and stays on the screen; let go on the other half of the screen, it moves to that side.
+- **In the taskbar.** "On the taskbar" puts the pill right in the taskbar, at the height of its buttons, first in its free part (left of centred buttons). Opening, it rises above the bar so Start and the buttons stay free. It follows a taskbar that hides itself, works with a taskbar on top or on a side, stays above the bar after you click it, and fades away while Start, search or the notification centre is open over it.
+- **The wheel goes through the tabs** of the open island, one per notch; lists, sliders and text boxes keep their own scrolling.
+- **The island comes out of its own edge** when it shows, hides or moves to another screen: up out of the taskbar, right from the left side, left from the right one.
+- The island's menu: "Position" opens its choices (the menu could not show a submenu before).
+
+- **Островок больше не уходит за край экрана.** Прижатый к краю (или стоящий низко), он раскрывался наполовину за экраном. Теперь он раскрывается внутрь и, свернувшись, возвращается на своё место, а выбранное вами место не сдвигается. При перетаскивании он мягко упирается в край, а не уезжает за него.
+- **Сбоку.** Настройки → Внешний вид → «Сбоку» или меню островка → Положение → Слева / Справа: узкий столбик вдоль края, всё внутри стоит ровно (персонаж, обложка, время). Раскрывается наружу от края и не выходит за экран. Если отпустить его на другой половине экрана, он переходит на ту сторону.
+- **В панели задач.** «У панели задач» ставит пилюлю прямо в панель, на высоте её значков, сначала в свободную часть (слева от значков по центру). Раскрываясь, островок поднимается над панелью, «Пуск» и значки остаются свободными. Понимает панель, которая сама скрывается, и панель сверху или сбоку, не прячется за панель после клика по ней и исчезает, пока поверх открыты «Пуск», поиск или центр уведомлений.
+- **Колесо мыши листает вкладки** открытого островка, по одной за щелчок; списки, ползунки и поля ввода прокручиваются как раньше.
+- **Островок выезжает из своего края**, когда появляется, прячется или переходит на другой экран: вверх из панели задач, вправо с левого края, влево с правого.
+- Меню островка: «Положение» открывает свои варианты (раньше меню не умело показывать подменю).
+
 ## 2.1.1 — 2026-11-24
 
 - **Less load in full-screen games.** In 2.1.0 the glass kept taking pictures of the screen 4–5 times a second over a game, and the island kept redrawing with the music and re-raising itself; this could show up as small freezes. With a full-screen game in front the island now takes no pictures (it turns solid), stops its waves, equaliser and pull to the cursor, re-raises itself only when the game has really covered it, and the FPS pill changes once a second and doesn't resize for every digit. Measured on a test window: pictures 4.6 → 0 a second, island redraws 84 → 0 a second, music playing. Everything comes back when you leave the game. Games in an ordinary window are not recognised.
