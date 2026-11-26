@@ -119,13 +119,13 @@ public partial class MainWindow
         // from the edge it is attached to outward (folded on a side, the pill lies along that edge)
         var (fillFrom, fillTo) = _edge switch
         {
-            Edge.Bottom => (new Point(0.5, 1), new Point(0.5, 0)),
+            Edge.Bottom when !_inBar => (new Point(0.5, 1), new Point(0.5, 0)),
             Edge.Left when _mode == Mode.Compact => (new Point(0, 0.5), new Point(1, 0.5)),
             Edge.Right when _mode == Mode.Compact => (new Point(1, 0.5), new Point(0, 0.5)),
             _ => (new Point(0.5, 0), new Point(0.5, 1)),
         };
         var fill = new LinearGradientBrush { StartPoint = fillFrom, EndPoint = fillTo };
-        fill.GradientStops.Add(new GradientStop(A((liquid || pane) && _edge != Edge.Top ? body : 1), 0));          // the top edge of the screen meets it: solid
+        fill.GradientStops.Add(new GradientStop(A((liquid || pane) && !TopNotch ? body : 1), 0));          // the top edge of the screen meets it: solid
         fill.GradientStops.Add(new GradientStop(A(body), 0.14));
         fill.GradientStops.Add(new GradientStop(A(body), 0.5));
         fill.GradientStops.Add(new GradientStop(A(bottom), 1));

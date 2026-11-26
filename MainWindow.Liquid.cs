@@ -379,7 +379,7 @@ public partial class MainWindow
         }
 
         // the lead point's own movement, on top of what the whole island already moved by
-        Geometry g = bump < 0 ? FlowGeometry(w, h, r, _edge == Edge.Top, _pullPoint, new Vector(_leadX.Value - _bodyX.Value, _leadY.Value - _bodyY.Value))
+        Geometry g = bump < 0 ? FlowGeometry(w, h, r, TopNotch, _pullPoint, new Vector(_leadX.Value - _bodyX.Value, _leadY.Value - _bodyY.Value))
                    : liquid && !Attached ? LiquidGeometry(w, h, r)
                    : OnEdge(PillGeometry(fw, fh, r, Attached, bumpX, bump), w, h);
         g.Freeze();

@@ -133,7 +133,7 @@ public partial class MainWindow
             }
             if (_lastMedia?.IsPlaying == true)
             {
-                string? karaoke = _settings.Karaoke && !Vertical && _currentLyrics?.Synced == true && LyricCur.Text is { Length: > 0 } line && line != "♪" ? line : null;   // the whole line: the island grows to fit it
+                string? karaoke = _settings.Karaoke && !NoKaraokeHere && _currentLyrics?.Synced == true && LyricCur.Text is { Length: > 0 } line && line != "♪" ? line : null;   // the whole line: the island grows to fit it
                 lives.Add(("music", null, karaoke, -1, ringBrush));   // the cover, the equaliser and the eyes
             }
         }

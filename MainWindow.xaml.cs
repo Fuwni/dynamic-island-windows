@@ -3474,7 +3474,7 @@ public partial class MainWindow : Window
         UpdateEdge();
         double cx = _edgeScreen.Left + _edgeScreen.Width / 2, cy = _edgeArea.Top + _edgeArea.Height / 2;
         if (_settings.Attach is "left" or "right" or "taskbar" && _settings.AttachAt is { Length: 2 } at)
-            _settings.AttachAt = _settings.Attach == "taskbar" ? [cx, at[1]] : [at[0], cy];   // the middle of its edge
+            _settings.AttachAt = _settings.Attach == "taskbar" ? [BarSpot(new Point(cx, cy)), at[1]] : [at[0], cy];   // the middle of its edge (on the taskbar: its free part)
         else
         {
             var a = Anchor();
@@ -3743,6 +3743,7 @@ public partial class MainWindow : Window
         // attached: square on the edge's side (flush with it), round only on the others
         IslandContent.Clip = new RectangleGeometry(_edge switch
         {
+            _ when _inBar => new Rect(0, 0, w, h),
             Edge.Top => new Rect(0, -r, w, h + r),
             Edge.Bottom => new Rect(0, 0, w, h + r),
             Edge.Left => new Rect(-r, 0, w + r, h),
@@ -3999,7 +4000,7 @@ public partial class MainWindow : Window
     private (double X, double Y) DragTarget(Point c)
     {
         var d = c - _pressCursor;
-        return Rubber(_pressWindow.X + d.X, _pressWindow.Y + (_edge == Edge.Top ? Math.Min(0, d.Y) : d.Y));
+        return Rubber(_pressWindow.X + d.X, _pressWindow.Y + (TopNotch ? Math.Min(0, d.Y) : d.Y));
     }
 
     private Point CursorDip()

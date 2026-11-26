@@ -1111,7 +1111,7 @@
                             </Grid>
                           </Border>
                           <TextBlock Text="У панели задач" FontSize="12.5" FontWeight="SemiBold" Margin="2,8,0,0"/>
-                          <TextBlock Text="Сидит на панели задач и растёт вверх" Style="{StaticResource Muted}" FontSize="10.5" Margin="2,1,0,0" TextWrapping="Wrap"/>
+                          <TextBlock Text="Стоит прямо в панели задач, в свободном месте" Style="{StaticResource Muted}" FontSize="10.5" Margin="2,1,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                       </Border>
                     </UniformGrid>

@@ -22,16 +22,24 @@ public partial class MainWindow
     private double _edgeLine;
     private Rect _edgeArea, _edgeScreen;
     private IntPtr _edgeTaskbar;
+    /// <summary>On a taskbar along the bottom or the top: the pill sits in the bar itself (Bar: the part of it on the screen, DIP).</summary>
+    private bool _inBar;
+    private Rect _bar;
 
     private bool Vertical => _edge is Edge.Left or Edge.Right;
-    private bool Attached => _edge != Edge.Free;
+    /// <summary>Attached to an edge (its shape flat against it). In the taskbar it is a whole pill.</summary>
+    private bool Attached => _edge != Edge.Free && !_inBar;
+    private bool TopNotch => _edge == Edge.Top && !_inBar;
     private const double EdgeGap = 8, EditLift = 72;
 
     private double IslandW => (double.IsNaN(Island.Width) ? Island.ActualWidth : Island.Width) * UiScale;
     private double IslandH => (double.IsNaN(Island.Height) ? Island.ActualHeight : Island.Height) * UiScale;
 
     /// <summary>The folded pill's outline for this length: upright on a side.</summary>
-    private Size PillSize(double length) => Vertical ? new Size(CompactHeight, Math.Min(length, 360)) : new Size(length, CompactHeight);
+    private Size PillSize(double length) => Vertical ? new Size(CompactHeight, Math.Min(length, 360)) : new Size(_inBar ? Math.Min(length, 440) : length, CompactHeight);
+
+    /// <summary>No room for a sung line: upright on a side, or in the taskbar beside its buttons.</summary>
+    private bool NoKaraokeHere => Vertical || _inBar;
 
     private static double Fit(double v, double lo, double hi) => hi < lo ? (lo + hi) / 2 : Math.Clamp(v, lo, hi);
 
@@ -53,26 +61,28 @@ public partial class MainWindow
         _edgeScreen = R(s.Bounds);
         _edgeArea = R(s.WorkingArea);
         var was = _edge;
+        bool wasInBar = _inBar;
         _edgeTaskbar = IntPtr.Zero;
+        _inBar = false;
         switch (_settings.Attach)
         {
             case "left": _edge = Edge.Left; _edgeLine = _edgeArea.Left; break;
             case "right": _edge = Edge.Right; _edgeLine = _edgeArea.Right; break;
             case "taskbar":
-                (_edge, _edgeLine, _edgeTaskbar) = TaskbarEdge(s.Bounds, k);
-                // an auto-hiding taskbar leaves the whole screen as the work area: keep the island off the strip it slides in from
-                if (_edge == Edge.Bottom) _edgeArea.Height = Math.Max(0, Math.Min(_edgeArea.Bottom, _edgeLine) - _edgeArea.Top);
+                (_edge, _edgeLine, _edgeTaskbar, _bar) = TaskbarEdge(s.Bounds, k);
+                // a bar along the bottom or the top: the pill goes into it; beside a bar on a side (no room in it)
+                _inBar = _edge is Edge.Bottom or Edge.Top;
                 break;
             default: _edge = _settings.Docked ? Edge.Top : Edge.Free; _edgeLine = _edgeScreen.Top; break;
         }
-        if (was != _edge) ApplyEdgeLayout();
+        if (was != _edge || wasInBar != _inBar) ApplyEdgeLayout();
     }
 
     /// <summary>
     /// The taskbar of this screen: which side it is on and its inner side (where the island sits), in DIP. Hidden
     /// (auto-hide), only the thin strip it leaves counts, so the island rises with it when it slides in.
     /// </summary>
-    private static (Edge Edge, double Line, IntPtr Bar) TaskbarEdge(System.Drawing.Rectangle screen, double k)
+    private static (Edge Edge, double Line, IntPtr Bar, Rect On) TaskbarEdge(System.Drawing.Rectangle screen, double k)
     {
         foreach (var bar in Native.Taskbars())
         {
@@ -84,10 +94,11 @@ public partial class MainWindow
             bool flat = rect.Width >= rect.Height;
             if (flat && Math.Abs(rect.Width - screen.Width) > screen.Width / 3) continue;
             if (!flat && Math.Abs(rect.Height - screen.Height) > screen.Height / 3) continue;
-            if (flat) return rect.Top + rect.Height / 2 < screen.Top + screen.Height / 2 ? (Edge.Top, on.Bottom / k, bar) : (Edge.Bottom, on.Top / k, bar);
-            return rect.Left + rect.Width / 2 < screen.Left + screen.Width / 2 ? (Edge.Left, on.Right / k, bar) : (Edge.Right, on.Left / k, bar);
+            var dip = new Rect(on.X / k, on.Y / k, on.Width / k, on.Height / k);
+            if (flat) return rect.Top + rect.Height / 2 < screen.Top + screen.Height / 2 ? (Edge.Top, on.Bottom / k, bar, dip) : (Edge.Bottom, on.Top / k, bar, dip);
+            return rect.Left + rect.Width / 2 < screen.Left + screen.Width / 2 ? (Edge.Left, on.Right / k, bar, dip) : (Edge.Right, on.Left / k, bar, dip);
         }
-        return (Edge.Bottom, screen.Bottom / k, IntPtr.Zero);   // no taskbar on this screen: its bottom edge
+        return (Edge.Bottom, screen.Bottom / k, IntPtr.Zero, new Rect(screen.Left / k, screen.Bottom / k, screen.Width / k, 0));   // no taskbar on this screen: its bottom edge
     }
 
     /// <summary>Where the window goes for an island of this size (DIP): wholly on its screen, at its edge or place.</summary>
@@ -95,6 +106,24 @@ public partial class MainWindow
     {
         double half = (Width - w) / 2, ear = Attached ? 9 * UiScale : 0;
         var a = Anchor();
+        if (_inBar)
+        {
+            // in the bar, at the height of its buttons; a hidden bar (only a strip shows): just above the screen's edge.
+            // As it opens it rises clear of the bar (over Start and the buttons it would be in the way) and stays on the screen.
+            double ch = CompactHeight * UiScale, lift = _editMode ? EditLift : 0;
+            bool shown = _bar.Height >= ch * 0.8;
+            double open = Math.Clamp((h - ch) / (ch * 2), 0, 1);
+            double cx = Fit(a.X, _edgeScreen.Left + w / 2 + EdgeGap, _edgeScreen.Right - w / 2 - EdgeGap);
+            if (_edge == Edge.Bottom)
+            {
+                double pill = shown ? _bar.Top + _bar.Height / 2 + ch / 2 : _edgeScreen.Bottom - 6;
+                double bottom = pill + ((shown ? _bar.Top - EdgeGap : pill) - pill) * open - lift;
+                return (cx - Width / 2, Math.Max(_edgeScreen.Top, bottom - h));
+            }
+            double pillTop = shown ? _bar.Top + _bar.Height / 2 - ch / 2 : _edgeScreen.Top + 6;
+            double top = pillTop + ((shown ? _bar.Bottom + EdgeGap : pillTop) - pillTop) * open;
+            return (cx - Width / 2, Math.Min(top, _edgeScreen.Bottom - h));
+        }
         switch (_edge)
         {
             case Edge.Left or Edge.Right:
@@ -152,7 +181,7 @@ public partial class MainWindow
     private void ClipToEdge()
     {
         double w = IslandW, h = IslandH, x0 = (Width - w) / 2, big = 100000;
-        Rect clip = _hidden ? Rect.Empty : _edge switch
+        Rect clip = _hidden || _inBar ? Rect.Empty : _edge switch
         {
             Edge.Left => new Rect(x0, -big, big, 2 * big),
             Edge.Right => new Rect(-big, -big, big + x0 + w, 2 * big),
@@ -215,9 +244,13 @@ public partial class MainWindow
                     _settings.Attach = c.X < _edgeScreen.Left + _edgeScreen.Width / 2 ? "left" : "right";
                 _settings.AttachAt = [c.X, c.Y];
                 break;
-            case "left" or "right" or "taskbar":
+            case "left" or "right":
                 _settings.Attach = tag;
                 _settings.AttachAt = [c.X, c.Y];
+                break;
+            case "taskbar":
+                _settings.Attach = tag;
+                _settings.AttachAt = [BarSpot(c), c.Y];
                 break;
             default:
                 _settings.Attach = "";
@@ -228,6 +261,25 @@ public partial class MainWindow
         _settings.Save();
         ApplyDock(animate: true);
         FollowEdge(animate: true);
+    }
+
+    /// <summary>
+    /// Where along the taskbar the pill goes first: not over the buttons. Centred buttons (Windows 11 as it comes)
+    /// leave the left part empty; buttons on the left leave the part between them and the clock.
+    /// </summary>
+    private double BarSpot(Point on)
+    {
+        double k = Dpi;
+        var s = Forms.Screen.FromPoint(new System.Drawing.Point((int)(on.X * k), (int)(on.Y * k))).Bounds;
+        double left = s.Left / k, width = s.Width / k;
+        bool centred = Environment.OSVersion.Version.Build >= 22000;
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced");
+            if (key?.GetValue("TaskbarAl") is int al) centred = al != 0;
+        }
+        catch (Exception e) { Log.Write("taskbar: alignment: " + e.Message); }
+        return left + width * (centred ? 0.17 : 0.62);
     }
 
     private string PlacementTag => _settings.Attach switch
@@ -318,8 +370,11 @@ public partial class MainWindow
     /// <summary>~30 times a second (the gaze loop) on the taskbar or a side: a taskbar sliding in or out, Start or another flyout opening.</summary>
     private void WatchEdge()
     {
-        if (_edge is not (Edge.Bottom or Edge.Left or Edge.Right)) { if (_flyoutUp) SetFlyoutUp(false); return; }
+        if (_edge is not (Edge.Bottom or Edge.Left or Edge.Right) && !_inBar) { if (_flyoutUp) SetFlyoutUp(false); return; }
         WatchFlyouts();
+        // a click on the taskbar brings it to the front, over the pill in it: back on top at once
+        if (_inBar && _edgeTaskbar != IntPtr.Zero && _edgeTick % 3 == 0 && _menusOpen == 0 && !_dragging && !_hidden && !Native.IsAbove(_hwnd, _edgeTaskbar))
+            Native.KeepTopmost(_hwnd);
         if (_edgeTaskbar == IntPtr.Zero || _dragging || _hidden || ++_edgeTick % 2 != 0) return;
         double line = _edgeLine;
         UpdateEdge();
@@ -404,6 +459,17 @@ public partial class MainWindow
         }
         Log.Write($"edgetest: screen {b}, work area {wa}, scale {k:0.00}");
 
+        // the island's menu: "Position" opens its own small menu, and a choice there takes effect
+        await Put("", false, (b.Left + b.Right) / 2.0 / k, b.Top / k);
+        IslandMenu.PlacementTarget = Island; IslandMenu.IsOpen = true; await Task.Delay(400);
+        PlacementMenu.IsSubmenuOpen = true; await Task.Delay(500);
+        bool sub = PlacementMenu.Template.FindName("PART_Popup", PlacementMenu) is System.Windows.Controls.Primitives.Popup pp && pp.IsOpen && pp.Child.IsVisible;
+        var right = PlacementMenu.Items.OfType<System.Windows.Controls.MenuItem>().First(i => (string)i.Tag == "right");
+        bool ticked = PlacementMenu.Items.OfType<System.Windows.Controls.MenuItem>().First(i => (string)i.Tag == "float").IsChecked;
+        right.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.MenuItem.ClickEvent));
+        IslandMenu.IsOpen = false; await Task.Delay(1600);
+        Check($"menu: Position shows its choices ({sub}), the current one ticked ({ticked}), Right puts it on the right ({_settings.Attach})", sub && ticked && _settings.Attach == "right" && Math.Abs(Isl().Right - wa.Right) < 2);
+
         // floating, pushed against the right edge, the left edge, low over the taskbar
         foreach (var (name, x, y) in new[] { ("right edge", b.Right / k - 4, b.Top / k), ("left edge", b.Left / k + 4, b.Top / k), ("bottom", (b.Left + b.Right) / 2.0 / k, wa.Bottom / k - 50) })
         {
@@ -453,18 +519,21 @@ public partial class MainWindow
         ShowIsland(); await Task.Delay(1800);
         Check("left side, shown again: flush with the edge", Math.Abs(Isl().Left - wa.Left) < 2);
 
-        // on the taskbar: sits on it, grows upward, rises for the size grips, fades for Start
-        await Put("taskbar", false, b.Right / k - 30, b.Bottom / k - 30);
-        var (te, line, _) = TaskbarEdge(b, k);
-        double L = line * k;
-        bool OnBar(Rect r) => te switch { Edge.Bottom => Math.Abs(r.Bottom - L) < 2, Edge.Top => Math.Abs(r.Top - L) < 2, Edge.Left => Math.Abs(r.Left - L) < 2, _ => Math.Abs(r.Right - L) < 2 };
-        Check($"on the taskbar ({te} at {L:0}), folded: on it, whole on the screen", OnBar(Isl()) && Inside(Isl(), b));
-        await Open(); Check("on the taskbar, open: on it, whole on the screen", OnBar(Isl()) && Inside(Isl(), b));
+        // in the taskbar: a pill in the bar at the height of its buttons, grows up out of it, rises for the size grips, fades for Start
+        await Put("taskbar", false, BarSpot(new Point(b.Left / k + 50, b.Bottom / k - 30)), b.Bottom / k - 30);
+        var (te, line, _, bar) = TaskbarEdge(b, k);
+        double mid = (bar.Top + bar.Height / 2) * k, ch = CompactHeight * UiScale * k;
+        bool InBar(Rect r) => te is Edge.Left or Edge.Right ? Math.Abs((te == Edge.Left ? r.Left : r.Right) - line * k) < 2
+                            : Math.Abs(r.Top + r.Height / 2 - mid) < 2 && r.Height < bar.Height * k;
+        Check($"in the taskbar ({te}, {bar}), folded: in the bar, centred on it, left part ({Isl().Left < b.Left + b.Width / 2})", InBar(Isl()) && Inside(Isl(), b));
+        Check($"in the taskbar: whole pill, no clip ({Root.Clip == null})", Root.Clip == null);
+        await Open(); var o = Isl();
+        Check("in the taskbar, open: risen clear of the bar (Start stays free), whole on the screen", (te != Edge.Bottom || Math.Abs(o.Bottom - (bar.Top * k - EdgeGap * k)) < 2) && (te != Edge.Top || Math.Abs(o.Top - (bar.Bottom * k + EdgeGap * k)) < 2) && Inside(o, b));
         await Fold();
         EnterEditMode(); await Task.Delay(1500);
-        Check("on the taskbar, changing its size: lifted off it for the grips", te != Edge.Bottom || Isl().Bottom < L - 40);
+        Check("in the taskbar, changing its size: lifted off it for the grips", te != Edge.Bottom || Isl().Bottom < mid + ch / 2 - 40);
         ExitEditMode(); await Task.Delay(1500);
-        Check("on the taskbar, size set: back on it", OnBar(Isl()));
+        Check("in the taskbar, size set: back in it", InBar(Isl()));
         _testFlyout = true; await Task.Delay(500);
         Check($"on the taskbar, Start opened over it: faded away ({Root.Opacity:0.00})", Root.Opacity < 0.05 && !Root.IsHitTestVisible);
         _testFlyout = false; await Task.Delay(600);
@@ -531,8 +600,8 @@ public partial class MainWindow
         await Put("right", false, scr.Right / k - 40, scr.Top / k + H / k * 0.85);
         Shot("right-low-folded", right);
         await Open(); Shot("right-low-open", right); await Fold();
-        await Put("taskbar", false, scr.Left / k + W / k * 0.5, scr.Bottom / k - 20);
-        Shot("taskbar-folded", new System.Drawing.Rectangle(scr.Left + W / 2 - 410, scr.Bottom - 560, 820, 560));
+        await Put("taskbar", false, BarSpot(new Point(scr.Left / k + 50, scr.Bottom / k - 20)), scr.Bottom / k - 20);
+        Shot("taskbar-folded", new System.Drawing.Rectangle(scr.Left, scr.Bottom - 560, 820, 560)); await Open(); Shot("taskbar-open", new System.Drawing.Rectangle(scr.Left, scr.Bottom - 560, 820, 560)); await Fold();
         await Put("taskbar", false, scr.Right / k - 10, scr.Bottom / k - 20);
         Shot("taskbar-corner-folded", bottom);
         await Open(); Shot("taskbar-corner-open", bottom); await Fold();
