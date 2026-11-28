@@ -3,7 +3,7 @@ using ScreenRecorderLib;
 
 namespace DynamicIsland.Services;
 
-/// <summary>Records the main monitor to MP4 (H.264) with system sound and/or microphone.</summary>
+/// <summary>Records the selected monitor to MP4 (H.264) with system sound and/or microphone.</summary>
 public sealed class ScreenRecording
 {
     private Recorder? _recorder;
@@ -26,13 +26,20 @@ public sealed class ScreenRecording
         }
     }
 
-    public void Start(bool systemAudio, bool microphone)
+    public void Start(bool systemAudio, bool microphone, string displayDevice = "")
     {
         if (IsRecording) return;
 
+        if (!string.IsNullOrEmpty(displayDevice) && !System.Windows.Forms.Screen.AllScreens.Any(
+                s => string.Equals(s.DeviceName, displayDevice, StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidOperationException(L.T("Выбранный экран отключён. Запустите запись снова и выберите другой экран."));
+
+        var display = string.IsNullOrEmpty(displayDevice)
+            ? new DisplayRecordingSource(DisplayRecordingSource.MainMonitor)
+            : new DisplayRecordingSource(displayDevice);
         var sources = new SourceOptions
         {
-            RecordingSources = { new DisplayRecordingSource(DisplayRecordingSource.MainMonitor) },
+            RecordingSources = { display },
         };
         var audio = new AudioOptions { IsAudioEnabled = systemAudio || microphone };
         audio.AudioSources ??= new List<AudioSourceBase>();
@@ -77,7 +84,14 @@ public sealed class ScreenRecording
         var path = Path.Combine(VideosFolder, L.T("Запись экрана") + DateTime.Now.ToString(" yyyy-MM-dd HH-mm-ss") + ".mp4");
         StartedAt = DateTime.Now;
         IsRecording = true;
-        _recorder.Record(path);
+        try { _recorder.Record(path); }
+        catch
+        {
+            IsRecording = false;
+            _recorder.Dispose();
+            _recorder = null;
+            throw;
+        }
     }
 
     public void Stop()

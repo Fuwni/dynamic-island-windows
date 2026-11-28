@@ -319,6 +319,8 @@ public partial class MainWindow
         });
     }
 
+    private RecordingDisplayPicker? _recordDisplayPicker;
+
     private void ToggleRecording()
     {
         if (_recording.IsRecording)
@@ -326,7 +328,29 @@ public partial class MainWindow
             _recording.Stop();
             return;
         }
-        _recording.Start(_settings.RecordSystemAudio, _settings.RecordMicrophone);
+        if (_recordDisplayPicker != null)
+        {
+            _recordDisplayPicker.Activate();
+            return;
+        }
+        var picker = new RecordingDisplayPicker(_settings.DarkTheme) { Owner = this };
+        _recordDisplayPicker = picker;
+        _expandDelay.Stop();
+        _collapseDelay.Stop();
+        _pinnedOpen = false;
+        SetMode(Mode.Compact);
+        bool selected;
+        try { selected = picker.ShowDialog() == true; }
+        finally { _recordDisplayPicker = null; }
+        if (!selected || picker.SelectedDeviceName == null) return;
+
+        try { _recording.Start(_settings.RecordSystemAudio, _settings.RecordMicrophone, picker.SelectedDeviceName); }
+        catch (Exception ex)
+        {
+            Log.Write("recording start failed: " + ex.Message);
+            ShowToast("", L.T("Запись не удалась"), ex.Message);
+            return;
+        }
         BuildHome();
         if (_mode != Mode.Compact) SetMode(Mode.Compact);
         UpdateEyesVisibility();

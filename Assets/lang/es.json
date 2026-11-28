@@ -1147,5 +1147,10 @@
  "Курсор пролетает по острову (в игре, по пути к вкладкам) — остров становится прозрачным и пропускает клики к окну под ним. Задержите на нём курсор или упритесь в верхний край — и он вернётся. В играх на весь экран не мешает совсем.": "Cuando el cursor pasa volando por la isla (en un juego, de camino a las pestañas), la isla se vuelve transparente y deja pasar los clics a la ventana de debajo. Deja el cursor quieto sobre ella o llévalo al borde superior y vuelve. En juegos a pantalla completa no molesta en absoluto.",
  "Своё место для каждой программы": "Su propio lugar para cada programa",
  "Передвиньте остров, пока программа впереди, — он запомнит это место и будет сам уезжать туда, когда она впереди. «Выровнять по центру» в меню острова возвращает этой программе обычное место.": "Mueve la isla mientras un programa está delante y recordará ese sitio: irá allí sola cada vez que ese programa esté delante. «Centrar» en el menú de la isla le devuelve a ese programa el lugar habitual.",
- "Яндекс Музыка": "Yandex Music"
+ "Яндекс Музыка": "Yandex Music",
+ "Выберите экран для записи": "Elige una pantalla para grabar",
+ "Нажмите на экран, чтобы начать запись.": "Haz clic en una pantalla para empezar a grabar.",
+ "основной": "principal",
+ "Выбранный экран отключён. Запустите запись снова и выберите другой экран.": "La pantalla seleccionada está desconectada. Inicia la grabación de nuevo y elige otra pantalla.",
+ "Экран {0}": "Pantalla {0}"
 }
