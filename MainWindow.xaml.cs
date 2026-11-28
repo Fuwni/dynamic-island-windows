@@ -3869,7 +3869,7 @@ public partial class MainWindow : Window
 
     private void Expand()
     {
-        if (_hidden || _mode is Mode.Claude or Mode.Drop or Mode.Command) return;
+        if (_hidden || _recordDisplayPicker != null || _mode is Mode.Claude or Mode.Drop or Mode.Command) return;
         _collapseDelay.Stop();
         ClearUnread();
         SetMode(Mode.Expanded);
@@ -4334,7 +4334,7 @@ public partial class MainWindow : Window
             }
         }
         // a menu of ours is open: pulling the island to the very top now would put it over that menu
-        if (!fs && !_dragging && _menusOpen == 0 && !(_gameFront && Native.IsAbove(_hwnd, fg))) Native.KeepTopmost(_hwnd);
+        if (!fs && !_dragging && _menusOpen == 0 && _recordDisplayPicker == null && !(_gameFront && Native.IsAbove(_hwnd, fg))) Native.KeepTopmost(_hwnd);
         if (!fs) WatchFrontApp(fg);
     }
 
