@@ -3829,6 +3829,13 @@ public partial class MainWindow : Window
     {
         var old = _mode;
         _mode = mode;
+        // Restore native input immediately when opening while the compact pill is yielding to the cursor.
+        if (mode != Mode.Compact)
+        {
+            if (_yield.Reset()) StopYield(reopen: false);
+            else ClickThrough(false);
+            if (!_fullscreenHidden) Root.IsHitTestVisible = true;
+        }
         if (mode == Mode.Expanded && old != Mode.Expanded) HomeMissed.Refresh(fold: true);
 
         var views = new Dictionary<Mode, FrameworkElement>
@@ -3843,6 +3850,8 @@ public partial class MainWindow : Window
 
         foreach (var (m, view) in views)
         {
+            // Outgoing content may still fade visually, but must not intercept the incoming view's clicks.
+            view.IsHitTestVisible = m == mode;
             if (m == mode || view.Visibility != Visibility.Visible) continue;
             var v = view;
             MorphOut(v, () => { if (_mode != m) v.Visibility = Visibility.Collapsed; });
